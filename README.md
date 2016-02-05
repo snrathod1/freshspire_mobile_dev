@@ -1,2 +1,2 @@
-# freshspire-api
-Discounts API for Freshspire, Inc.
+# freshspire
+Backend for Freshspire, Inc.
