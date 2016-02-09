@@ -16,8 +16,8 @@ os: linux
 #   may cause associated deployments to fail.
 
 files:
-  - source: /target/rest-api-freshspire.war
-    destination: /var/lib/tomcat8/webapps/
+#  - source: /target/rest-api-freshspire.war
+#    destination: /var/lib/tomcat8/webapps/
 
 # For deployments to Amazon Linux, Ubuntu Server, or RHEL instances,
 #   you can specify a "permissions" 
