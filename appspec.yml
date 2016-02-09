@@ -74,7 +74,6 @@ hooks:
 #   in the script specified in "location".
   BeforeInstall:
     - location: /codedeploy-scripts/before-install/before-install.sh
-      runas: ec2-user
 # During the AfterInstall deployment lifecycle event, run the commands 
 #   in the script specified in "location".
   AfterInstall:
