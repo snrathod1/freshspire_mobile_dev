@@ -15,7 +15,7 @@ os: linux
 #   "files" section altogether. A blank or incomplete "files" section
 #   may cause associated deployments to fail.
 
-files:
+#files:
 #  - source: /target/rest-api-freshspire.war
 #    destination: /var/lib/tomcat8/webapps/
 
@@ -69,7 +69,7 @@ hooks:
 # During the ApplicationStop deployment lifecycle event, run the commands 
 #   in the script specified in "location" starting from the root of the 
 #   revision's file bundle.
-  ApplicationStop:
+#  ApplicationStop:
 # During the BeforeInstall deployment lifecycle event, run the commands 
 #   in the script specified in "location".
   BeforeInstall:
@@ -78,10 +78,10 @@ hooks:
       runas: root
 # During the AfterInstall deployment lifecycle event, run the commands 
 #   in the script specified in "location".
-  AfterInstall:
+#  AfterInstall:
 # During the ApplicationInstall deployment lifecycle event, run the commands 
 #   in the script specified in "location".
-  ApplicationStart:
+#  ApplicationStart:
 # During the ValidateService deployment lifecycle event, run the commands 
 #   in the script specified in "location".
-  ValidateService:
+#  ValidateService:
