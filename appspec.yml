@@ -74,6 +74,8 @@ hooks:
 #   in the script specified in "location".
   BeforeInstall:
     - location: /codedeploy-scripts/before-install/before-install.sh
+      timeout: 300
+      runas: root
 # During the AfterInstall deployment lifecycle event, run the commands 
 #   in the script specified in "location".
   AfterInstall:
