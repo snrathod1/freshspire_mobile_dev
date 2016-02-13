@@ -39,7 +39,7 @@
     <beans:bean id="userDAO" class="com.freshspire.api.dao.UserDAOImpl">
         <beans:property name="sessionFactory" ref="sessionFactory" />
     </beans:bean>
-    <beans:bean id="loginServlet" class="com.freshspire.api.login.LoginServlet">
+    <beans:bean id="loginController" class="com.freshspire.api.controller.LoginController">
     </beans:bean>
     <beans:bean id="userService" class="com.freshspire.api.service.UserServiceImpl">
         <beans:property name="userDAO" ref="userDAO" />

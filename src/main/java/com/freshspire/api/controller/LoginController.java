@@ -1,4 +1,4 @@
-package com.freshspire.api.login;
+package com.freshspire.api.controller;
 
 import com.freshspire.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -6,17 +6,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServlet;
-
+/**
+ * Created by mitch on 2/13/16.
+ */
 @RestController
 @RequestMapping("/login")
-public class LoginServlet extends HttpServlet {
+public class LoginController {
 
     @Autowired
     private UserService userService;
 
     @RequestMapping(method = RequestMethod.GET)
     public String login() {
-        return "Working on this";
+        return "You're at the login controller";
     }
 }
