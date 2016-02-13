@@ -11,11 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
  * Created by aadisriram on 2/7/16.
  */
 @RestController
-@RequestMapping("/createuser")
+@RequestMapping("/createUser")
 public class CreateUserServlet {
 
-    @RequestMapping(value = "/{login_type}/{authId}", method = RequestMethod.GET, produces = "application/json")
-    public String hello(@PathVariable String authId) throws Exception {
+    @RequestMapping(value = "/login={login}&authId={authId}", method = RequestMethod.GET, produces = "application/json")
+    public String hello(@PathVariable String login, /* login type (Facebook, Google etc. */
+                        @PathVariable String authId)
+            throws Exception {
         HttpResponse response = Unirest.get("https://graph.facebook.com/me")
                             .queryString("access_token", authId)
                             .asString();
