@@ -10,18 +10,14 @@ public class ResponseUtil {
 
     private static Gson gson = new Gson();
 
-    public static JSONObject getStatusResponseString(String message, boolean success) {
-        JSONObject statusData = new JSONObject();
-        statusData.put("message", message);
-        statusData.put("success", success);
-
-        JSONObject status = new JSONObject();
-        status.put("status", statusData);
-
-        return status;
+    public static JSONObject getStatusResponseString(String message, String status) {
+        JSONObject statusObject = new JSONObject();
+        statusObject.put("message", message);
+        statusObject.put("status", status);
+        return statusObject;
     }
 
-    public static String getDataJson(Object object, Class userClass) {
+    public static String asJsonString(Object object, Class userClass) {
         return gson.toJson(object, userClass);
     }
 
