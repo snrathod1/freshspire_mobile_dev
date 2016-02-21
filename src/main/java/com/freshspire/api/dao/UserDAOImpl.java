@@ -42,11 +42,11 @@ public class UserDAOImpl implements UserDAO {
         logger.info("User deleted : " + user);
     }
 
-    public List<User> getUser(String userId) {
+    public User getUser(String userId) {
         Session session = this.sessionFactory.getCurrentSession();
         Query query = session.createQuery("from User U where U.userId = :userId");
         query.setParameter("userId", userId);
-        List<User> result = query.list();
+        User result = (User) query.uniqueResult();
 
         return result;
     }

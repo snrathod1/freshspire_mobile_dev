@@ -1,15 +1,44 @@
 package com.freshspire.api.model;
 
+import org.hibernate.annotations.Type;
+
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
-@Table(name="User")
+@Table(name="users")
 public class User {
 
     @Id
-    @Column(name="id")
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
-    private int id;
+    @Column(name="userId")
+    private String userId;
+
+    @Column(name="firstName")
+    private String firstName;
+
+    @Column(name="phoneNumber")
+    private String phoneNumber;
+
+    @Column(name="apiKey")
+    private String apiKey;
+
+    @Column(name="password")
+    private String password;
+
+    @Column(name="salt")
+    private String salt;
+
+    @Column(name="createdOn", columnDefinition="DATETIME")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdOn;
+
+    @Column(name="admin", columnDefinition = "TINYINT")
+    @Type(type = "org.hibernate.type.NumericBooleanType")
+    private boolean admin;
+
+    @Column(name="banned", columnDefinition = "TINYINT")
+    @Type(type = "org.hibernate.type.NumericBooleanType")
+    private boolean banned;
 
     public String getUserId() {
         return userId;
@@ -19,39 +48,72 @@ public class User {
         this.userId = userId;
     }
 
-    public int getId() {
-        return id;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public String getName() {
-        return name;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
-    public String getCountry() {
-        return country;
+    public String getApiKey() {
+        return apiKey;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
     }
 
-    private String userId;
+    public String getPassword() {
+        return password;
+    }
 
-    private String name;
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-    private String country;
+    public String getSalt() {
+        return salt;
+    }
 
+    public void setSalt(String salt) {
+        this.salt = salt;
+    }
+
+    public Date getCreatedOn() {
+        return createdOn;
+    }
+
+    public void setCreatedOn(Date createdOn) {
+        this.createdOn = createdOn;
+    }
+
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
+    }
+
+    public boolean isBanned() {
+        return banned;
+    }
+
+    public void setBanned(boolean banned) {
+        this.banned = banned;
+    }
 
     @Override
     public String toString(){
-        return "id="+id+", name="+name+", country="+country;
+        return "id="+userId+", name="+firstName;
     }
 }

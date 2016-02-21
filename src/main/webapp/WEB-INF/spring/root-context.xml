@@ -10,12 +10,16 @@
     <!-- For Spring annotations @Controller -->
     <annotation-driven />
 
+    <beans:bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <beans:property name="location" value="classpath:database.properties"/>
+    </beans:bean>
+
     <!-- JDBC Connection Parameters -->
     <beans:bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <beans:property name="driverClassName" value="com.mysql.jdbc.Driver" />
-        <beans:property name="url" value="jdbc:mysql://freshspiredb.cov114atcrdh.us-west-2.rds.amazonaws.com:3306" />
-        <beans:property name="username" value="fsdev" />
-        <beans:property name="password" value="eatyourveggies123" />
+        <beans:property name="driverClassName" value="${jdbc.driverClassName}" />
+        <beans:property name="url" value="${jdbc.url}" />
+        <beans:property name="username" value="${jdbc.username}" />
+        <beans:property name="password" value="${jdbc.password}" />
     </beans:bean>
 
     <!-- Hibernate 4 SessionFactory Bean definition -->

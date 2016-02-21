@@ -24,10 +24,12 @@ public class UserServiceImpl implements UserService {
         this.userDAO.updateUser(user);
     }
 
+    @Transactional
     public User getUserById(String userId) {
-        return null;
+        return this.userDAO.getUser(userId);
     }
 
+    @Transactional
     public void deleteUser(String userId, String authKey) {
         if (authenticateUser(userId, authKey)) {
             this.userDAO.deleteUser(userId);
