@@ -18,8 +18,8 @@ import java.util.Date;
 public class TempAuthController {
 
     // TODO this service breaks when used
-//    @Autowired
-//    private TempCredentialsService tempCredentialsService;
+    @Autowired
+    private TempCredentialsService tempCredentialsService;
 
     /**
      * POST /temp-auth
@@ -44,7 +44,7 @@ public class TempAuthController {
         tempCreds.setTempApiKey(PasswordUtil.generateApiKey());
 
         // Put it in the tempAuthCredentials table
-        //tempCredentialsService.addTempCredentials(tempCreds);
+        tempCredentialsService.addTempCredentials(tempCreds);
 
         Verification verification = AuthyClient.startAuthentication(params.getPhoneNumber());
 
