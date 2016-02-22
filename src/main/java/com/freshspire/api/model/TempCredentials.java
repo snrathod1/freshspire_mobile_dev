@@ -26,8 +26,8 @@ public class TempCredentials {
     @Type(type = "org.hibernate.type.NumericBooleanType")
     private boolean canUpdatePassword;
 
-    @Column(name = "confirmationCode")
-    private String confirmationCode;
+//    @Column(name = "confirmationCode")
+//    private String confirmationCode;
 
     @Column(name = "phoneNumber")
     private String phoneNumber;
@@ -64,13 +64,13 @@ public class TempCredentials {
         this.canUpdatePassword = canUpdatePassword;
     }
 
-    public String getConfirmationCode() {
-        return confirmationCode;
-    }
-
-    public void setConfirmationCode(String confirmationCode) {
-        this.confirmationCode = confirmationCode;
-    }
+//    public String getConfirmationCode() {
+//        return confirmationCode;
+//    }
+//
+//    public void setConfirmationCode(String confirmationCode) {
+//        this.confirmationCode = confirmationCode;
+//    }
 
     public String getPhoneNumber() {
         return phoneNumber;

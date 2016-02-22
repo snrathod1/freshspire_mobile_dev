@@ -2,8 +2,8 @@ package com.freshspire.api.service;
 
 import com.freshspire.api.dao.TempCredentialsDAO;
 import com.freshspire.api.model.TempCredentials;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 
 /**
  * Created by mitch on 2/21/16.

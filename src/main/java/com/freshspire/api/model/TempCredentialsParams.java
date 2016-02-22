@@ -22,7 +22,7 @@ public class TempCredentialsParams {
         return canCreateUser;
     }
 
-    public void setCanCreateUser(boolean canCreateUser) {
+    public void isCanCreateUser(boolean canCreateUser) {
         this.canCreateUser = canCreateUser;
     }
 
@@ -30,7 +30,7 @@ public class TempCredentialsParams {
         return canUpdatePassword;
     }
 
-    public void setCanUpdatePassword(boolean canUpdatePassword) {
+    public void CanUpdatePassword(boolean canUpdatePassword) {
         this.canUpdatePassword = canUpdatePassword;
     }
 }

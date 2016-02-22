@@ -29,6 +29,7 @@
         <beans:property name="annotatedClasses">
             <beans:list>
                 <beans:value>com.freshspire.api.model.User</beans:value>
+                <beans:value>com.freshspire.api.model.TempCredentials</beans:value>
             </beans:list>
         </beans:property>
         <beans:property name="hibernateProperties">
