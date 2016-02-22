@@ -64,9 +64,11 @@ public class UsersController {
         User newUser = new User();
         newUser.setPassword(userParams.getPassword());
         newUser.setApiKey(userParams.getApiKey());
-        newUser.setCreatedOn(new Date());
+        newUser.setCreated(new Date());
         newUser.setSalt(PasswordUtil.generateSaltString());
         newUser.setPassword(PasswordUtil.encryptString(password, newUser.getSalt()));
+
+        userService.addUser(newUser);
 
         // Modify user object a bit before it's put in the response
         newUser.setPassword(userParams.getPassword()); // TODO need this?
@@ -102,7 +104,10 @@ public class UsersController {
     @RequestMapping(value = "/create/{phoneNumber}", method = RequestMethod.GET, produces = "application/json")
     public String createUserWithPhone(@PathVariable String phoneNumber) {
         Verification verification = AuthyClient.startAuthentication(phoneNumber);
-        return ResponseUtil.getStatusResponseString(verification.getMessage(), verification.isOk() ? "ok" : "error").toString();
+
+        String status = (verification.isOk() ? "ok" : "error");
+
+        return ResponseUtil.getStatusResponseString(verification.getMessage(), status).toString();
     }
 
     /**

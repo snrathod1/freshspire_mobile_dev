@@ -1,7 +1,7 @@
 package com.freshspire.api.model;
 
 /**
- * Created by mitch on 2/21/16.
+ * This is the model for the request parameters
  */
 
 public class NewUserParams {

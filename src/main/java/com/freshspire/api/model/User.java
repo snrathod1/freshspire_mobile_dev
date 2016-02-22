@@ -28,9 +28,9 @@ public class User {
     @Column(name="salt")
     private String salt;
 
-    @Column(name="createdOn", columnDefinition="DATETIME")
+    @Column(name="created", columnDefinition="DATETIME")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date createdOn;
+    private Date created;
 
     @Column(name="admin", columnDefinition = "TINYINT")
     @Type(type = "org.hibernate.type.NumericBooleanType")
@@ -88,12 +88,12 @@ public class User {
         this.salt = salt;
     }
 
-    public Date getCreatedOn() {
-        return createdOn;
+    public Date getCreated() {
+        return created;
     }
 
-    public void setCreatedOn(Date createdOn) {
-        this.createdOn = createdOn;
+    public void setCreated(Date created) {
+        this.created = created;
     }
 
     public boolean isAdmin() {
