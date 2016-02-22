@@ -23,10 +23,10 @@ public class User {
     private String apiKey;
 
     @Column(name="password")
-    private String password;
+    private transient String password;
 
     @Column(name="salt")
-    private String salt;
+    private transient String salt;
 
     @Column(name="createdOn", columnDefinition="DATETIME")
     @Temporal(TemporalType.TIMESTAMP)
