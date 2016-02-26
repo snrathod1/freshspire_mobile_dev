@@ -22,19 +22,19 @@ public class UserDAOImpl implements UserDAO {
     }
 
     public void addUser(User user) {
-        Session session = this.sessionFactory.getCurrentSession();
+        Session session = getCurrentSession();
         session.persist(user);
         logger.info("User saved : " + user);
     }
 
     public void updateUser(User user) {
-        Session session = this.sessionFactory.getCurrentSession();
+        Session session = getCurrentSession();
         session.update(user);
         logger.info("User updated : " + user);
     }
 
     public void deleteUser(String userId) {
-        Session session = this.sessionFactory.getCurrentSession();
+        Session session = getCurrentSession();
         User user = (User) session.load(User.class, userId);
         if(null != user){
             session.delete(user);
@@ -42,12 +42,33 @@ public class UserDAOImpl implements UserDAO {
         logger.info("User deleted : " + user);
     }
 
+    public User getUserByPhoneNumber(String phoneNumber) {
+        Session session = getCurrentSession();
+        Query query = session.createQuery("from User U where U.phoneNumber = :phoneNumber");
+        query.setParameter("phoneNumber", phoneNumber);
+        User result = (User) query.uniqueResult();
+
+        return result;
+    }
+
+    public User getUserByApiKey(String apiKey) {
+        Session session = getCurrentSession();
+        Query query = session.createQuery("from User U where U.apiKey = :apiKey");
+        query.setParameter("apiKey", apiKey);
+        User result = (User) query.uniqueResult();
+        return result;
+    }
+
     public User getUser(String userId) {
-        Session session = this.sessionFactory.getCurrentSession();
+        Session session = getCurrentSession();
         Query query = session.createQuery("from User U where U.userId = :userId");
         query.setParameter("userId", userId);
         User result = (User) query.uniqueResult();
 
         return result;
+    }
+
+    private Session getCurrentSession() {
+        return this.sessionFactory.getCurrentSession();
     }
 }

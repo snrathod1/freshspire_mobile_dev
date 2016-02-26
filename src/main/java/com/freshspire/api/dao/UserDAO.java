@@ -8,4 +8,6 @@ public interface UserDAO {
     void updateUser(User user);
     User getUser(String userId);
     void deleteUser(String userId);
+    User getUserByPhoneNumber(String phoneNumber);
+    User getUserByApiKey(String apiKey);
 }

@@ -23,10 +23,10 @@ public class User {
     private String apiKey;
 
     @Column(name="password")
-    private transient String password;
+    private String password;
 
     @Column(name="salt")
-    private transient String salt;
+    private String salt;
 
     @Column(name="created", columnDefinition="DATETIME")
     @Temporal(TemporalType.TIMESTAMP)
@@ -39,6 +39,10 @@ public class User {
     @Column(name="banned", columnDefinition = "TINYINT")
     @Type(type = "org.hibernate.type.NumericBooleanType")
     private boolean banned;
+
+    @Column(name="restricted", columnDefinition = "TINYINT")
+    @Type(type = "org.hibernate.type.NumericBooleanType")
+    private boolean restricted;
 
     public String getUserId() {
         return userId;
@@ -110,6 +114,14 @@ public class User {
 
     public void setBanned(boolean banned) {
         this.banned = banned;
+    }
+
+    public boolean isRestricted() {
+        return restricted;
+    }
+
+    public void setRestricted(boolean restricted) {
+        this.restricted = restricted;
     }
 
     @Override

@@ -31,12 +31,32 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     public void deleteUser(String userId, String authKey) {
-        if (authenticateUser(userId, authKey)) {
-            this.userDAO.deleteUser(userId);
-        }
+        this.userDAO.deleteUser(userId);
     }
 
+    /**
+     * TODO: Implement this
+     * @param userId
+     * @param authKey
+     * @return
+     */
     public boolean authenticateUser(String userId, String authKey) {
         return false;
+    }
+
+    @Transactional
+    public boolean doesUserExistForNumber(String phoneNumber) {
+        User user = this.userDAO.getUserByPhoneNumber(phoneNumber);
+        return user == null ? false : true;
+    }
+
+    @Transactional
+    public User getUserByPhoneNumber(String phoneNumber) {
+        return this.userDAO.getUserByPhoneNumber(phoneNumber);
+    }
+
+    @Transactional
+    public User getUserByApiKey(String apiKey) {
+        return this.userDAO.getUserByApiKey(apiKey);
     }
 }
