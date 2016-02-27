@@ -133,6 +133,8 @@ public class UsersController {
     }
 
     /**
+     * GET /users/forgot-password/{phoneNumber}
+     *
      * Sends a message to the phone number to start the password reset process
      * @param phoneNumber
      * @return
@@ -147,6 +149,8 @@ public class UsersController {
     }
 
     /**
+     * PUT /forgot-password/
+     *
      * Verify the code and set the user to restricted mode if verification passes, this enables
      * users to reset password without providing the old password.
      * @param phoneNumberVerificationParams
@@ -173,6 +177,8 @@ public class UsersController {
     }
 
     /**
+     * POST /reset-password
+     *
      * Reset password for a user, two methods one by providing current and new password for a non restricted
      * account, the other is to provide only the new password for a restricted account.
      * @param resetPasswordParams
