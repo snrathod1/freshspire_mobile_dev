@@ -49,48 +49,39 @@ public class UsersController {
      * user object is returned.
      *
      * TODO validate firstName, phoneNumber, password, and apiKey before doing anything
-     * TODO when validating API key, should it only check temp_auth_creds table or also users table? Would an admin create a user?
      *
      * @return
      */
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
     public String createUser(@RequestBody NewUserParams userParams) {
 
-        // TODO Hibernate or Spring doesn't know what NewUserParams is ^^^
+        // TODO We can validate the params by checking them with userParams.<param> == null or whatever,
+        // and return an appropriate response code with http://stackoverflow.com/questions/16232833/
+        if(userParams.getPassword() == null
+                || userParams.getFirstName() == null
+                || userParams.getPhoneNumber() == null) {
+            return "{\"debug\": \"Invalid parameter! This should be returned with an error code\"}";
+
+        }
+
         String password = userParams.getPassword();
 
         // Make a new user object and populate its fields
         User newUser = new User();
-        newUser.setPassword(userParams.getPassword());
-        newUser.setApiKey(userParams.getApiKey());
+
+        // Set fields specified in request parameters
+        newUser.setFirstName(userParams.getFirstName());
+        newUser.setPhoneNumber(userParams.getPhoneNumber());
+
+        // Generate fields not in request parameters (API key, current time, etc.)
+        newUser.setApiKey(PasswordUtil.generateApiKey());
         newUser.setCreated(new Date());
         newUser.setSalt(PasswordUtil.generateSaltString());
         newUser.setPassword(PasswordUtil.encryptString(password, newUser.getSalt()));
 
-        userService.addUser(newUser);
-
-        // Modify user object a bit before it's put in the response
-        newUser.setPassword(userParams.getPassword()); // TODO need this?
-        newUser.setSalt(null); // TODO remove this field completely; try http://stackoverflow.com/questions/4802887
+        //userService.addUser(newUser);
 
         return ResponseUtil.asJsonString(newUser, User.class);
-    }
-
-    /**
-     * TODO need this?
-     *
-     * GET /users/auth/{userId}/{password}
-     * @param userId
-     * @param password
-     * @return
-     */
-    @RequestMapping(value = "/auth/{userId}/{password}", method = RequestMethod.GET, produces = "application/json")
-    public String authUser(@PathVariable String userId, @PathVariable String password) {
-        User user = userService.getUserById(userId);
-        return ResponseUtil.getStatusResponseString(
-                "Authenticating User",
-                PasswordUtil.matchPassword(password, user.getSalt(), user.getPassword()) ? "ok" : "error"
-        ).toString();
     }
 
     /**
@@ -103,33 +94,6 @@ public class UsersController {
     @RequestMapping(value = "/create/{phoneNumber}", method = RequestMethod.GET, produces = "application/json")
     public String createUserWithPhone(@PathVariable String phoneNumber) {
         return sendVerificationMessage(phoneNumber);
-    }
-
-    /**
-     * TODO need this?
-     *
-     * GET /users/verify/{phoneNumber}/{authCode}
-     * @param phoneNumber
-     * @param authCode
-     * @return
-     */
-    @RequestMapping(value = "/verify/{phoneNumber}/{authCode}", method = RequestMethod.GET, produces = "application/json")
-    public String verifyNumber(@PathVariable String phoneNumber, @PathVariable String authCode) {
-        Verification verification = AuthyClient.checkAuthentication(phoneNumber, authCode);
-        return ResponseUtil.getStatusResponseString(verification.getMessage(), verification.isOk() ? "ok" : "error").toString();
-    }
-
-    /**
-     * GET /users/{userId}
-     *
-     * TODO handle bad request (api key invalid, etc.)
-     *
-     * @param userId
-     * @return
-     */
-    @RequestMapping(value = "/{userId}", method = RequestMethod.GET, produces = "application/json")
-    public String getUserById(@PathVariable String userId) {
-        return gson.toJson(userService.getUserById(userId));
     }
 
     /**
@@ -149,7 +113,7 @@ public class UsersController {
     }
 
     /**
-     * PUT /forgot-password/
+     * PUT /users/forgot-password/
      *
      * Verify the code and set the user to restricted mode if verification passes, this enables
      * users to reset password without providing the old password.
@@ -158,10 +122,14 @@ public class UsersController {
      */
     @RequestMapping(value = "/forgot-password", method = RequestMethod.PUT, produces = "application/json")
     public String verifyCodeForPasswordReset(@RequestBody PhoneNumberVerificationParams phoneNumberVerificationParams) {
+        // Check with Authy if the code was correct
         Verification verification = AuthyClient.checkAuthentication(
                 phoneNumberVerificationParams.getPhoneNumber(),
                 phoneNumberVerificationParams.getVerificationCode());
+
+        // If it is...
         if (verification.isOk()) {
+            // Set the user associated with the phone number to restricted: true
             User user = userService.getUserByPhoneNumber(phoneNumberVerificationParams.getPhoneNumber());
             user.setRestricted(true);
             userService.updateUser(user);

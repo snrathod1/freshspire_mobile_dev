@@ -35,13 +35,15 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * TODO: Implement this
      * @param userId
-     * @param authKey
+     * @param apiKey
      * @return
      */
-    public boolean authenticateUser(String userId, String authKey) {
-        return false;
+    public boolean authenticateUser(String userId, String apiKey) {
+        User userByApiKey = this.userDAO.getUserByApiKey(apiKey);
+        User userByUserId = this.userDAO.getUser(userId);
+
+        return userByApiKey == userByUserId;
     }
 
     @Transactional
