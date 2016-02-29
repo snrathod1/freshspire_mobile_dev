@@ -53,25 +53,25 @@ public class UsersController {
      * @return
      */
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
-    public String createUser(@RequestBody NewUserParams userParams) {
+    public String createUser(@RequestBody NewUserParams params) {
 
-        // TODO We can validate the params by checking them with userParams.<param> == null or whatever,
+        // TODO We can validate the params by checking them with the NewUserParams obj in the argument.<param> == null or whatever,
         // and return an appropriate response code with http://stackoverflow.com/questions/16232833/
-        if(userParams.getPassword() == null
-                || userParams.getFirstName() == null
-                || userParams.getPhoneNumber() == null) {
+        if(params.getPassword() == null
+                || params.getFirstName() == null
+                || params.getPhoneNumber() == null) {
             return "{\"debug\": \"Invalid parameter! This should be returned with an error code\"}";
 
         }
 
-        String password = userParams.getPassword();
+        String password = params.getPassword();
 
         // Make a new user object and populate its fields
         User newUser = new User();
 
         // Set fields specified in request parameters
-        newUser.setFirstName(userParams.getFirstName());
-        newUser.setPhoneNumber(userParams.getPhoneNumber());
+        newUser.setFirstName(params.getFirstName());
+        newUser.setPhoneNumber(params.getPhoneNumber());
 
         // Generate fields not in request parameters (API key, current time, etc.)
         newUser.setApiKey(PasswordUtil.generateApiKey());
@@ -104,8 +104,8 @@ public class UsersController {
      * @return
      */
     @RequestMapping(value = "/forgot-password/{phoneNumber}", method = RequestMethod.GET, produces = "application/json")
-    public String verifyNumberForPasswordReset(@PathVariable String phoneNumber) {
-        if (userService.getUserByPhoneNumber(phoneNumber) == null) {
+    public String sendCodeForPasswordReset(@PathVariable String phoneNumber) {
+        if (userService.getUserByPhoneNumber(phoneNumber) != null) {
             return sendVerificationMessage(phoneNumber);
         } else {
             return ResponseUtil.getStatusResponseString("No account for that phone number", "error").toString();
@@ -117,20 +117,20 @@ public class UsersController {
      *
      * Verify the code and set the user to restricted mode if verification passes, this enables
      * users to reset password without providing the old password.
-     * @param phoneNumberVerificationParams
+     * @param params
      * @return user json with status message
      */
     @RequestMapping(value = "/forgot-password", method = RequestMethod.PUT, produces = "application/json")
-    public String verifyCodeForPasswordReset(@RequestBody PhoneNumberVerificationParams phoneNumberVerificationParams) {
+    public String verifyCodeForPasswordReset(@RequestBody PhoneNumberVerificationParams params) {
         // Check with Authy if the code was correct
         Verification verification = AuthyClient.checkAuthentication(
-                phoneNumberVerificationParams.getPhoneNumber(),
-                phoneNumberVerificationParams.getVerificationCode());
+                params.getPhoneNumber(),
+                params.getVerificationCode());
 
         // If it is...
         if (verification.isOk()) {
             // Set the user associated with the phone number to restricted: true
-            User user = userService.getUserByPhoneNumber(phoneNumberVerificationParams.getPhoneNumber());
+            User user = userService.getUserByPhoneNumber(params.getPhoneNumber());
             user.setRestricted(true);
             userService.updateUser(user);
 
@@ -139,9 +139,9 @@ public class UsersController {
                 ResponseUtil.getStatusResponseString("user verified", "success"),
                 gson.toJson(user)
             ).toString();
+        } else {
+            return ResponseUtil.getStatusResponseString(verification.getMessage(), verification.getSuccess()).toString();
         }
-
-        return ResponseUtil.getStatusResponseString(verification.getMessage(), verification.getSuccess()).toString();
     }
 
     /**
@@ -149,15 +149,15 @@ public class UsersController {
      *
      * Reset password for a user, two methods one by providing current and new password for a non restricted
      * account, the other is to provide only the new password for a restricted account.
-     * @param resetPasswordParams
+     * @param params
      * @return status of password reset
      */
     @RequestMapping(value = "/reset-password", method = RequestMethod.POST, produces = "application/json")
-    public String resetPassword(@RequestBody ResetPasswordParams resetPasswordParams) {
-        User user = userService.getUserByApiKey(resetPasswordParams.getApiKey());
+    public String resetPassword(@RequestBody ResetPasswordParams params) {
+        User user = userService.getUserByApiKey(params.getApiKey());
 
-        if (isValidCase(user, resetPasswordParams)) {
-            user.setPassword(PasswordUtil.encryptString(resetPasswordParams.getNewPassword(), user.getSalt()));
+        if (isValidCase(user, params)) {
+            user.setPassword(PasswordUtil.encryptString(params.getNewPassword(), user.getSalt()));
             user.setRestricted(false);
             userService.updateUser(user);
 
@@ -170,19 +170,19 @@ public class UsersController {
     /**
      * Checks if conditions are satisfied for updating password with just provided data
      * @param user
-     * @param resetPasswordParams
+     * @param params
      * @return if this is a valid case to change password
      */
-    private boolean isValidCase(User user, ResetPasswordParams resetPasswordParams) {
+    private boolean isValidCase(User user, ResetPasswordParams params) {
 
         /* If the user is not restricted and a current password is provided */
-        if (!user.isRestricted() && resetPasswordParams.getCurrentPassword() != null) {
+        if (!user.isRestricted() && params.getCurrentPassword() != null) {
 
             /* Authenticate user and return result */
-            return PasswordUtil.matchPassword(resetPasswordParams.getCurrentPassword(), user.getSalt(), user.getPassword());
+            return PasswordUtil.matchPassword(params.getCurrentPassword(), user.getSalt(), user.getPassword());
         }
         /* If the user is restricted and no current password has been provided */
-        else if (user.isRestricted() && resetPasswordParams.getCurrentPassword() == null) {
+        else if (user.isRestricted() && params.getCurrentPassword() == null) {
             return true;
         }
 
