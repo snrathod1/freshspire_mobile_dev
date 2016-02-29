@@ -47,12 +47,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional
-    public boolean doesUserExistForNumber(String phoneNumber) {
-        User user = this.userDAO.getUserByPhoneNumber(phoneNumber);
-        return user == null ? false : true;
-    }
-
-    @Transactional
     public User getUserByPhoneNumber(String phoneNumber) {
         return this.userDAO.getUserByPhoneNumber(phoneNumber);
     }

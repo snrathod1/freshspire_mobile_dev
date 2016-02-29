@@ -105,7 +105,7 @@ public class UsersController {
      */
     @RequestMapping(value = "/forgot-password/{phoneNumber}", method = RequestMethod.GET, produces = "application/json")
     public String verifyNumberForPasswordReset(@PathVariable String phoneNumber) {
-        if (userService.doesUserExistForNumber(phoneNumber)) {
+        if (userService.getUserByPhoneNumber(phoneNumber) == null) {
             return sendVerificationMessage(phoneNumber);
         } else {
             return ResponseUtil.getStatusResponseString("No account for that phone number", "error").toString();

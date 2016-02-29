@@ -9,7 +9,6 @@ public interface UserService {
     User getUserById(String userId);
     void deleteUser(String userId, String authKey);
     boolean authenticateUser(String userId, String authKey);
-    boolean doesUserExistForNumber(String phoneNumber);
     User getUserByPhoneNumber(String phoneNumber);
     User getUserByApiKey(String apiKey);
 }
