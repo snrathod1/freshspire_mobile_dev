@@ -1,5 +1,6 @@
 package com.freshspire.api.controller;
 
+import com.freshspire.api.model.ResponseMessage;
 import com.freshspire.api.model.params.LoginParams;
 import com.freshspire.api.model.User;
 import com.freshspire.api.service.UserService;
@@ -9,6 +10,8 @@ import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -40,19 +43,29 @@ public class LoginController {
      * @return The user object (if phone/pass were correct)
      */
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
-    public String loginWithApiKey(@RequestBody LoginParams params) {
+    public ResponseEntity<String> loginWithPhoneAndPassword(@RequestBody LoginParams params) {
+        // Try to get the user by their phone number
         User user = userService.getUserByPhoneNumber(params.getPhoneNumber());
+
+        // If there's no user for that phone number...
         if(user == null) {
-            return "{\"debug\": \"Invalid parameter! This should be returned with an error code\"}";
+            ResponseMessage res = new ResponseMessage("error", "Bad request");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseUtil.asJsonString(res, ResponseMessage.class));
         }
 
         // Check that the password matches
         String inputPasswordHashed = PasswordUtil.encryptString(params.getPassword(), user.getSalt());
 
+        // If it does...
         if(inputPasswordHashed.equals(user.getPassword())) {
-            return ResponseUtil.asJsonString(user, User.class);
+
+            // Return the user
+            return ResponseUtil.ok(user);
         } else {
-            return "{\"debug\": \"Password didn't match! This should be returned with an error code\"}";
+
+            // Password invalid, return 400 Bad Request
+            ResponseMessage res = new ResponseMessage("error", "Bad request");
+            return ResponseUtil.badRequest(res);
         }
 
     }
