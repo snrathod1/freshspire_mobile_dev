@@ -1,4 +1,4 @@
-package com.freshspire.api.model;
+package com.freshspire.api.model.params;
 
 /**
  * This is the model for the request parameters

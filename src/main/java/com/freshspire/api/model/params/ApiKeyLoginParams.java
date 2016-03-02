@@ -1,4 +1,4 @@
-package com.freshspire.api.model;
+package com.freshspire.api.model.params;
 
 /**
  * com.freshspire.api.model

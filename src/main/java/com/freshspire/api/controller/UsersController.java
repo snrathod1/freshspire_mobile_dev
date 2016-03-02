@@ -2,9 +2,9 @@ package com.freshspire.api.controller;
 
 import com.authy.api.Verification;
 import com.freshspire.api.client.AuthyClient;
-import com.freshspire.api.model.NewUserParams;
-import com.freshspire.api.model.PhoneNumberVerificationParams;
-import com.freshspire.api.model.ResetPasswordParams;
+import com.freshspire.api.model.params.NewUserParams;
+import com.freshspire.api.model.params.PhoneNumberVerificationParams;
+import com.freshspire.api.model.params.ResetPasswordParams;
 import com.freshspire.api.model.User;
 import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.PasswordUtil;

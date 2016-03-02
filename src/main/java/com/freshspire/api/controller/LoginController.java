@@ -1,7 +1,6 @@
 package com.freshspire.api.controller;
 
-import com.freshspire.api.model.ApiKeyLoginParams;
-import com.freshspire.api.model.LoginParams;
+import com.freshspire.api.model.params.LoginParams;
 import com.freshspire.api.model.User;
 import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.PasswordUtil;
