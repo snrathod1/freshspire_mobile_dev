@@ -109,7 +109,7 @@ public class UsersController {
         newUser.setSalt(PasswordUtil.generateSaltString());
         newUser.setPassword(PasswordUtil.encryptString(password, newUser.getSalt()));
 
-        //userService.addUser(newUser);
+        userService.addUser(newUser);
 
         return ResponseUtil.ok(newUser);
     }

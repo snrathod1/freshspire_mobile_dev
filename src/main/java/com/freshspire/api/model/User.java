@@ -1,8 +1,10 @@
 package com.freshspire.api.model;
 
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.*;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.util.Date;
 
 @Entity
@@ -11,6 +13,7 @@ public class User {
 
     @Id
     @Column(name="userId")
+    @GeneratedValue
     private String userId;
 
     @Column(name="firstName")
