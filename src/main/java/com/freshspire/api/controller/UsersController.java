@@ -2,6 +2,7 @@ package com.freshspire.api.controller;
 
 import com.authy.api.Verification;
 import com.freshspire.api.client.AuthyClient;
+import com.freshspire.api.model.ResponseMessage;
 import com.freshspire.api.model.params.NewUserParams;
 import com.freshspire.api.model.params.PhoneNumberVerificationParams;
 import com.freshspire.api.model.params.ResetPasswordParams;
@@ -13,6 +14,7 @@ import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -32,38 +34,66 @@ public class UsersController {
     private static final Logger logger = LoggerFactory.getLogger(UsersController.class);
 
     /**
-     * GET /users
+     * GET /users/create
+     *
      * @return
      */
-    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
-    public String getUsers() {
-        return "{ \"message\": \"You're at the /users controller. Nothing here!\" }";
+    @RequestMapping(value = "/create", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<String> getNewUserVerificationCode(@RequestParam String phoneNumber) {
+
+        // If phone is null
+        if(phoneNumber == null) {
+            ResponseMessage error = new ResponseMessage("error", "Phone number is invalid");
+            return ResponseUtil.badRequest(error);
+        }
+
+        Verification verification = AuthyClient.startAuthentication(phoneNumber);
+        if(!verification.isOk()) {
+            ResponseMessage error = new ResponseMessage("error",
+                    "Could not send verification code. Is phone number formatted correctly?");
+            return ResponseUtil.badRequest(error);
+        }
+
+        ResponseMessage res = new ResponseMessage("ok", "Message sent to " + phoneNumber);
+        return ResponseUtil.ok(res);
     }
 
     /**
-     * POST /users
+     * POST /users/create
      *
      * This creates a user. There are two requests required; the first has a phone number and password,
      * and sending that request sends a code to the phone number provided. The second request includes the phone
      * number, password, AND the confirmation code. Once this second request is received, the user is created and the
      * user object is returned.
      *
-     * TODO validate firstName, phoneNumber, password, and apiKey before doing anything
-     *
      * @return
      */
-    @RequestMapping(method = RequestMethod.POST, produces = "application/json")
-    public String createUser(@RequestBody NewUserParams params) {
+    @RequestMapping(value = "/create",method = RequestMethod.POST, produces = "application/json")
+    public ResponseEntity<String> createUser(@RequestBody NewUserParams params) {
 
-        // TODO We can validate the params by checking them with the NewUserParams obj in the argument.<param> == null or whatever,
-        // and return an appropriate response code with http://stackoverflow.com/questions/16232833/
+        String code = params.getConfirmationCode();
+
+        if(code == null) {
+            ResponseMessage res = new ResponseMessage("error", "Please include confirmation code");
+            return ResponseUtil.badRequest(res);
+        }
+
+        Verification verification = AuthyClient.checkAuthentication(params.getPhoneNumber(), code);
+
+        if(!verification.isOk()) {
+            ResponseMessage res = new ResponseMessage("error", "Invalid confirmation code");
+            return ResponseUtil.badRequest(res);
+        }
+
+        // Verification was good, so now validate new user params and then create the user
         if(params.getPassword() == null
                 || params.getFirstName() == null
                 || params.getPhoneNumber() == null) {
-            return "{\"debug\": \"Invalid parameter! This should be returned with an error code\"}";
-
+            ResponseMessage res = new ResponseMessage("error", "Invalid request parameters");
+            return ResponseUtil.badRequest(res);
         }
 
+        // New user params were valid, so now create user object, insert into DB, and return it.
         String password = params.getPassword();
 
         // Make a new user object and populate its fields
@@ -81,19 +111,7 @@ public class UsersController {
 
         //userService.addUser(newUser);
 
-        return ResponseUtil.asJsonString(newUser, User.class);
-    }
-
-    /**
-     * TODO need this?
-     *
-     * GET /users/create/{phoneNumber}
-     * @param phoneNumber
-     * @return
-     */
-    @RequestMapping(value = "/create/{phoneNumber}", method = RequestMethod.GET, produces = "application/json")
-    public String createUserWithPhone(@PathVariable String phoneNumber) {
-        return sendVerificationMessage(phoneNumber);
+        return ResponseUtil.ok(newUser);
     }
 
     /**

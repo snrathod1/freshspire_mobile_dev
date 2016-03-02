@@ -32,8 +32,8 @@ public class ResponseUtil {
 
     /**
      * Returns a ResponseEntity with status 400 Bad Request and a response body of res in JSON format
-     * @param res The desired response content (such as a response message like "message": "bad request")
-     * @return The response entity
+     * @param res The desired response content (such as an error message "status": "error", "message": "...")
+     * @return A 400 Bad Request response with the json representation of res in the body
      */
     public static <E> ResponseEntity<String> badRequest(E res) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(asJsonString(res, res.getClass()));
@@ -41,8 +41,8 @@ public class ResponseUtil {
 
     /**
      * Returns a ResponseEntity with status 200 OK and a response body of res in JSON format
-     * @param res The desired response content
-     * @return The response entity
+     * @param res The desired response content (such as an ok message "status": "ok", "message": "...")
+     * @return A 200 OK response with the json representation of res in the body
      */
     public static <E> ResponseEntity<String> ok(E res) {
         return ResponseEntity.ok().body(asJsonString(res, res.getClass()));

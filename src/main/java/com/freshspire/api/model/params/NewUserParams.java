@@ -13,7 +13,7 @@ public class NewUserParams {
 
     private String password;
 
-    private String apiKey;
+    private String confirmationCode;
 
     // Methods
 
@@ -41,12 +41,12 @@ public class NewUserParams {
         this.password = password;
     }
 
-    public String getApiKey() {
-        return apiKey;
+    public String getConfirmationCode() {
+        return confirmationCode;
     }
 
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
+    public void setConfirmationCode(String confirmationCode) {
+        this.confirmationCode = confirmationCode;
     }
 
 
