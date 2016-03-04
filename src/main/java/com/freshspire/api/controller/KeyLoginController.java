@@ -26,12 +26,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/users/key-login")
 public class KeyLoginController {
 
-    @Autowired
     private UserService userService;
 
     private static Gson gson = new Gson();
 
     private static final Logger logger = LoggerFactory.getLogger(KeyLoginController.class);
+
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
 
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
     public ResponseEntity<String> loginWithApiKey(@RequestBody ApiKeyLoginParams params) {

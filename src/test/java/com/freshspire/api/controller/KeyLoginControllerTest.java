@@ -1,14 +1,18 @@
 package com.freshspire.api.controller;
 
-import com.freshspire.api.model.ApiKeyLoginParams;
+import com.freshspire.api.model.ResponseMessage;
 import com.freshspire.api.model.User;
+import com.freshspire.api.model.params.ApiKeyLoginParams;
 import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.ResponseUtil;
-import org.junit.*;
-import static org.junit.Assert.*;
+import com.google.gson.Gson;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.http.ResponseEntity;
 
 import java.util.Date;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -17,11 +21,15 @@ import static org.mockito.Mockito.when;
  *
  * @created 2/29/16.
  */
-public class LoginControllerTest {
+public class KeyLoginControllerTest {
 
     private User user;
 
     private UserService mockUserService;
+
+    private KeyLoginController keyLoginController;
+
+    private Gson gson = new Gson();
 
     private User makeDummyUser() {
         User user = new User();
@@ -50,21 +58,23 @@ public class LoginControllerTest {
     @Before
     public void setUp() {
         user = makeDummyUser();
-        mockUserService = makeDummyUserService(user);
-
-        when(mockUserService.getUserByApiKey(user.getApiKey())).thenReturn(user);
+        mockUserService = mock(UserService.class);
+        keyLoginController = new KeyLoginController();
     }
 
     @Test
     public void testLoginWithApiKey() {
-        LoginController lc = new LoginController();
-        // TODO inject UserService dependency
-
-        String correct = ResponseUtil.asJsonString(user, User.class);
+        // Setup
+        when(mockUserService.getUserByApiKey(user.getApiKey())).thenReturn(user);
+        keyLoginController.setUserService(mockUserService);
+        ResponseEntity<String> expectedUser = ResponseEntity.ok().body(gson.toJson(user, user.getClass()));
         ApiKeyLoginParams params = new ApiKeyLoginParams();
         params.setApiKey(user.getApiKey());
 
-        // This fails at the moment since UserService dependency is not injected
-        assertEquals(correct, lc.loginWithApiKey(params));
+        // Exercise
+        ResponseEntity<String> actualUser = keyLoginController.loginWithApiKey(params);
+
+        // Verify
+        assertEquals(expectedUser, actualUser);
     }
 }
