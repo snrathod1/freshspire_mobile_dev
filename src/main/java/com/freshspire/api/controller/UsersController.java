@@ -26,12 +26,25 @@ import java.util.Date;
 @RequestMapping("/users")
 public class UsersController {
 
-    @Autowired
     private UserService userService;
 
     private static Gson gson = new Gson();
 
     private static final Logger logger = LoggerFactory.getLogger(UsersController.class);
+
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    /**
+     * GET /users/debug
+     */
+    @RequestMapping(value = "/debug", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<String> getUsers() {
+        ResponseMessage res = new ResponseMessage("ok", "Users endpoint is up");
+        return ResponseUtil.ok(res);
+    }
 
     /**
      * GET /users/create
