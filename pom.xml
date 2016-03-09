@@ -30,17 +30,19 @@
       <version>3.0.1</version>
       <scope>provided</scope>
     </dependency>
-    <!-- Spring -->
+    <!-- Spring Core -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
       <version>${spring.version}</version>
     </dependency>
+    <!-- Spring web MVC -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
       <version>${spring.version}</version>
     </dependency>
+    <!-- Spring TX -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-tx</artifactId>
@@ -65,6 +67,7 @@
       <version>${hibernate.version}</version>
       <scope>compile</scope>
     </dependency>
+    <!-- Hibernate entity manager -->
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-entitymanager</artifactId>
