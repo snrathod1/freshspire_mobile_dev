@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     public User getUserById(String userId) {
-        return this.userDAO.getUser(userId);
+        return this.userDAO.getUserById(userId);
     }
 
     @Transactional
@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
      */
     public boolean authenticateUser(String userId, String apiKey) {
         User userByApiKey = this.userDAO.getUserByApiKey(apiKey);
-        User userByUserId = this.userDAO.getUser(userId);
+        User userByUserId = this.userDAO.getUserById(userId);
 
         return userByApiKey == userByUserId;
     }
