@@ -59,13 +59,20 @@ public class UserDAOImpl implements UserDAO {
         return result;
     }
 
-    public User getUser(String userId) {
+    public User getUserById(String userId) {
         Session session = getCurrentSession();
         Query query = session.createQuery("from User U where U.userId = :userId");
         query.setParameter("userId", userId);
         User result = (User) query.uniqueResult();
 
         return result;
+    }
+
+    public List<User> getAdmins() {
+        Session session = getCurrentSession();
+        Query query = session.createQuery("from User U where U.admin = :admin");
+        query.setParameter("admin", new Boolean(true));
+        return query.list();
     }
 
     private Session getCurrentSession() {

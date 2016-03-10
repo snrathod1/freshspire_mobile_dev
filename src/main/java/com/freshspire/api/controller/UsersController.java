@@ -42,7 +42,7 @@ public class UsersController {
      */
     @RequestMapping(value = "/debug", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<String> getUsers() {
-        ResponseMessage res = new ResponseMessage("ok", "Users endpoint is up");
+        ResponseMessage res = new ResponseMessage("ok", "Users endpoint is up. userService is: " + userService);
         return ResponseUtil.ok(res);
     }
 
