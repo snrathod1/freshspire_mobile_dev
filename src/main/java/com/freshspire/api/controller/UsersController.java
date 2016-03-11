@@ -19,14 +19,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 
-/**
- * Created by reesjones on 2/13/16.
- */
 @RestController
 @RequestMapping("/users")
 public class UsersController {
 
     private UserService userService;
+
+    private AuthyClient authyClient;
 
     private static Gson gson = new Gson();
 
@@ -37,12 +36,17 @@ public class UsersController {
         this.userService = userService;
     }
 
+    @Autowired
+    public void setAuthyClient(AuthyClient authyClient) {
+        this.authyClient = authyClient;
+    }
+
     /**
      * GET /users/debug
      */
     @RequestMapping(value = "/debug", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<String> getUsers() {
-        ResponseMessage res = new ResponseMessage("ok", "Users endpoint is up. userService is: " + userService);
+        ResponseMessage res = new ResponseMessage("ok", "Users endpoint is up. authyClient is: " + authyClient);
         return ResponseUtil.ok(res);
     }
 
@@ -58,30 +62,34 @@ public class UsersController {
         if(phoneNumber == null) {
             ResponseMessage error = new ResponseMessage("error", "Phone number is invalid");
             return ResponseUtil.badRequest(error);
+        } else if(phoneNumber.length() == 0) {
+            ResponseMessage error = new ResponseMessage("error", "Phone number is empty");
+            return ResponseUtil.badRequest(error);
         }
 
-        Verification verification = AuthyClient.startAuthentication(phoneNumber);
+        Verification verification = authyClient.startAuthentication(phoneNumber);
+
         if(!verification.isOk()) {
             ResponseMessage error = new ResponseMessage("error",
                     "Could not send verification code. Is phone number formatted correctly?");
             return ResponseUtil.badRequest(error);
         }
 
-        ResponseMessage res = new ResponseMessage("ok", "Message sent to " + phoneNumber);
+        ResponseMessage res = new ResponseMessage("ok", "Verification code sent to " + phoneNumber);
         return ResponseUtil.ok(res);
     }
 
     /**
      * POST /users/create
      *
-     * This creates a user. There are two requests required; the first has a phone number and password,
-     * and sending that request sends a code to the phone number provided. The second request includes the phone
-     * number, password, AND the confirmation code. Once this second request is received, the user is created and the
-     * user object is returned.
+     * This creates a user. There are two requests required (this is the first one); the first has a
+     * phone number and password, and sending that request sends a code to the phone number provided.
+     * The second request includes the phone number, password, AND the confirmation code. Once this
+     * second request is received, the user is created and the user object is returned.
      *
      * @return
      */
-    @RequestMapping(value = "/create",method = RequestMethod.POST, produces = "application/json")
+    @RequestMapping(value = "/create", method = RequestMethod.POST, produces = "application/json")
     public ResponseEntity<String> createUser(@RequestBody NewUserParams params) {
 
         String code = params.getConfirmationCode();
@@ -91,7 +99,7 @@ public class UsersController {
             return ResponseUtil.badRequest(res);
         }
 
-        Verification verification = AuthyClient.checkAuthentication(params.getPhoneNumber(), code);
+        Verification verification = authyClient.checkAuthentication(params.getPhoneNumber(), code);
 
         if(!verification.isOk()) {
             ResponseMessage res = new ResponseMessage("error", "Invalid confirmation code");
@@ -100,6 +108,7 @@ public class UsersController {
 
         // Verification was good, so now validate new user params and then create the user
         if(params.getPassword() == null
+                || params.getPassword().length() == 0
                 || params.getFirstName() == null
                 || params.getPhoneNumber() == null) {
             ResponseMessage res = new ResponseMessage("error", "Invalid request parameters");
@@ -154,7 +163,7 @@ public class UsersController {
     @RequestMapping(value = "/forgot-password", method = RequestMethod.PUT, produces = "application/json")
     public String verifyCodeForPasswordReset(@RequestBody PhoneNumberVerificationParams params) {
         // Check with Authy if the code was correct
-        Verification verification = AuthyClient.checkAuthentication(
+        Verification verification = authyClient.checkAuthentication(
                 params.getPhoneNumber(),
                 params.getVerificationCode());
 
@@ -221,7 +230,7 @@ public class UsersController {
     }
 
     private String sendVerificationMessage(String phoneNumber) {
-        Verification verification = AuthyClient.startAuthentication(phoneNumber);
+        Verification verification = authyClient.startAuthentication(phoneNumber);
         String status = (verification.isOk() ? "ok" : "error");
 
         return ResponseUtil.getStatusResponseString(verification.getMessage(), status).toString();
