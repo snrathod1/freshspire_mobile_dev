@@ -43,7 +43,7 @@ public class UsersControllerTest {
     private static final String VALID_PASSWORD = "A valid password";
     private static final String VALID_SALT = "salt";
     private static final String VALID_PHONE_NUMBER = "1234567890";
-    private static final String VALID_VALIDATION_CODE = "0000";
+    private static final String VALID_VERIFICATION_CODE = "0000";
 
     @Before
     public void setUp() {
@@ -173,16 +173,16 @@ public class UsersControllerTest {
                 "", // This is invalid
                 VALID_PHONE_NUMBER,
                 VALID_PASSWORD,
-                VALID_VALIDATION_CODE);
+                VALID_VERIFICATION_CODE);
         NewUserParams emptyPasswordParams = new NewUserParams(
                 VALID_FIRST_NAME,
                 VALID_PHONE_NUMBER,
                 "", // This is invalid (empty password)
-                VALID_VALIDATION_CODE);
+                VALID_VERIFICATION_CODE);
 
         // Set up mock authy client behavior (should never be called since there are empty params)
         Verification mockAuthentication = mock(Verification.class);
-        when(mockAuthyClient.checkAuthentication(VALID_PHONE_NUMBER, VALID_VALIDATION_CODE))
+        when(mockAuthyClient.checkAuthentication(VALID_PHONE_NUMBER, VALID_VERIFICATION_CODE))
                 .thenReturn(mockAuthentication);
         when(mockAuthentication.isOk()).thenReturn(true);
 
@@ -248,7 +248,30 @@ public class UsersControllerTest {
      */
     @Test
     public void validParametersShouldCreateNewUser() throws Exception {
-        fail("Unwritten test"); // TODO
+        // Set up test params and mock authy/user service objects
+        NewUserParams params = new NewUserParams(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_PASSWORD, VALID_VERIFICATION_CODE);
+        Verification mockVerification = mock(Verification.class);
+        when(mockAuthyClient.checkAuthentication(VALID_PHONE_NUMBER, VALID_VERIFICATION_CODE)).thenReturn(mockVerification);
+        when(mockVerification.isOk()).thenReturn(true);
+
+        // Expected
+        JsonObject newUser = new JsonObject();
+        newUser.addProperty("userId", VALID_USER_ID);
+        newUser.addProperty("apiKey", VALID_API_KEY);
+        newUser.addProperty("firstName", VALID_FIRST_NAME);
+        newUser.addProperty("phoneNumber", VALID_PHONE_NUMBER);
+        ResponseEntity expected = ResponseEntity.status(HttpStatus.CREATED).body(new Gson().toJson(newUser));
+
+        // Actual
+        ResponseEntity actual = usersController.createUser(params);
+
+        // Verify that authy was called, user service was called, and HTTP response is correct
+        verify(mockAuthyClient).checkAuthentication(VALID_PHONE_NUMBER, VALID_VERIFICATION_CODE);
+        verify(mockUserService).addUser(any(User.class)); // TODO this doesn't check that user is CORRECTLY added to DB. Look into spy objects for sln.
+        assertEquals("HTTP status code should be 201 OK",
+                expected.getStatusCode(), actual.getStatusCode());
+        assertEquals("Response body is incorrect",
+                expected.getBody(), actual.getBody());
     }
 
     /**
@@ -323,7 +346,7 @@ public class UsersControllerTest {
         // Set up parameters
         PhoneNumberVerificationParams validParams = new PhoneNumberVerificationParams(
                 VALID_PHONE_NUMBER,
-                VALID_VALIDATION_CODE,
+                VALID_VERIFICATION_CODE,
                 "newPassword"
         );
         // Set up mock responses
@@ -331,7 +354,7 @@ public class UsersControllerTest {
         User mockUserFromDatabase = mock(User.class);
 
         when(mockUserService.getUserByPhoneNumber(VALID_PHONE_NUMBER)).thenReturn(mockUserFromDatabase);
-        when(mockAuthyClient.checkAuthentication(VALID_PHONE_NUMBER, VALID_VALIDATION_CODE))
+        when(mockAuthyClient.checkAuthentication(VALID_PHONE_NUMBER, VALID_VERIFICATION_CODE))
                 .thenReturn(mockVerification);
         when(mockVerification.isOk()).thenReturn(true);
         // Mock user responses
@@ -360,7 +383,7 @@ public class UsersControllerTest {
 
         // Verify authy is called once, userService is called, mock user is updated with
         // new password, and HTTP response is correct
-        verify(mockAuthyClient).checkAuthentication(VALID_PHONE_NUMBER, VALID_VALIDATION_CODE);
+        verify(mockAuthyClient).checkAuthentication(VALID_PHONE_NUMBER, VALID_VERIFICATION_CODE);
         verify(mockUserFromDatabase).setPassword(
                 PasswordUtil.encryptString("newPassword", VALID_SALT));
         verify(mockUserService).updateUser(mockUserFromDatabase);
