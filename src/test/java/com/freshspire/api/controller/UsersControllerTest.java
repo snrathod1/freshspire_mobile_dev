@@ -57,7 +57,7 @@ public class UsersControllerTest {
      * @throws Exception
      */
     @Test
-    public void testVerificationWithValidPhone() throws Exception {
+    public void validPhoneShouldSendNewUserAuthCode() throws Exception {
         // Test: valid phone number supplied
         final String VALID_PHONE_NUMBER = "1234567890";
         // First create the expected ResponseEntity
@@ -98,7 +98,7 @@ public class UsersControllerTest {
      * @throws Exception
      */
     @Test
-    public void testVerificationCodeWithEmptyPhone() throws Exception {
+    public void emptyPhoneShouldNotSendNewUserAuthCode() throws Exception {
         // Test: empty phone number supplied
         final String EMPTY_PHONE_NUMBER = "";
         // First create the expected ResponseEntity
@@ -130,7 +130,7 @@ public class UsersControllerTest {
      * @throws Exception
      */
     @Test
-    public void testVerificationCodeWithInvalidPhone() throws Exception {
+    public void invalidPhoneShouldNotSendNewUserAuthCode() throws Exception {
         // Test: invalid phone number
         final String INVALID_PHONE_NUMBER = "this is an invalid phone number";
         // First, set up expected ResponseEntity
@@ -166,7 +166,7 @@ public class UsersControllerTest {
      * @throws Exception
      */
     @Test
-    public void testCreateUserEmptyParameters() throws Exception {
+    public void emptyParametersShouldNotCreateNewUser() throws Exception {
         // Set up empty params to send to method
         NewUserParams emptyFirstNameParams = new NewUserParams(
                 "", // This is invalid
@@ -210,7 +210,7 @@ public class UsersControllerTest {
     }
 
     @Test
-    public void testSendCodeForForgotPasswordWithInvalidPhone() throws Exception {
+    public void invalidPhoneShouldNotSendForgotPasswordCode() throws Exception {
         // Explanation of what is being tested here:
         // Forgot password shouldn't return whether or not there's an account for a given phone number.
         // Otherwise, it'd basically be doesAccountExistForPhoneNum(xxxx)
@@ -239,7 +239,7 @@ public class UsersControllerTest {
     }
 
     @Test
-    public void validPhoneShouldSendForgotPasswordAuthCode() throws Exception {
+    public void validPhoneShouldSendForgotPasswordCode() throws Exception {
         // Set up mock behavior
         User mockUser = mock(User.class);
         when(mockUserService.userExistsWithPhoneNumber(VALID_PHONE_NUMBER)).thenReturn(true);
@@ -277,8 +277,6 @@ public class UsersControllerTest {
         // Set up mock responses
         Verification mockVerification = mock(Verification.class);
         User mockUserFromDatabase = mock(User.class);
-
-        //(VALID_FIRST_NAME, VALID_PHONE_NUMBER, "apiKey", VALID_PASSWORD, "salt", new Date(), false, false);
 
         when(mockUserService.getUserByPhoneNumber(VALID_PHONE_NUMBER)).thenReturn(mockUserFromDatabase);
         when(mockAuthyClient.checkAuthentication(VALID_PHONE_NUMBER, VALID_VALIDATION_CODE))
@@ -329,18 +327,63 @@ public class UsersControllerTest {
                 expected.getBody(), actual.getBody());
     }
 
+    /**
+     * Tests POST /users/forgot-password
+     * with incorrect authy code
+     * @throws Exception
+     */
     @Test
-    public void testVerifyCodeForForgotPasswordWithInvalidAuthentication() throws Exception {
+    public void incorrectAuthCodeShouldNotUpdateForgottenPassword() throws Exception {
 
     }
 
+    /**
+     * Tests POST /users/forgot-password
+     * with empty newPassword field
+     * @throws Exception
+     */
     @Test
-    public void testVerifyCodeForForgotPasswordWithEmptyPassword() throws Exception {
+    public void emptyNewPasswordShouldNotUpdateForgottenPassword() throws Exception {
 
     }
 
+    /**
+     * Tests PUT /users/reset-password
+     * with API key that isn't associated with any user
+     * @throws Exception
+     */
     @Test
-    public void testResetPassword() throws Exception {
+    public void incorrectApiKeyShouldNotResetPassword() throws Exception {
+
+    }
+
+    /**
+     * Tests PUT /users/reset-password
+     * with incorrect oldPassword field
+     * @throws Exception
+     */
+    @Test
+    public void incorrectOldPasswordShouldNotResetPassword() throws Exception {
+
+    }
+
+    /**
+     * Tests PUT /users/reset-password
+     * with empty newPassword field
+     * @throws Exception
+     */
+    @Test
+    public void emptyNewPasswordShouldNotResetPassword() throws Exception {
+
+    }
+
+    /**
+     * Tests PUT /users/reset-password
+     * with correct parameters
+     * @throws Exception
+     */
+    @Test
+    public void validAuthAndNewPasswordShouldResetPassword() throws Exception {
 
     }
 }
