@@ -502,7 +502,38 @@ public class UsersControllerTest {
      */
     @Test
     public void incorrectOldPasswordShouldNotResetPassword() throws Exception {
-        fail("Unwritten test"); // TODO
+        ResetPasswordParams params = new ResetPasswordParams(VALID_API_KEY, "differentPassword", "newPassword");
+        User mockUserFromDatabase = mock(User.class);
+        when(mockUserService.getUserByApiKey(VALID_API_KEY)).thenReturn(mockUserFromDatabase);
+        when(mockUserService.userExistsWithApiKey(VALID_API_KEY)).thenReturn(true);
+
+        when(mockUserFromDatabase.getUserId()).thenReturn(VALID_USER_ID);
+        when(mockUserFromDatabase.getFirstName()).thenReturn(VALID_FIRST_NAME);
+        when(mockUserFromDatabase.getPhoneNumber()).thenReturn(VALID_PHONE_NUMBER);
+        when(mockUserFromDatabase.getApiKey()).thenReturn(VALID_API_KEY);
+        when(mockUserFromDatabase.getPassword()).thenReturn(PasswordUtil.encryptString(VALID_PASSWORD, VALID_SALT));
+        when(mockUserFromDatabase.getSalt()).thenReturn(VALID_SALT);
+        when(mockUserFromDatabase.getCreated()).thenReturn(new Date(0));
+        when(mockUserFromDatabase.isAdmin()).thenReturn(false);
+        when(mockUserFromDatabase.isBanned()).thenReturn(false);
+
+        // Expected
+        JsonObject expectedBody = new JsonObject();
+        expectedBody.addProperty("status", "error");
+        expectedBody.addProperty("message", "Invalid authentication credentials");
+        ResponseEntity expected = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(gson.toJson(expectedBody));
+
+        // Actual
+        ResponseEntity actual = usersController.resetPassword(params);
+
+        // Verify authy not called, user service called correctly, HTTP response is correct
+        verifyZeroInteractions(mockAuthyClient);
+        verify(mockUserService).getUserByApiKey(VALID_API_KEY);
+        verify(mockUserService, never()).updateUser(any(User.class));
+        assertEquals("HTTP status code should be 401 Unauthorized",
+                expected.getStatusCode(), actual.getStatusCode());
+        assertEquals("Response body is incorrect",
+                expected.getBody(), actual.getBody());
     }
 
     /**
