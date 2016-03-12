@@ -414,6 +414,9 @@ public class UsersControllerTest {
     @Test
     public void incorrectAuthCodeShouldNotUpdateForgottenPassword() throws Exception {
         PhoneNumberVerificationParams params = new PhoneNumberVerificationParams(VALID_PHONE_NUMBER, "invalid code", "newPassword");
+        Verification mockVerification = mock(Verification.class);
+        when(mockAuthyClient.checkAuthentication(VALID_PHONE_NUMBER, "invalid code")).thenReturn(mockVerification);
+        when(mockVerification.isOk()).thenReturn(false);
 
         // Expected
         JsonObject expectedBody = new JsonObject();
@@ -440,7 +443,25 @@ public class UsersControllerTest {
      */
     @Test
     public void emptyNewPasswordShouldNotUpdateForgottenPassword() throws Exception {
-        fail("Unwritten test"); // TODO
+        PhoneNumberVerificationParams params = new PhoneNumberVerificationParams(
+                VALID_PHONE_NUMBER,
+                VALID_VERIFICATION_CODE,
+                "" // This is invalid
+        );
+
+        // Expected
+        ResponseEntity expected = ResponseUtil.badRequest(new ResponseMessage("error", "New password cannot be empty"));
+
+        // Actual
+        ResponseEntity actual = usersController.verifyCodeForForgotPassword(params);
+
+        // Verify authy not called, user service not touched, HTTP response is correct
+        verifyZeroInteractions(mockAuthyClient);
+        verifyZeroInteractions(mockUserService);
+        assertEquals("HTTP status code should be 400 Bad Request",
+                expected.getStatusCode(), actual.getStatusCode());
+        assertEquals("Response body is incorrect",
+                expected.getBody(), actual.getBody());
     }
 
     /**
