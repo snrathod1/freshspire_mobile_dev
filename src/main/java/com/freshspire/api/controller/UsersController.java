@@ -205,7 +205,7 @@ public class UsersController {
      * @return status of password reset
      */
     @RequestMapping(value = "/reset-password", method = RequestMethod.POST, produces = "application/json")
-    public String resetPassword(@RequestBody ResetPasswordParams params) {
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordParams params) {
         User user = userService.getUserByApiKey(params.getApiKey());
 
         if (isValidCase(user, params)) {
@@ -213,10 +213,11 @@ public class UsersController {
             user.setRestricted(false);
             userService.updateUser(user);
 
-            return ResponseUtil.getStatusResponseString("updated password", "success").toString();
+            return ResponseUtil.ok(new ResponseMessage("ok", "Successfully updated password"));
         }
 
-        return ResponseUtil.getStatusResponseString("Please provide current password or use forgot password", "error").toString();
+        return ResponseUtil.badRequest(new ResponseMessage(
+                "error", "Bad parameters"));
     }
 
     /**

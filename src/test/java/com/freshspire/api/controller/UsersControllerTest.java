@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 /**
@@ -52,8 +53,8 @@ public class UsersControllerTest {
     }
 
     /**
-     * Tests step 1 of the create user process (GET /users/create with phone number param).
-     * Tests behavior and response for a valid phone input.
+     * Tests GET /users/create
+     * with a valid phone number
      * @throws Exception
      */
     @Test
@@ -93,8 +94,8 @@ public class UsersControllerTest {
     }
 
     /**
-     * Tests step 1 of the create user process (GET /users/create with phone number param).
-     * Tests behavior and response for an empty phone number input.
+     * Tests GET /users/create
+     * with an empty phone number
      * @throws Exception
      */
     @Test
@@ -125,8 +126,8 @@ public class UsersControllerTest {
     }
 
     /**
-     * Tests step 1 of the create user process (GET /users/create with phone number param).
-     * Tests behavior and response for an invalid phone input.
+     * Tests GET /users/create
+     * with invalid phone number
      * @throws Exception
      */
     @Test
@@ -161,8 +162,8 @@ public class UsersControllerTest {
     }
 
     /**
-     * Tests step 2 of the create users process (POST /users/create with new user parameters).
-     * Tests behavior and response for an empty first name or empty password parameter.
+     * Tests POST /users/create
+     * with an empty first name and an empty password parameter (tests both situations)
      * @throws Exception
      */
     @Test
@@ -209,11 +210,36 @@ public class UsersControllerTest {
 
     }
 
+    /**
+     * Tests POST /users/create
+     * with invalid authentication parameters (phone & authy code pair is incorrect)
+     * @throws Exception
+     */
+    @Test
+    public void invalidAuthShouldNotCreateNewUser() throws Exception {
+        fail("Unwritten test"); // TODO
+    }
+
+    /**
+     * Tests POST /users/create
+     * with valid parameters
+     * @throws Exception
+     */
+    @Test
+    public void validParametersShouldCreateNewUser() throws Exception {
+        fail("Unwritten test"); // TODO
+    }
+
+    /**
+     * Tests GET /users/forgot-password/{phoneNumber}
+     * with invalid phone number
+     * @throws Exception
+     */
     @Test
     public void invalidPhoneShouldNotSendForgotPasswordCode() throws Exception {
         // Explanation of what is being tested here:
         // Forgot password shouldn't return whether or not there's an account for a given phone number.
-        // Otherwise, it'd basically be doesAccountExistForPhoneNum(xxxx)
+        // Otherwise, it'd basically be doesAccountExistForPhoneNum(xxxx) which is insecure.
         // So, this test checks that the 200 response is sent and that authy isn't called to send a text.
 
         final String INVALID_PHONE = "000foo000";
@@ -238,6 +264,11 @@ public class UsersControllerTest {
                 expected.getBody(), actual.getBody());
     }
 
+    /**
+     * Tests GET /users/forgot-password/{phoneNumber}
+     * with valid phone number
+     * @throws Exception
+     */
     @Test
     public void validPhoneShouldSendForgotPasswordCode() throws Exception {
         // Set up mock behavior
@@ -262,7 +293,7 @@ public class UsersControllerTest {
     }
 
     /**
-     * Tests POST /users/forgot-password
+     * Tests POST /users/forgot-password/{phoneNumber}
      * with valid auth code, phone number, and password.
      * @throws Exception
      */
@@ -328,23 +359,33 @@ public class UsersControllerTest {
     }
 
     /**
-     * Tests POST /users/forgot-password
-     * with incorrect authy code
+     * Tests POST /users/forgot-password/{phoneNumber}
+     * with incorrect authentication parameters (phone & authy code pair is incorrect)
      * @throws Exception
      */
     @Test
     public void incorrectAuthCodeShouldNotUpdateForgottenPassword() throws Exception {
-
+        fail("Unwritten test"); // TODO
     }
 
     /**
-     * Tests POST /users/forgot-password
+     * Tests POST /users/forgot-password/{phoneNumber}
      * with empty newPassword field
      * @throws Exception
      */
     @Test
     public void emptyNewPasswordShouldNotUpdateForgottenPassword() throws Exception {
+        fail("Unwritten test"); // TODO
+    }
 
+    /**
+     * Tests POST /users/forgot-password/{phoneNumber}
+     * with empty phone number field
+     * @throws Exception
+     */
+    @Test
+    public void emptyPhoneShouldNotUpdateForgottenPassword() throws Exception {
+        fail("Unwritten test"); // TODO
     }
 
     /**
@@ -354,7 +395,7 @@ public class UsersControllerTest {
      */
     @Test
     public void incorrectApiKeyShouldNotResetPassword() throws Exception {
-
+        fail("Unwritten test"); // TODO
     }
 
     /**
@@ -364,7 +405,7 @@ public class UsersControllerTest {
      */
     @Test
     public void incorrectOldPasswordShouldNotResetPassword() throws Exception {
-
+        fail("Unwritten test"); // TODO
     }
 
     /**
@@ -374,7 +415,7 @@ public class UsersControllerTest {
      */
     @Test
     public void emptyNewPasswordShouldNotResetPassword() throws Exception {
-
+        fail("Unwritten test"); // TODO
     }
 
     /**
@@ -384,6 +425,6 @@ public class UsersControllerTest {
      */
     @Test
     public void validAuthAndNewPasswordShouldResetPassword() throws Exception {
-
+        fail("Unwritten test"); // TODO
     }
 }

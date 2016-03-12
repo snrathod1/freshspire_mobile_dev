@@ -9,6 +9,12 @@ public class ResetPasswordParams {
     private String newPassword;
     private String apiKey;
 
+    public ResetPasswordParams(String apiKey, String currentPassword, String newPassword) {
+        this.apiKey = apiKey;
+        this.currentPassword = currentPassword;
+        this.newPassword = newPassword;
+    }
+
     public String getCurrentPassword() {
         return currentPassword;
     }
