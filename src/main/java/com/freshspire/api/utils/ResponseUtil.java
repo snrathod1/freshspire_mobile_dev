@@ -36,7 +36,7 @@ public class ResponseUtil {
      * @return A 400 Bad Request response with the json representation of res in the body
      */
     public static <E> ResponseEntity<String> badRequest(E res) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(asJsonString(res, res.getClass()));
+        return ResponseEntity.badRequest().body(asJsonString(res, res.getClass()));
     }
 
     /**

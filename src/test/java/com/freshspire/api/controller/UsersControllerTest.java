@@ -35,6 +35,8 @@ public class UsersControllerTest {
 
     @Mock private AuthyClient mockAuthyClient;
 
+    private Gson gson;
+
     private UsersController usersController;
 
     private static final String VALID_API_KEY = "apiKey";
@@ -47,6 +49,8 @@ public class UsersControllerTest {
 
     @Before
     public void setUp() {
+        gson = new Gson();
+
         usersController = new UsersController();
         usersController.setUserService(mockUserService);
         usersController.setAuthyClient(mockAuthyClient);
@@ -260,7 +264,7 @@ public class UsersControllerTest {
         newUser.addProperty("apiKey", VALID_API_KEY);
         newUser.addProperty("firstName", VALID_FIRST_NAME);
         newUser.addProperty("phoneNumber", VALID_PHONE_NUMBER);
-        ResponseEntity expected = ResponseEntity.status(HttpStatus.CREATED).body(new Gson().toJson(newUser));
+        ResponseEntity expected = ResponseEntity.status(HttpStatus.CREATED).body(gson.toJson(newUser));
 
         // Actual
         ResponseEntity actual = usersController.createUser(params);
@@ -376,7 +380,7 @@ public class UsersControllerTest {
         body.addProperty("phoneNumber", VALID_PHONE_NUMBER);
 
         // Expected
-        ResponseEntity expected = ResponseUtil.ok(new Gson().toJson(body));
+        ResponseEntity expected = ResponseUtil.ok(gson.toJson(body));
 
         // Actual
         ResponseEntity actual = usersController.verifyCodeForForgotPassword(validParams);
@@ -409,7 +413,24 @@ public class UsersControllerTest {
      */
     @Test
     public void incorrectAuthCodeShouldNotUpdateForgottenPassword() throws Exception {
-        fail("Unwritten test"); // TODO
+        PhoneNumberVerificationParams params = new PhoneNumberVerificationParams(VALID_PHONE_NUMBER, "invalid code", "newPassword");
+
+        // Expected
+        JsonObject expectedBody = new JsonObject();
+        expectedBody.addProperty("status", "error");
+        expectedBody.addProperty("message", "Phone/verification code pair incorrect");
+        ResponseEntity expected = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(gson.toJson(expectedBody));
+
+        // Actual
+        ResponseEntity actual = usersController.verifyCodeForForgotPassword(params);
+
+        // Verify authy called, user service not touched, HTTP response is correct
+        verify(mockAuthyClient).checkAuthentication(VALID_PHONE_NUMBER, "invalid code");
+        verifyZeroInteractions(mockUserService);
+        assertEquals("HTTP status code should be 401 Unauthorized",
+                expected.getStatusCode(), actual.getStatusCode());
+        assertEquals("Response body is incorrect",
+                expectedBody, actual.getBody());
     }
 
     /**
