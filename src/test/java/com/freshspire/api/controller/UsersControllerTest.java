@@ -217,7 +217,28 @@ public class UsersControllerTest {
      */
     @Test
     public void invalidAuthShouldNotCreateNewUser() throws Exception {
-        fail("Unwritten test"); // TODO
+        // Set up test params and mock authy/user service objects
+        NewUserParams params = new NewUserParams(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_PASSWORD, "invalid code");
+        Verification mockVerification = mock(Verification.class);
+        when(mockAuthyClient.checkAuthentication(VALID_PHONE_NUMBER, "invalid code")).thenReturn(mockVerification);
+        when(mockVerification.isOk()).thenReturn(false);
+
+        // Expected
+        String expectedBody = ResponseUtil.asJsonString(
+                new ResponseMessage("error", "Invalid phone number/verification code pair"),
+                ResponseMessage.class);
+        ResponseEntity expected = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(expectedBody);
+
+        // Actual
+        ResponseEntity actual = usersController.createUser(params);
+
+        // Verify auth was checked, user service is called, HTTP response is correct
+        verify(mockAuthyClient).checkAuthentication(VALID_PHONE_NUMBER, "invalid code");
+        verifyZeroInteractions(mockUserService);
+        assertEquals("HTTP status code should be 401 Unauthorized",
+                expected.getStatusCode(), actual.getStatusCode());
+        assertEquals("Response body is incorrect",
+                expectedBody, actual.getBody());
     }
 
     /**
