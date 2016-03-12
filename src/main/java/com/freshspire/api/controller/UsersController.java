@@ -3,17 +3,19 @@ package com.freshspire.api.controller;
 import com.authy.api.Verification;
 import com.freshspire.api.client.AuthyClient;
 import com.freshspire.api.model.ResponseMessage;
+import com.freshspire.api.model.User;
 import com.freshspire.api.model.params.NewUserParams;
 import com.freshspire.api.model.params.PhoneNumberVerificationParams;
 import com.freshspire.api.model.params.ResetPasswordParams;
-import com.freshspire.api.model.User;
 import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.PasswordUtil;
 import com.freshspire.api.utils.ResponseUtil;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,8 +48,11 @@ public class UsersController {
      */
     @RequestMapping(value = "/debug", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<String> getUsers() {
-        ResponseMessage res = new ResponseMessage("ok", "Users endpoint is up. authyClient is: " + authyClient);
-        return ResponseUtil.ok(res);
+        JsonObject obj = new JsonObject();
+        obj.addProperty("status", "ok");
+        obj.addProperty("message", "debug message");
+        ResponseMessage res = new ResponseMessage("ok", "Users endpoint is up. jsonObject is:\n" + gson.toJson(obj));
+        return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
     }
 
     /**
@@ -92,17 +97,17 @@ public class UsersController {
     @RequestMapping(value = "/create", method = RequestMethod.POST, produces = "application/json")
     public ResponseEntity<String> createUser(@RequestBody NewUserParams params) {
 
-        String code = params.getConfirmationCode();
+        String code = params.getValidationCode();
 
         if(code == null) {
-            ResponseMessage res = new ResponseMessage("error", "Please include confirmation code");
+            ResponseMessage res = new ResponseMessage("error", "Please include validation code. Code: " + code);
             return ResponseUtil.badRequest(res);
         }
 
         Verification verification = authyClient.checkAuthentication(params.getPhoneNumber(), code);
 
         if(!verification.isOk()) {
-            ResponseMessage res = new ResponseMessage("error", "Invalid confirmation code");
+            ResponseMessage res = new ResponseMessage("error", "Invalid validation code. Authy error: " + verification.getMessage());
             return ResponseUtil.badRequest(res);
         }
 
@@ -118,37 +123,41 @@ public class UsersController {
         // New user params were valid, so now create user object, insert into DB, and return it.
         String password = params.getPassword();
 
+        String salt = PasswordUtil.generateSaltString();
+
         // Make a new user object and populate its fields
-        User newUser = new User();
-
-        // Set fields specified in request parameters
-        newUser.setFirstName(params.getFirstName());
-        newUser.setPhoneNumber(params.getPhoneNumber());
-
-        // Generate fields not in request parameters (API key, current time, etc.)
-        newUser.setApiKey(PasswordUtil.generateApiKey());
-        newUser.setCreated(new Date());
-        newUser.setSalt(PasswordUtil.generateSaltString());
-        newUser.setPassword(PasswordUtil.encryptString(password, newUser.getSalt()));
+        User newUser = new User(params.getFirstName(),
+                params.getPhoneNumber(),
+                PasswordUtil.generateApiKey(),
+                PasswordUtil.encryptString(password, salt),
+                salt,
+                new Date(),
+                false,
+                false);
 
         userService.addUser(newUser);
 
-        return ResponseUtil.ok(newUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(gson.toJson(newUser));
     }
 
     /**
      * GET /users/forgot-password/{phoneNumber}
      *
      * Sends a message to the phone number to start the password reset process
-     * @param phoneNumber
+     * @param phoneNumber Phone of the user needing password update
      * @return
      */
     @RequestMapping(value = "/forgot-password/{phoneNumber}", method = RequestMethod.GET, produces = "application/json")
-    public String sendCodeForPasswordReset(@PathVariable String phoneNumber) {
-        if (userService.getUserByPhoneNumber(phoneNumber) != null) {
-            return sendVerificationMessage(phoneNumber);
+    public ResponseEntity<String> sendCodeForForgotPassword(@PathVariable String phoneNumber) {
+        if (userService.userExistsWithPhoneNumber(phoneNumber)) {
+            // Then the user exists in the DB for that phone number
+            authyClient.startAuthentication(phoneNumber);
+            return ResponseUtil.ok(
+                    "Verification code sent to "
+                    + phoneNumber
+                    + "if account exists with that number");
         } else {
-            return ResponseUtil.getStatusResponseString("No account for that phone number", "error").toString();
+            return ResponseUtil.badRequest("No account for that phone number");
         }
     }
 
@@ -161,7 +170,7 @@ public class UsersController {
      * @return user json with status message
      */
     @RequestMapping(value = "/forgot-password", method = RequestMethod.PUT, produces = "application/json")
-    public String verifyCodeForPasswordReset(@RequestBody PhoneNumberVerificationParams params) {
+    public ResponseEntity<String> verifyCodeForForgotPassword(@RequestBody PhoneNumberVerificationParams params) {
         // Check with Authy if the code was correct
         Verification verification = authyClient.checkAuthentication(
                 params.getPhoneNumber(),
@@ -171,16 +180,19 @@ public class UsersController {
         if (verification.isOk()) {
             // Set the user associated with the phone number to restricted: true
             User user = userService.getUserByPhoneNumber(params.getPhoneNumber());
-            user.setRestricted(true);
+            String hashedPassword = PasswordUtil.encryptString(params.getNewPassword(), user.getSalt());
+            user.setPassword(hashedPassword);
             userService.updateUser(user);
 
-            return ResponseUtil.addToJson(
-                "user",
-                ResponseUtil.getStatusResponseString("user verified", "success"),
-                gson.toJson(user)
-            ).toString();
+            JsonObject updatedUser = new JsonObject();
+            updatedUser.addProperty("userId", user.getUserId());
+            updatedUser.addProperty("apiKey", user.getApiKey());
+            updatedUser.addProperty("firstName", user.getFirstName());
+            updatedUser.addProperty("phoneNumber", user.getPhoneNumber());
+
+            return ResponseUtil.ok(gson.toJson(updatedUser));
         } else {
-            return ResponseUtil.getStatusResponseString(verification.getMessage(), verification.getSuccess()).toString();
+            return ResponseUtil.badRequest(new ResponseMessage("error", "Authentication code is invalid"));
         }
     }
 
@@ -227,12 +239,5 @@ public class UsersController {
         }
 
         return false;
-    }
-
-    private String sendVerificationMessage(String phoneNumber) {
-        Verification verification = authyClient.startAuthentication(phoneNumber);
-        String status = (verification.isOk() ? "ok" : "error");
-
-        return ResponseUtil.getStatusResponseString(verification.getMessage(), status).toString();
     }
 }
