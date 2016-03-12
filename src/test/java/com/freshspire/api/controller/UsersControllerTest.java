@@ -6,6 +6,7 @@ import com.freshspire.api.model.ResponseMessage;
 import com.freshspire.api.model.User;
 import com.freshspire.api.model.params.NewUserParams;
 import com.freshspire.api.model.params.PhoneNumberVerificationParams;
+import com.freshspire.api.model.params.ResetPasswordParams;
 import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.PasswordUtil;
 import com.freshspire.api.utils.ResponseUtil;
@@ -346,7 +347,7 @@ public class UsersControllerTest {
      * @throws Exception
      */
     @Test
-    public void correctAuthCodeShouldUpdateForgottenPassword() throws Exception {
+    public void correctAuthShouldUpdateForgottenPassword() throws Exception {
         // Set up parameters
         PhoneNumberVerificationParams validParams = new PhoneNumberVerificationParams(
                 VALID_PHONE_NUMBER,
@@ -433,7 +434,7 @@ public class UsersControllerTest {
         assertEquals("HTTP status code should be 401 Unauthorized",
                 expected.getStatusCode(), actual.getStatusCode());
         assertEquals("Response body is incorrect",
-                expectedBody, actual.getBody());
+                expectedBody.getAsString(), actual.getBody());
     }
 
     /**
@@ -465,23 +466,33 @@ public class UsersControllerTest {
     }
 
     /**
-     * Tests POST /users/forgot-password/{phoneNumber}
-     * with empty phone number field
-     * @throws Exception
-     */
-    @Test
-    public void emptyPhoneShouldNotUpdateForgottenPassword() throws Exception {
-        fail("Unwritten test"); // TODO
-    }
-
-    /**
      * Tests PUT /users/reset-password
      * with API key that isn't associated with any user
      * @throws Exception
      */
     @Test
     public void incorrectApiKeyShouldNotResetPassword() throws Exception {
-        fail("Unwritten test"); // TODO
+        ResetPasswordParams params = new ResetPasswordParams("invalid API key", VALID_PASSWORD, "newPassword");
+        when(mockUserService.getUserByApiKey("invalid API key")).thenReturn(null);
+        when(mockUserService.userExistsWithApiKey("invalid API key")).thenReturn(false);
+
+        // Expected
+        JsonObject expectedBody = new JsonObject();
+        expectedBody.addProperty("status", "error");
+        expectedBody.addProperty("message", "Invalid authentication credentials");
+        ResponseEntity expected = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(gson.toJson(expectedBody));
+
+        // Actual
+        ResponseEntity actual = usersController.resetPassword(params);
+
+        // Verify authy not called, user service called correctly, HTTP response is correct
+        verifyZeroInteractions(mockAuthyClient);
+        verify(mockUserService).getUserByApiKey("invalid API key");
+        verify(mockUserService, never()).updateUser(any(User.class));
+        assertEquals("HTTP status code should be 401 Unauthorized",
+                expected.getStatusCode(), actual.getStatusCode());
+        assertEquals("Response body is incorrect",
+                expected.getBody(), actual.getBody());
     }
 
     /**
