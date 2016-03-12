@@ -13,9 +13,14 @@ public class NewUserParams {
 
     private String password;
 
-    private String confirmationCode;
+    private String validationCode;
 
-    // Methods
+    public NewUserParams(String firstName, String phoneNumber, String password, String validationCode) {
+        this.firstName = firstName;
+        this.phoneNumber = phoneNumber;
+        this.password = password;
+        this.validationCode = validationCode;
+    }
 
     public String getFirstName() {
         return firstName;
@@ -41,12 +46,12 @@ public class NewUserParams {
         this.password = password;
     }
 
-    public String getConfirmationCode() {
-        return confirmationCode;
+    public String getValidationCode() {
+        return validationCode;
     }
 
-    public void setConfirmationCode(String confirmationCode) {
-        this.confirmationCode = confirmationCode;
+    public void setValidationCode(String validationCode) {
+        this.validationCode = validationCode;
     }
 
 

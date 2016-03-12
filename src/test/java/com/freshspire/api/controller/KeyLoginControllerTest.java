@@ -6,6 +6,8 @@ import com.freshspire.api.service.UserService;
 import com.google.gson.Gson;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Date;
@@ -19,6 +21,7 @@ import static org.mockito.Mockito.when;
  *
  * @created 2/29/16.
  */
+@RunWith(MockitoJUnitRunner.class)
 public class KeyLoginControllerTest {
 
     private User user;
@@ -30,17 +33,14 @@ public class KeyLoginControllerTest {
     private Gson gson = new Gson();
 
     private User makeDummyUser() {
-        User user = new User();
-        user.setUserId("1");
-        user.setPhoneNumber("1234567890");
-        user.setCreated(new Date(0));
-        user.setFirstName("Name");
-        user.setSalt("sJ6/Kiw3qs3Z5rkc9Sns4w==");
-        user.setPassword("RWOYO5KaKB02QMKjLGABxK8vWQzPN7wwAX+KGYgkdSA=");
-        user.setAdmin(false);
-        user.setApiKey("6CKyrO2AIVxFBFOLX4At3g==");
-        user.setBanned(false);
-        user.setRestricted(false);
+        User user = new User("Name",
+                "1234567890",
+                "6CKyrO2AIVxFBFOLX4At3g==",
+                "RWOYO5KaKB02QMKjLGABxK8vWQzPN7wwAX+KGYgkdSA=",
+                "sJ6/Kiw3qs3Z5rkc9Sns4w==",
+                new Date(),
+                false,
+                false);
 
         return user;
     }

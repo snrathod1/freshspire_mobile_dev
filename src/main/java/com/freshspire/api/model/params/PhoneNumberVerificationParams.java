@@ -11,6 +11,12 @@ public class PhoneNumberVerificationParams {
 
     private String newPassword;
 
+    public PhoneNumberVerificationParams(String phoneNumber, String verificationCode, String newPassword) {
+        this.phoneNumber = phoneNumber;
+        this.verificationCode = verificationCode;
+        this.newPassword = newPassword;
+    }
+
     public String getPhoneNumber() {
         return phoneNumber;
     }

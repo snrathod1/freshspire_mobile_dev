@@ -47,6 +47,20 @@ public class User {
     @Type(type = "org.hibernate.type.NumericBooleanType")
     private boolean restricted;
 
+    //public User() {}
+
+    public User(String firstName, String phoneNumber, String apiKey, String password, String salt,
+                Date created, boolean admin, boolean banned) {
+        this.firstName = firstName;
+        this.phoneNumber = phoneNumber;
+        this.apiKey = apiKey;
+        this.password = password;
+        this.salt = salt;
+        this.created = created;
+        this.admin = admin;
+        this.banned = banned;
+    }
+
     public String getUserId() {
         return userId;
     }
