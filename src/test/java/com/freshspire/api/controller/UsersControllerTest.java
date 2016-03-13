@@ -12,6 +12,7 @@ import com.freshspire.api.utils.PasswordUtil;
 import com.freshspire.api.utils.ResponseUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.sun.org.apache.regexp.internal.RE;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -543,7 +544,20 @@ public class UsersControllerTest {
      */
     @Test
     public void emptyNewPasswordShouldNotResetPassword() throws Exception {
-        fail("Unwritten test"); // TODO
+        ResetPasswordParams params = new ResetPasswordParams(VALID_API_KEY, VALID_PASSWORD, "");
+
+        // Expected
+        ResponseEntity expected = ResponseUtil.badRequest(new ResponseMessage("error", "New password cannot be empty"));
+
+        // Actual
+        ResponseEntity actual = usersController.resetPassword(params);
+
+        // Verify authy and user service untouched, HTTP response is correct
+        verifyZeroInteractions(mockAuthyClient, mockUserService);
+        assertEquals("HTTP status code should be 400 Bad Request",
+                expected.getStatusCode(), actual.getStatusCode());
+        assertEquals("Response body is incorrect",
+                expected.getBody(), actual.getBody());
     }
 
     /**
@@ -553,6 +567,44 @@ public class UsersControllerTest {
      */
     @Test
     public void validAuthAndNewPasswordShouldResetPassword() throws Exception {
-        fail("Unwritten test"); // TODO
+        // Request parameters
+        ResetPasswordParams params = new ResetPasswordParams(VALID_API_KEY, VALID_PASSWORD, "newPassword");
+        // Mock user to be updated
+        User mockUser = mock(User.class);
+        when(mockUser.getUserId()).thenReturn(VALID_USER_ID);
+        when(mockUser.getFirstName()).thenReturn(VALID_FIRST_NAME);
+        when(mockUser.getPhoneNumber()).thenReturn(VALID_PHONE_NUMBER);
+        when(mockUser.getApiKey()).thenReturn(VALID_API_KEY);
+        when(mockUser.getPassword()).thenReturn(PasswordUtil.encryptString(VALID_PASSWORD, VALID_SALT));
+        when(mockUser.getSalt()).thenReturn(VALID_SALT);
+        when(mockUser.getCreated()).thenReturn(new Date(0));
+        when(mockUser.isAdmin()).thenReturn(false);
+        when(mockUser.isBanned()).thenReturn(false);
+        // Mock user service behavior
+        when(mockUserService.getUserByApiKey(VALID_API_KEY)).thenReturn(mockUser);
+        when(mockUserService.userExistsWithApiKey(VALID_API_KEY)).thenReturn(true);
+
+        // Expected
+        ResponseEntity expected = ResponseUtil.ok(new ResponseMessage("ok", "Successfully updated password"));
+
+        // Actual
+        ResponseEntity actual = usersController.resetPassword(params);
+
+        // Verify authy not touched, user service correctly called, and HTTP response is correct
+        verifyZeroInteractions(mockAuthyClient);
+        verify(mockUserService).updateUser(mockUser);
+        verify(mockUser).setPassword(PasswordUtil.encryptString("newPassword", VALID_SALT));
+        verify(mockUser, never()).setPhoneNumber(anyString());
+        verify(mockUser, never()).setBanned(anyBoolean());
+        verify(mockUser, never()).setSalt(anyString());
+        verify(mockUser, never()).setAdmin(anyBoolean());
+        verify(mockUser, never()).setCreated(any(Date.class));
+        verify(mockUser, never()).setApiKey(anyString());
+        verify(mockUser, never()).setUserId(anyString());
+        verify(mockUser, never()).setFirstName(anyString());
+        assertEquals("HTTP status code should be 200 OK",
+                expected.getStatusCode(), actual.getStatusCode());
+        assertEquals("Response body is incorrect",
+                expected.getBody(), actual.getBody());
     }
 }
