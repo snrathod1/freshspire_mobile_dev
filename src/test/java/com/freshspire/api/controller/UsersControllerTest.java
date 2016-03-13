@@ -5,14 +5,13 @@ import com.freshspire.api.client.AuthyClient;
 import com.freshspire.api.model.ResponseMessage;
 import com.freshspire.api.model.User;
 import com.freshspire.api.model.params.NewUserParams;
-import com.freshspire.api.model.params.PhoneNumberVerificationParams;
+import com.freshspire.api.model.params.PhoneNumberAuthenticationParams;
 import com.freshspire.api.model.params.ResetPasswordParams;
 import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.PasswordUtil;
 import com.freshspire.api.utils.ResponseUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.sun.org.apache.regexp.internal.RE;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,7 +46,7 @@ public class UsersControllerTest {
     private static final String VALID_PASSWORD = "A valid password";
     private static final String VALID_SALT = "salt";
     private static final String VALID_PHONE_NUMBER = "1234567890";
-    private static final String VALID_VERIFICATION_CODE = "0000";
+    private static final String VALID_AUTHENTICATION_CODE = "0000";
 
     @Before
     public void setUp() {
@@ -82,7 +81,7 @@ public class UsersControllerTest {
         when(mockVerification.isOk()).thenReturn(true);
 
         // Exercise method with valid phone number
-        ResponseEntity actual = usersController.getNewUserVerificationCode(VALID_PHONE_NUMBER);
+        ResponseEntity actual = usersController.getNewUserAuthCode(VALID_PHONE_NUMBER);
 
         // Verify that authy API was correctly called, HTTP status is correct, and body is correct
         verify(mockAuthyClient, times(1)).startAuthentication(VALID_PHONE_NUMBER);
@@ -116,7 +115,7 @@ public class UsersControllerTest {
                 .body(expectedBody);
 
         // Exercise method
-        ResponseEntity actual = usersController.getNewUserVerificationCode(EMPTY_PHONE_NUMBER);
+        ResponseEntity actual = usersController.getNewUserAuthCode(EMPTY_PHONE_NUMBER);
 
         // Make sure authy API not called, HTTP status is correct, and body is correct
         verifyZeroInteractions(mockAuthyClient);
@@ -152,7 +151,7 @@ public class UsersControllerTest {
         when(mockVerification.isOk()).thenReturn(false);
 
         // Exercise method
-        ResponseEntity actual = usersController.getNewUserVerificationCode(INVALID_PHONE_NUMBER);
+        ResponseEntity actual = usersController.getNewUserAuthCode(INVALID_PHONE_NUMBER);
 
         // Make sure authy API called, HTTP status is correct, and body is correct
         verify(mockAuthyClient).startAuthentication(INVALID_PHONE_NUMBER);
@@ -179,16 +178,16 @@ public class UsersControllerTest {
                 "", // This is invalid
                 VALID_PHONE_NUMBER,
                 VALID_PASSWORD,
-                VALID_VERIFICATION_CODE);
+                VALID_AUTHENTICATION_CODE);
         NewUserParams emptyPasswordParams = new NewUserParams(
                 VALID_FIRST_NAME,
                 VALID_PHONE_NUMBER,
                 "", // This is invalid (empty password)
-                VALID_VERIFICATION_CODE);
+                VALID_AUTHENTICATION_CODE);
 
         // Set up mock authy client behavior (should never be called since there are empty params)
         Verification mockAuthentication = mock(Verification.class);
-        when(mockAuthyClient.checkAuthentication(VALID_PHONE_NUMBER, VALID_VERIFICATION_CODE))
+        when(mockAuthyClient.checkAuthentication(VALID_PHONE_NUMBER, VALID_AUTHENTICATION_CODE))
                 .thenReturn(mockAuthentication);
         when(mockAuthentication.isOk()).thenReturn(true);
 
@@ -231,7 +230,7 @@ public class UsersControllerTest {
 
         // Expected
         String expectedBody = ResponseUtil.asJsonString(
-                new ResponseMessage("error", "Invalid phone number/verification code pair"),
+                new ResponseMessage("error", "Invalid phone number/authentication code pair"),
                 ResponseMessage.class);
         ResponseEntity expected = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(expectedBody);
 
@@ -255,9 +254,9 @@ public class UsersControllerTest {
     @Test
     public void validParametersShouldCreateNewUser() throws Exception {
         // Set up test params and mock authy/user service objects
-        NewUserParams params = new NewUserParams(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_PASSWORD, VALID_VERIFICATION_CODE);
+        NewUserParams params = new NewUserParams(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_PASSWORD, VALID_AUTHENTICATION_CODE);
         Verification mockVerification = mock(Verification.class);
-        when(mockAuthyClient.checkAuthentication(VALID_PHONE_NUMBER, VALID_VERIFICATION_CODE)).thenReturn(mockVerification);
+        when(mockAuthyClient.checkAuthentication(VALID_PHONE_NUMBER, VALID_AUTHENTICATION_CODE)).thenReturn(mockVerification);
         when(mockVerification.isOk()).thenReturn(true);
 
         // Expected
@@ -272,7 +271,7 @@ public class UsersControllerTest {
         ResponseEntity actual = usersController.createUser(params);
 
         // Verify that authy was called, user service was called, and HTTP response is correct
-        verify(mockAuthyClient).checkAuthentication(VALID_PHONE_NUMBER, VALID_VERIFICATION_CODE);
+        verify(mockAuthyClient).checkAuthentication(VALID_PHONE_NUMBER, VALID_AUTHENTICATION_CODE);
         verify(mockUserService).addUser(any(User.class)); // TODO this doesn't check that user is CORRECTLY added to DB. Look into spy objects for sln.
         assertEquals("HTTP status code should be 201 OK",
                 expected.getStatusCode(), actual.getStatusCode());
@@ -298,7 +297,7 @@ public class UsersControllerTest {
         when(mockUserService.userExistsWithPhoneNumber(INVALID_PHONE)).thenReturn(false);
 
         // Expected response
-        ResponseEntity expected = ResponseUtil.ok("Verification code sent to "
+        ResponseEntity expected = ResponseUtil.ok("Authentication code sent to "
                 + INVALID_PHONE
                 + " if account exists with that number");
 
@@ -326,7 +325,7 @@ public class UsersControllerTest {
         when(mockUserService.userExistsWithPhoneNumber(VALID_PHONE_NUMBER)).thenReturn(true);
 
         // Expected response
-        ResponseEntity expected = ResponseUtil.ok("Verification code sent to "
+        ResponseEntity expected = ResponseUtil.ok("Authentication code sent to "
                 + VALID_PHONE_NUMBER
                 + " if account exists with that number");
 
@@ -350,9 +349,9 @@ public class UsersControllerTest {
     @Test
     public void correctAuthShouldUpdateForgottenPassword() throws Exception {
         // Set up parameters
-        PhoneNumberVerificationParams validParams = new PhoneNumberVerificationParams(
+        PhoneNumberAuthenticationParams validParams = new PhoneNumberAuthenticationParams(
                 VALID_PHONE_NUMBER,
-                VALID_VERIFICATION_CODE,
+                VALID_AUTHENTICATION_CODE,
                 "newPassword"
         );
         // Set up mock responses
@@ -360,7 +359,7 @@ public class UsersControllerTest {
         User mockUserFromDatabase = mock(User.class);
 
         when(mockUserService.getUserByPhoneNumber(VALID_PHONE_NUMBER)).thenReturn(mockUserFromDatabase);
-        when(mockAuthyClient.checkAuthentication(VALID_PHONE_NUMBER, VALID_VERIFICATION_CODE))
+        when(mockAuthyClient.checkAuthentication(VALID_PHONE_NUMBER, VALID_AUTHENTICATION_CODE))
                 .thenReturn(mockVerification);
         when(mockVerification.isOk()).thenReturn(true);
         // Mock user responses
@@ -389,7 +388,7 @@ public class UsersControllerTest {
 
         // Verify authy is called once, userService is called, mock user is updated with
         // new password, and HTTP response is correct
-        verify(mockAuthyClient).checkAuthentication(VALID_PHONE_NUMBER, VALID_VERIFICATION_CODE);
+        verify(mockAuthyClient).checkAuthentication(VALID_PHONE_NUMBER, VALID_AUTHENTICATION_CODE);
         verify(mockUserFromDatabase).setPassword(
                 PasswordUtil.encryptString("newPassword", VALID_SALT));
         verify(mockUserService).updateUser(mockUserFromDatabase);
@@ -415,7 +414,7 @@ public class UsersControllerTest {
      */
     @Test
     public void incorrectAuthCodeShouldNotUpdateForgottenPassword() throws Exception {
-        PhoneNumberVerificationParams params = new PhoneNumberVerificationParams(VALID_PHONE_NUMBER, "invalid code", "newPassword");
+        PhoneNumberAuthenticationParams params = new PhoneNumberAuthenticationParams(VALID_PHONE_NUMBER, "invalid code", "newPassword");
         Verification mockVerification = mock(Verification.class);
         when(mockAuthyClient.checkAuthentication(VALID_PHONE_NUMBER, "invalid code")).thenReturn(mockVerification);
         when(mockVerification.isOk()).thenReturn(false);
@@ -423,7 +422,7 @@ public class UsersControllerTest {
         // Expected
         JsonObject expectedBody = new JsonObject();
         expectedBody.addProperty("status", "error");
-        expectedBody.addProperty("message", "Phone/verification code pair incorrect");
+        expectedBody.addProperty("message", "Phone/authentication code pair is incorrect");
         ResponseEntity expected = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(gson.toJson(expectedBody));
 
         // Actual
@@ -435,7 +434,7 @@ public class UsersControllerTest {
         assertEquals("HTTP status code should be 401 Unauthorized",
                 expected.getStatusCode(), actual.getStatusCode());
         assertEquals("Response body is incorrect",
-                expectedBody.getAsString(), actual.getBody());
+                expected.getBody(), actual.getBody());
     }
 
     /**
@@ -445,9 +444,9 @@ public class UsersControllerTest {
      */
     @Test
     public void emptyNewPasswordShouldNotUpdateForgottenPassword() throws Exception {
-        PhoneNumberVerificationParams params = new PhoneNumberVerificationParams(
+        PhoneNumberAuthenticationParams params = new PhoneNumberAuthenticationParams(
                 VALID_PHONE_NUMBER,
-                VALID_VERIFICATION_CODE,
+                VALID_AUTHENTICATION_CODE,
                 "" // This is invalid
         );
 

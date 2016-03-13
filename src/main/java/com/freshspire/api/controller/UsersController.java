@@ -5,7 +5,7 @@ import com.freshspire.api.client.AuthyClient;
 import com.freshspire.api.model.ResponseMessage;
 import com.freshspire.api.model.User;
 import com.freshspire.api.model.params.NewUserParams;
-import com.freshspire.api.model.params.PhoneNumberVerificationParams;
+import com.freshspire.api.model.params.PhoneNumberAuthenticationParams;
 import com.freshspire.api.model.params.ResetPasswordParams;
 import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.PasswordUtil;
@@ -61,7 +61,7 @@ public class UsersController {
      * @return
      */
     @RequestMapping(value = "/create", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity<String> getNewUserVerificationCode(@RequestParam String phoneNumber) {
+    public ResponseEntity<String> getNewUserAuthCode(@RequestParam String phoneNumber) {
 
         // If phone is null
         if(phoneNumber == null) {
@@ -76,11 +76,11 @@ public class UsersController {
 
         if(!verification.isOk()) {
             ResponseMessage error = new ResponseMessage("error",
-                    "Could not send verification code. Is phone number formatted correctly?");
+                    "Could not send authentication code. Is phone number formatted correctly?");
             return ResponseUtil.badRequest(error);
         }
 
-        ResponseMessage res = new ResponseMessage("ok", "Verification code sent to " + phoneNumber);
+        ResponseMessage res = new ResponseMessage("ok", "Authentication code sent to " + phoneNumber);
         return ResponseUtil.ok(res);
     }
 
@@ -99,16 +99,20 @@ public class UsersController {
 
         String code = params.getValidationCode();
 
-        if(code == null) {
-            ResponseMessage res = new ResponseMessage("error", "Please include validation code. Code: " + code);
-            return ResponseUtil.badRequest(res);
+        if(code.length() == 0) {
+            JsonObject res = new JsonObject();
+            res.addProperty("status", "error");
+            res.addProperty("message", "Authentication code is empty");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(gson.toJson(res));
         }
 
         Verification verification = authyClient.checkAuthentication(params.getPhoneNumber(), code);
 
         if(!verification.isOk()) {
-            ResponseMessage res = new ResponseMessage("error", "Invalid validation code. Authy error: " + verification.getMessage());
-            return ResponseUtil.badRequest(res);
+            JsonObject res = new JsonObject();
+            res.addProperty("status", "error");
+            res.addProperty("message", "Invalid phone number/authentication code pair");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(gson.toJson(res));
         }
 
         // Verification was good, so now validate new user params and then create the user
@@ -152,13 +156,10 @@ public class UsersController {
         if (userService.userExistsWithPhoneNumber(phoneNumber)) {
             // Then the user exists in the DB for that phone number
             authyClient.startAuthentication(phoneNumber);
-            return ResponseUtil.ok(
-                    "Verification code sent to "
-                    + phoneNumber
-                    + "if account exists with that number");
-        } else {
-            return ResponseUtil.badRequest("No account for that phone number");
+
         }
+        return ResponseUtil.ok("Authentication code sent to " + phoneNumber
+                + " if account exists with that number");
     }
 
     /**
@@ -170,7 +171,12 @@ public class UsersController {
      * @return user json with status message
      */
     @RequestMapping(value = "/forgot-password", method = RequestMethod.PUT, produces = "application/json")
-    public ResponseEntity<String> verifyCodeForForgotPassword(@RequestBody PhoneNumberVerificationParams params) {
+    public ResponseEntity<String> verifyCodeForForgotPassword(@RequestBody PhoneNumberAuthenticationParams params) {
+        // New password cannot be empty string
+        if(params.getNewPassword().length() == 0) {
+            return ResponseUtil.badRequest(new ResponseMessage("error", "New password cannot be empty"));
+        }
+
         // Check with Authy if the code was correct
         Verification verification = authyClient.checkAuthentication(
                 params.getPhoneNumber(),
@@ -192,7 +198,10 @@ public class UsersController {
 
             return ResponseUtil.ok(gson.toJson(updatedUser));
         } else {
-            return ResponseUtil.badRequest(new ResponseMessage("error", "Authentication code is invalid"));
+            JsonObject res = new JsonObject();
+            res.addProperty("status", "error");
+            res.addProperty("message", "Phone/authentication code pair is incorrect");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(gson.toJson(res));
         }
     }
 

@@ -3,7 +3,7 @@ package com.freshspire.api.model.params;
 /**
  * Created by aadisriram on 2/25/16.
  */
-public class PhoneNumberVerificationParams {
+public class PhoneNumberAuthenticationParams {
 
     private String phoneNumber;
 
@@ -11,7 +11,7 @@ public class PhoneNumberVerificationParams {
 
     private String newPassword;
 
-    public PhoneNumberVerificationParams(String phoneNumber, String verificationCode, String newPassword) {
+    public PhoneNumberAuthenticationParams(String phoneNumber, String verificationCode, String newPassword) {
         this.phoneNumber = phoneNumber;
         this.verificationCode = verificationCode;
         this.newPassword = newPassword;
