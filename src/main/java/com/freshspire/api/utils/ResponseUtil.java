@@ -2,6 +2,8 @@ package com.freshspire.api.utils;
 
 import com.freshspire.api.model.ResponseMessage;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.sun.org.apache.regexp.internal.RE;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,20 +33,38 @@ public class ResponseUtil {
     }
 
     /**
-     * Returns a ResponseEntity with status 400 Bad Request and a response body of res in JSON format
-     * @param res The desired response content (such as an error message "status": "error", "message": "...")
-     * @return A 400 Bad Request response with the json representation of res in the body
+     * Returns a 400 Bad Request with status: error and message: (message) properties in JSON in the body
+     * @param message Error message to include
+     * @return A 400 Bad Request response with the JSON information included in the body
      */
-    public static <E> ResponseEntity<String> badRequest(E res) {
-        return ResponseEntity.badRequest().body(asJsonString(res, res.getClass()));
+    public static ResponseEntity<String> badRequest(String message) {
+        JsonObject json = new JsonObject();
+        json.addProperty("status", "error");
+        json.addProperty("message", message);
+        return ResponseEntity.badRequest().body(gson.toJson(json));
     }
 
     /**
-     * Returns a ResponseEntity with status 200 OK and a response body of res in JSON format
-     * @param res The desired response content (such as an ok message "status": "ok", "message": "...")
-     * @return A 200 OK response with the json representation of res in the body
+     * Returns a 200 OK with status: ok and message: (message) properties in JSON in the body
+     * @param message Message to include
+     * @return A 200 OK response with the JSON information included in the body
      */
-    public static <E> ResponseEntity<String> ok(E res) {
-        return ResponseEntity.ok().body(asJsonString(res, res.getClass()));
+    public static ResponseEntity<String> ok(String message) {
+        JsonObject json = new JsonObject();
+        json.addProperty("status", "ok");
+        json.addProperty("message", message);
+        return ResponseEntity.ok().body(gson.toJson(json));
+    }
+
+    /**
+     * Returns a 401 Unauthorized with status: error and message: (message) properties in JSON in the body
+     * @param message Message to include
+     * @return A 401 Unauthorized response with the JSON information include in the body
+     */
+    public static ResponseEntity<String> unauthorized(String message) {
+        JsonObject json = new JsonObject();
+        json.addProperty("status", "error");
+        json.addProperty("message", message);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(gson.toJson(json));
     }
 }

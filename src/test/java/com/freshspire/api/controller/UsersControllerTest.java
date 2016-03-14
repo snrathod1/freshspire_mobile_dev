@@ -451,7 +451,7 @@ public class UsersControllerTest {
         );
 
         // Expected
-        ResponseEntity expected = ResponseUtil.badRequest(new ResponseMessage("error", "New password cannot be empty"));
+        ResponseEntity expected = ResponseUtil.badRequest("New password cannot be empty");
 
         // Actual
         ResponseEntity actual = usersController.verifyCodeForForgotPassword(params);
@@ -546,7 +546,7 @@ public class UsersControllerTest {
         ResetPasswordParams params = new ResetPasswordParams(VALID_API_KEY, VALID_PASSWORD, "");
 
         // Expected
-        ResponseEntity expected = ResponseUtil.badRequest(new ResponseMessage("error", "New password cannot be empty"));
+        ResponseEntity expected = ResponseUtil.badRequest("New password cannot be empty");
 
         // Actual
         ResponseEntity actual = usersController.resetPassword(params);
@@ -584,7 +584,7 @@ public class UsersControllerTest {
         when(mockUserService.userExistsWithApiKey(VALID_API_KEY)).thenReturn(true);
 
         // Expected
-        ResponseEntity expected = ResponseUtil.ok(new ResponseMessage("ok", "Successfully updated password"));
+        ResponseEntity expected = ResponseUtil.ok("Successfully updated password");
 
         // Actual
         ResponseEntity actual = usersController.resetPassword(params);

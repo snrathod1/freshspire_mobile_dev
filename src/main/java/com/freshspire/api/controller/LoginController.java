@@ -60,12 +60,11 @@ public class LoginController {
         if(inputPasswordHashed.equals(user.getPassword())) {
 
             // Return the user
-            return ResponseUtil.ok(user);
+            return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.asJsonString(user, user.getClass()));
         } else {
 
             // Password invalid, return 400 Bad Request
-            ResponseMessage res = new ResponseMessage("error", "Bad request");
-            return ResponseUtil.badRequest(res);
+            return ResponseUtil.badRequest("Bad request");
         }
 
     }

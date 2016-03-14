@@ -65,23 +65,18 @@ public class UsersController {
 
         // If phone is null
         if(phoneNumber == null) {
-            ResponseMessage error = new ResponseMessage("error", "Phone number is invalid");
-            return ResponseUtil.badRequest(error);
+            return ResponseUtil.badRequest("Phone number is invalid");
         } else if(phoneNumber.length() == 0) {
-            ResponseMessage error = new ResponseMessage("error", "Phone number is empty");
-            return ResponseUtil.badRequest(error);
+            return ResponseUtil.badRequest("Phone number is empty");
         }
 
         Verification verification = authyClient.startAuthentication(phoneNumber);
 
         if(!verification.isOk()) {
-            ResponseMessage error = new ResponseMessage("error",
-                    "Could not send authentication code. Is phone number formatted correctly?");
-            return ResponseUtil.badRequest(error);
+            return ResponseUtil.badRequest("Could not send authentication code. Is phone number formatted correctly?");
         }
 
-        ResponseMessage res = new ResponseMessage("ok", "Authentication code sent to " + phoneNumber);
-        return ResponseUtil.ok(res);
+        return ResponseUtil.ok("Authentication code sent to " + phoneNumber);
     }
 
     /**
@@ -100,28 +95,22 @@ public class UsersController {
         String code = params.getValidationCode();
 
         if(code.length() == 0) {
-            JsonObject res = new JsonObject();
-            res.addProperty("status", "error");
-            res.addProperty("message", "Authentication code is empty");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(gson.toJson(res));
+            return ResponseUtil.unauthorized("Authentication code is empty");
+        } else if(params.getPassword().length() == 0) {
+            return ResponseUtil.badRequest("Password parameter cannot be empty");
         }
 
         Verification verification = authyClient.checkAuthentication(params.getPhoneNumber(), code);
 
-        if(!verification.isOk()) {
-            JsonObject res = new JsonObject();
-            res.addProperty("status", "error");
-            res.addProperty("message", "Invalid phone number/authentication code pair");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(gson.toJson(res));
-        }
+        if(!verification.isOk())
+            return ResponseUtil.unauthorized("Invalid phone number/authentication code pair");
 
         // Verification was good, so now validate new user params and then create the user
         if(params.getPassword() == null
                 || params.getPassword().length() == 0
                 || params.getFirstName() == null
                 || params.getPhoneNumber() == null) {
-            ResponseMessage res = new ResponseMessage("error", "Invalid request parameters");
-            return ResponseUtil.badRequest(res);
+            return ResponseUtil.badRequest("Invalid request parameters");
         }
 
         // New user params were valid, so now create user object, insert into DB, and return it.
@@ -174,7 +163,7 @@ public class UsersController {
     public ResponseEntity<String> verifyCodeForForgotPassword(@RequestBody PhoneNumberAuthenticationParams params) {
         // New password cannot be empty string
         if(params.getNewPassword().length() == 0) {
-            return ResponseUtil.badRequest(new ResponseMessage("error", "New password cannot be empty"));
+            return ResponseUtil.badRequest("New password cannot be empty");
         }
 
         // Check with Authy if the code was correct
@@ -196,12 +185,9 @@ public class UsersController {
             updatedUser.addProperty("firstName", user.getFirstName());
             updatedUser.addProperty("phoneNumber", user.getPhoneNumber());
 
-            return ResponseUtil.ok(gson.toJson(updatedUser));
+            return ResponseEntity.ok().body(gson.toJson(updatedUser));
         } else {
-            JsonObject res = new JsonObject();
-            res.addProperty("status", "error");
-            res.addProperty("message", "Phone/authentication code pair is incorrect");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(gson.toJson(res));
+            return ResponseUtil.unauthorized("Phone/authentication code pair is incorrect");
         }
     }
 
@@ -222,11 +208,9 @@ public class UsersController {
             user.setRestricted(false);
             userService.updateUser(user);
 
-            return ResponseUtil.ok(new ResponseMessage("ok", "Successfully updated password"));
+            return ResponseUtil.ok("Successfully updated password");
         }
-
-        return ResponseUtil.badRequest(new ResponseMessage(
-                "error", "Bad parameters"));
+        return ResponseUtil.unauthorized("Invalid authentication credentials");
     }
 
     /**
