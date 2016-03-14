@@ -95,9 +95,11 @@ public class UsersController {
         String code = params.getValidationCode();
 
         if(code.length() == 0) {
-            return ResponseUtil.unauthorized("Authentication code is empty");
+            return ResponseUtil.unauthorized("Invalid authentication credentials");
         } else if(params.getPassword().length() == 0) {
             return ResponseUtil.badRequest("Password parameter cannot be empty");
+        } else if(params.getFirstName().length() == 0) {
+            return ResponseUtil.badRequest("First name parameter cannot be empty");
         }
 
         Verification verification = authyClient.checkAuthentication(params.getPhoneNumber(), code);
@@ -130,7 +132,7 @@ public class UsersController {
 
         userService.addUser(newUser);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(gson.toJson(newUser));
+        return ResponseUtil.makeUserObjectResponse(newUser, HttpStatus.CREATED);
     }
 
     /**
@@ -179,13 +181,7 @@ public class UsersController {
             user.setPassword(hashedPassword);
             userService.updateUser(user);
 
-            JsonObject updatedUser = new JsonObject();
-            updatedUser.addProperty("userId", user.getUserId());
-            updatedUser.addProperty("apiKey", user.getApiKey());
-            updatedUser.addProperty("firstName", user.getFirstName());
-            updatedUser.addProperty("phoneNumber", user.getPhoneNumber());
-
-            return ResponseEntity.ok().body(gson.toJson(updatedUser));
+            return ResponseUtil.makeUserObjectResponse(user, HttpStatus.OK);
         } else {
             return ResponseUtil.unauthorized("Phone/authentication code pair is incorrect");
         }
@@ -201,37 +197,35 @@ public class UsersController {
      */
     @RequestMapping(value = "/reset-password", method = RequestMethod.POST, produces = "application/json")
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordParams params) {
-        User user = userService.getUserByApiKey(params.getApiKey());
+        // New password can't be empty
+        if(params.getNewPassword().length() == 0) {
+            return ResponseUtil.badRequest("New password cannot be empty");
+        }
 
-        if (isValidCase(user, params)) {
+        // If the API key doesn't match any user, so return 401 Unauthorized
+        User user = userService.getUserByApiKey(params.getApiKey());
+        if(user == null) return ResponseUtil.unauthorized("Invalid authentication credentials");
+
+        // If the supplied password matches the user's password, then update it
+        if (isCorrectPasswordForUser(user, params.getCurrentPassword())) {
             user.setPassword(PasswordUtil.encryptString(params.getNewPassword(), user.getSalt()));
             user.setRestricted(false);
             userService.updateUser(user);
 
             return ResponseUtil.ok("Successfully updated password");
+        } else {
+            // Given password was incorrect, so return 401 Unauthorized
+            return ResponseUtil.unauthorized("Invalid authentication credentials");
         }
-        return ResponseUtil.unauthorized("Invalid authentication credentials");
     }
 
     /**
-     * Checks if conditions are satisfied for updating password with just provided data
+     * Checks if a given password string is the correct password for a user
      * @param user
-     * @param params
-     * @return if this is a valid case to change password
+     * @param password
+     * @return If the password is correct for the user
      */
-    private boolean isValidCase(User user, ResetPasswordParams params) {
-
-        /* If the user is not restricted and a current password is provided */
-        if (!user.isRestricted() && params.getCurrentPassword() != null) {
-
-            /* Authenticate user and return result */
-            return PasswordUtil.matchPassword(params.getCurrentPassword(), user.getSalt(), user.getPassword());
-        }
-        /* If the user is restricted and no current password has been provided */
-        else if (user.isRestricted() && params.getCurrentPassword() == null) {
-            return true;
-        }
-
-        return false;
+    private boolean isCorrectPasswordForUser(User user, String password) {
+        return PasswordUtil.encryptString(password, user.getSalt()).equals(user.getPassword());
     }
 }

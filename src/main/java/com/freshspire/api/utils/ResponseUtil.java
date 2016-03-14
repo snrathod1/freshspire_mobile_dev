@@ -1,6 +1,7 @@
 package com.freshspire.api.utils;
 
 import com.freshspire.api.model.ResponseMessage;
+import com.freshspire.api.model.User;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.sun.org.apache.regexp.internal.RE;
@@ -53,7 +54,7 @@ public class ResponseUtil {
         JsonObject json = new JsonObject();
         json.addProperty("status", "ok");
         json.addProperty("message", message);
-        return ResponseEntity.ok().body(gson.toJson(json));
+        return ResponseEntity.ok(gson.toJson(json));
     }
 
     /**
@@ -66,5 +67,24 @@ public class ResponseUtil {
         json.addProperty("status", "error");
         json.addProperty("message", message);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(gson.toJson(json));
+    }
+
+    /**
+     * Returns HTTP response with a user object in the response body as JSON, but the user object
+     * only includes attributes of the user that need to be included in the response.
+     * For example, "firstName" is included but "salt" isn't (and shouldn't be).
+     * @param user The User object to put in the response
+     * @param status The desired HTTP status of the response
+     * @return The HTTP response with the pared-down User object
+     */
+    public static ResponseEntity<String> makeUserObjectResponse(User user, HttpStatus status) {
+        JsonObject userJson = new JsonObject();
+
+        userJson.addProperty("apiKey", user.getApiKey());
+        userJson.addProperty("firstName", user.getFirstName());
+        userJson.addProperty("phoneNumber", user.getPhoneNumber());
+        userJson.addProperty("userId", user.getUserId());
+
+        return ResponseEntity.status(status).body(gson.toJson(userJson));
     }
 }
