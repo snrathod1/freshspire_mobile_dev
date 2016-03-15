@@ -16,11 +16,16 @@ import sun.misc.REException;
 public class ResponseUtil {
 
     private static Gson gson = new Gson();
+    
+    private static final String STATUS = "status";
+    private static final String ERROR = "error";
+    private static final String OK = "ok";
+    private static final String MESSAGE = "message";
 
     public static JSONObject getStatusResponseString(String message, String status) {
         JSONObject statusObject = new JSONObject();
-        statusObject.put("message", message);
-        statusObject.put("status", status);
+        statusObject.put(MESSAGE, message);
+        statusObject.put(STATUS, status);
         return statusObject;
     }
 
@@ -40,9 +45,9 @@ public class ResponseUtil {
      */
     public static ResponseEntity<String> badRequest(String message) {
         JsonObject json = new JsonObject();
-        json.addProperty("status", "error");
-        json.addProperty("message", message);
-        return ResponseEntity.badRequest().body(gson.toJson(json));
+        json.addProperty(STATUS, ERROR);
+        json.addProperty(MESSAGE, message);
+        return ResponseEntity.badRequest().body(json.toString());
     }
 
     /**
@@ -52,9 +57,9 @@ public class ResponseUtil {
      */
     public static ResponseEntity<String> ok(String message) {
         JsonObject json = new JsonObject();
-        json.addProperty("status", "ok");
-        json.addProperty("message", message);
-        return ResponseEntity.ok(gson.toJson(json));
+        json.addProperty(STATUS, OK);
+        json.addProperty(MESSAGE, message);
+        return ResponseEntity.ok(json.toString());
     }
 
     /**
@@ -64,8 +69,8 @@ public class ResponseUtil {
      */
     public static ResponseEntity<String> unauthorized(String message) {
         JsonObject json = new JsonObject();
-        json.addProperty("status", "error");
-        json.addProperty("message", message);
+        json.addProperty(STATUS, ERROR);
+        json.addProperty(MESSAGE, message);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(gson.toJson(json));
     }
 
@@ -83,7 +88,10 @@ public class ResponseUtil {
         userJson.addProperty("apiKey", user.getApiKey());
         userJson.addProperty("firstName", user.getFirstName());
         userJson.addProperty("phoneNumber", user.getPhoneNumber());
-        userJson.addProperty("userId", user.getUserId());
+        if(user.getUserId() == null) {
+            userJson.addProperty("userId", "nuuuuullll");
+        } else { userJson.addProperty("userId", user.getUserId()); }
+
 
         return ResponseEntity.status(status).body(gson.toJson(userJson));
     }
