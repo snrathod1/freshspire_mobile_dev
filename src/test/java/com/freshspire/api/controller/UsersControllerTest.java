@@ -40,13 +40,13 @@ public class UsersControllerTest {
 
     private UsersController usersController;
 
-    private static final String VALID_API_KEY = "apiKey";
-    private static final String VALID_USER_ID = "1";
-    private static final String VALID_FIRST_NAME = "FirstName";
-    private static final String VALID_PASSWORD = "A valid password";
-    private static final String VALID_SALT = "salt";
-    private static final String VALID_PHONE_NUMBER = "1234567890";
-    private static final String VALID_AUTHENTICATION_CODE = "0000";
+    private static final String VALID_API_KEY               = "apiKey";
+    private static final String VALID_USER_ID               = "1";
+    private static final String VALID_FIRST_NAME            = "FirstName";
+    private static final String VALID_PASSWORD              = "A valid password";
+    private static final String VALID_SALT                  = "salt";
+    private static final String VALID_PHONE_NUMBER          = "1234567890";
+    private static final String VALID_AUTHENTICATION_CODE   = "0000";
 
     @Before
     public void setUp() {

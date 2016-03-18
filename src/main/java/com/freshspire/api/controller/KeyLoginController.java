@@ -44,10 +44,10 @@ public class KeyLoginController {
 
         // If user doesn't exist for that API key...
         if(user == null) {
-            return ResponseUtil.badRequest("Invalid API key");
+            return ResponseUtil.unauthorized("Invalid API key");
         } else {
-            // user was found, return it
-            return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.asJsonString(user, user.getClass()));
+            // User was found, return it
+            return ResponseUtil.makeUserObjectResponse(user, HttpStatus.OK);
         }
     }
 }
