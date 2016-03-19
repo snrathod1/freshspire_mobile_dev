@@ -4,6 +4,7 @@ import com.authy.api.Verification;
 import com.freshspire.api.client.AuthyClient;
 import com.freshspire.api.model.ResponseMessage;
 import com.freshspire.api.model.User;
+import com.freshspire.api.model.params.ApiKeyParams;
 import com.freshspire.api.model.params.NewUserParams;
 import com.freshspire.api.model.params.PhoneNumberAuthenticationParams;
 import com.freshspire.api.model.params.ResetPasswordParams;
@@ -19,6 +20,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Date;
@@ -218,7 +220,6 @@ public class UsersControllerTest {
                 emptyPasswordExpected.getStatusCode(), emptyPasswordActual.getStatusCode());
         assertEquals("Response body incorrect",
                 emptyPasswordExpected.getBody(), emptyPasswordActual.getBody());
-
     }
 
     /**
@@ -288,6 +289,8 @@ public class UsersControllerTest {
                 expected.getStatusCode(), actual.getStatusCode());
         assertEquals("Response body is incorrect",
                 expected.getBody(), actual.getBody());
+        assertEquals("Content type should be application/json",
+                MediaType.APPLICATION_JSON, actual.getHeaders().getContentType());
     }
 
     /**
@@ -305,7 +308,7 @@ public class UsersControllerTest {
         final String INVALID_PHONE = "000foo000";
 
         // Set up mock behavior
-        when(mockUserService.userExistsWithPhoneNumber(INVALID_PHONE)).thenReturn(false);
+        when(mockUserService.getUserByPhoneNumber(INVALID_PHONE)).thenReturn(null);
 
         // Expected response
         ResponseEntity expected = ResponseUtil.ok("Authentication code sent to "
@@ -316,7 +319,7 @@ public class UsersControllerTest {
         ResponseEntity actual = usersController.sendCodeForForgotPassword(INVALID_PHONE);
 
         // Verify that userService was called, authy wasn't called, and HTTP response is correct
-        verify(mockUserService).userExistsWithPhoneNumber(INVALID_PHONE);
+        verify(mockUserService).getUserByPhoneNumber(INVALID_PHONE);
         verifyZeroInteractions(mockAuthyClient);
         assertEquals("HTTP status code should be 200",
                 expected.getStatusCode(), actual.getStatusCode());
@@ -333,7 +336,7 @@ public class UsersControllerTest {
     public void validPhoneShouldSendForgotPasswordCode() throws Exception {
         // Set up mock behavior
         User mockUser = mock(User.class);
-        when(mockUserService.userExistsWithPhoneNumber(VALID_PHONE_NUMBER)).thenReturn(true);
+        when(mockUserService.getUserByPhoneNumber(VALID_PHONE_NUMBER)).thenReturn(mockUser);
 
         // Expected response
         ResponseEntity expected = ResponseUtil.ok("Authentication code sent to "
@@ -344,7 +347,7 @@ public class UsersControllerTest {
         ResponseEntity actual = usersController.sendCodeForForgotPassword(VALID_PHONE_NUMBER);
 
         // Verify user service and authy called appropriately, and HTTP response is correct
-        verify(mockUserService).userExistsWithPhoneNumber(VALID_PHONE_NUMBER);
+        verify(mockUserService).getUserByPhoneNumber(VALID_PHONE_NUMBER);
         verify(mockAuthyClient).startAuthentication(VALID_PHONE_NUMBER);
         assertEquals("Status code should be 200 OK",
                 expected.getStatusCode(), actual.getStatusCode());
@@ -485,7 +488,7 @@ public class UsersControllerTest {
     public void incorrectApiKeyShouldNotResetPassword() throws Exception {
         ResetPasswordParams params = new ResetPasswordParams("invalid API key", VALID_PASSWORD, "newPassword");
         when(mockUserService.getUserByApiKey("invalid API key")).thenReturn(null);
-        when(mockUserService.userExistsWithApiKey("invalid API key")).thenReturn(false);
+        when(mockUserService.getUserByApiKey("invalid API key")).thenReturn(null);
 
         // Expected
         ResponseEntity expected = ResponseUtil.unauthorized("Invalid authentication credentials");
@@ -513,7 +516,6 @@ public class UsersControllerTest {
         ResetPasswordParams params = new ResetPasswordParams(VALID_API_KEY, "differentPassword", "newPassword");
         User mockUserFromDatabase = mock(User.class);
         when(mockUserService.getUserByApiKey(VALID_API_KEY)).thenReturn(mockUserFromDatabase);
-        when(mockUserService.userExistsWithApiKey(VALID_API_KEY)).thenReturn(true);
 
         when(mockUserFromDatabase.getUserId()).thenReturn(VALID_USER_ID);
         when(mockUserFromDatabase.getFirstName()).thenReturn(VALID_FIRST_NAME);
@@ -554,7 +556,8 @@ public class UsersControllerTest {
         ResetPasswordParams params = new ResetPasswordParams(VALID_API_KEY, VALID_PASSWORD, "");
 
         // Expected
-        ResponseEntity expected = ResponseUtil.badRequest("New password cannot be empty");
+        ResponseEntity expected = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                gson.toJson(new ResponseMessage("error", "New password cannot be empty")));
 
         // Actual
         ResponseEntity actual = usersController.resetPassword(params);
@@ -589,7 +592,6 @@ public class UsersControllerTest {
         when(mockUser.isBanned()).thenReturn(false);
         // Mock user service behavior
         when(mockUserService.getUserByApiKey(VALID_API_KEY)).thenReturn(mockUser);
-        when(mockUserService.userExistsWithApiKey(VALID_API_KEY)).thenReturn(true);
 
         // Expected
         ResponseEntity expected = ResponseUtil.ok("Successfully updated password");
@@ -614,4 +616,108 @@ public class UsersControllerTest {
         assertEquals("Response body is incorrect",
                 expected.getBody(), actual.getBody());
     }
+
+    /**
+     * Tests DELETE /users/{userId} method
+     * with invalid user ID
+     * @throws Exception
+     */
+    @Test
+    public void unknownUserIdShouldDeleteUser() throws Exception{
+        // Set up mocks and parameters
+        ApiKeyParams params = new ApiKeyParams(VALID_API_KEY);
+        when(mockUserService.getUserById("invalid user ID")).thenReturn(null);
+
+        // Expected
+        ResponseEntity expected = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseUtil.asJsonString(
+                new ResponseMessage("error", "User ID/API key pair incorrect"), ResponseMessage.class));
+
+        // Actual
+        ResponseEntity actual = usersController.deleteUser("invalid user ID", params);
+
+        // Verify mock user service called, HTTP response is correct
+        verify(mockUserService).getUserById("invalid user ID");
+        assertEquals("HTTP response should be 401 Unauthorized",
+                expected.getStatusCode(), actual.getStatusCode());
+        assertEquals("Response body is incorrect",
+                expected.getBody(), actual.getBody());
+    }
+
+    /**
+     * Tests DELETE /users/{userId} method
+     * with invalid API key
+     * @throws Exception
+     */
+    @Test
+    public void invalidApiKeyShouldNotDeleteUser() throws Exception {
+        ApiKeyParams params = new ApiKeyParams("invalid API key");
+        User validUser = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY,
+                VALID_PASSWORD, VALID_SALT, new Date(0), false, false);
+        when(mockUserService.getUserById(VALID_USER_ID)).thenReturn(validUser);
+
+        // Expected
+        ResponseEntity expected = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseUtil.asJsonString(
+                new ResponseMessage("error", "User ID/API key pair incorrect"), ResponseMessage.class));
+
+        // Actual
+        ResponseEntity actual = usersController.deleteUser(VALID_USER_ID, params);
+
+        // Verify user service called and HTTP response is correct
+        verify(mockUserService).getUserById(VALID_USER_ID);
+        assertEquals("HTTP status code should be 401 Unauthorized",
+                expected.getStatusCode(), actual.getStatusCode());
+        assertEquals("Response body is incorrect",
+                expected.getBody(), actual.getBody());
+    }
+
+    @Test
+    public void emptyApiKeyShouldNotDeleteUser() throws Exception {
+        ApiKeyParams params = new ApiKeyParams("");
+        User validUser = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY,
+                VALID_PASSWORD, VALID_SALT, new Date(0), false, false);
+
+        // Expected
+        ResponseEntity expected = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseUtil.asJsonString(
+                new ResponseMessage("error", "User ID/API key pair incorrect"), ResponseMessage.class));
+
+        // Actual
+        ResponseEntity actual = usersController.deleteUser(VALID_USER_ID, params);
+
+        // Verify user service not called, HTTP response correct
+        verifyZeroInteractions(mockUserService);
+        assertEquals("HTTP status code should be 401 Unauthorized",
+                expected.getStatusCode(), actual.getStatusCode());
+        assertEquals("Response body is incorrect",
+                expected.getBody(), actual.getBody());
+    }
+
+    /**
+     * Tests DELETE /users/{userId} method
+     * with valid parameters
+     * @throws Exception
+     */
+    @Test
+    public void validParametersShouldDeleteUser() throws Exception {
+        ApiKeyParams params = new ApiKeyParams(VALID_API_KEY);
+        User validUser = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY,
+                VALID_PASSWORD, VALID_SALT, new Date(0), false, false);
+        when(mockUserService.getUserById(VALID_USER_ID)).thenReturn(validUser);
+
+        // Expected
+        ResponseEntity expected = ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.asJsonString(
+                new ResponseMessage("ok", "Successfully deleted user"), ResponseMessage.class));
+
+        // Actual
+        ResponseEntity actual = usersController.deleteUser(VALID_USER_ID, params);
+
+        // Verify user service called, HTTP response is correct
+        verify(mockUserService).getUserById(VALID_USER_ID);
+        verify(mockUserService).deleteUser(VALID_USER_ID, VALID_API_KEY);
+        verifyNoMoreInteractions(mockUserService);
+        assertEquals("HTTP status code should be 200 OK",
+                expected.getStatusCode(), actual.getStatusCode());
+        assertEquals("Response body is incorrect",
+                expected.getBody(), actual.getBody());
+    }
+
 }

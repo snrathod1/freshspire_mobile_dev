@@ -1,7 +1,7 @@
 package com.freshspire.api.controller;
 
 import com.freshspire.api.model.User;
-import com.freshspire.api.model.params.ApiKeyLoginParams;
+import com.freshspire.api.model.params.ApiKeyParams;
 import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.ResponseUtil;
 import com.google.gson.Gson;
@@ -70,7 +70,7 @@ public class KeyLoginControllerTest {
     @Test
     public void validApiKeyShouldLoginUser() {
         // Setup
-        ApiKeyLoginParams params = new ApiKeyLoginParams(VALID_API_KEY);
+        ApiKeyParams params = new ApiKeyParams(VALID_API_KEY);
         User user = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY,
                 VALID_PASSWORD, VALID_SALT, new Date(0), false, false);
         when(mockUserService.getUserByApiKey(VALID_API_KEY)).thenReturn(user);
@@ -93,7 +93,7 @@ public class KeyLoginControllerTest {
     @Test
     public void invalidApiKeyShouldNotLoginUser() {
         // Setup
-        ApiKeyLoginParams params = new ApiKeyLoginParams("invalid API key");
+        ApiKeyParams params = new ApiKeyParams("invalid API key");
         User user = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY,
                 VALID_PASSWORD, VALID_SALT, new Date(0), false, false);
         when(mockUserService.getUserByApiKey("invalid API key")).thenReturn(null);

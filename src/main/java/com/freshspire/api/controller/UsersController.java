@@ -4,6 +4,7 @@ import com.authy.api.Verification;
 import com.freshspire.api.client.AuthyClient;
 import com.freshspire.api.model.ResponseMessage;
 import com.freshspire.api.model.User;
+import com.freshspire.api.model.params.ApiKeyParams;
 import com.freshspire.api.model.params.NewUserParams;
 import com.freshspire.api.model.params.PhoneNumberAuthenticationParams;
 import com.freshspire.api.model.params.ResetPasswordParams;
@@ -144,7 +145,7 @@ public class UsersController {
      */
     @RequestMapping(value = "/forgot-password/{phoneNumber}", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<String> sendCodeForForgotPassword(@PathVariable String phoneNumber) {
-        if (userService.userExistsWithPhoneNumber(phoneNumber)) {
+        if (userService.getUserByPhoneNumber(phoneNumber) != null) {
             // Then the user exists in the DB for that phone number
             authyClient.startAuthentication(phoneNumber);
 
@@ -218,6 +219,27 @@ public class UsersController {
             return ResponseUtil.unauthorized("Invalid authentication credentials");
         }
     }
+
+    @RequestMapping(value = "/{userId}", method = RequestMethod.DELETE, produces = "application/json")
+    public ResponseEntity<String> deleteUser(@PathVariable("userId") String userId, @RequestBody ApiKeyParams params) {
+        // If API key is empty, return error
+        if(params.getApiKey().length() == 0)
+            return ResponseUtil.unauthorized("User ID/API key pair incorrect");
+
+        User user = userService.getUserById(userId);
+        // If user doesn't exist in DB, return error
+        if(user == null) return ResponseUtil.unauthorized("User ID/API key pair incorrect");
+
+        // If API key is valid, delete user
+        if(user.getApiKey().equals(params.getApiKey())) {
+            userService.deleteUser(userId, params.getApiKey());
+            return ResponseUtil.ok("Successfully deleted user");
+
+        } else { // Otherwise, return error
+            return ResponseUtil.unauthorized("User ID/API key pair incorrect");
+        }
+    }
+
 
     /**
      * Checks if a given password string is the correct password for a user

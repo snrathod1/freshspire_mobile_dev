@@ -1,7 +1,6 @@
 package com.freshspire.api.controller;
 
-import com.freshspire.api.model.params.ApiKeyLoginParams;
-import com.freshspire.api.model.ResponseMessage;
+import com.freshspire.api.model.params.ApiKeyParams;
 import com.freshspire.api.model.User;
 import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.ResponseUtil;
@@ -38,7 +37,7 @@ public class KeyLoginController {
     }
 
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity<String> loginWithApiKey(@RequestBody ApiKeyLoginParams params) {
+    public ResponseEntity<String> loginWithApiKey(@RequestBody ApiKeyParams params) {
         // Try to find the user based on API key parameter
         User user = userService.getUserByApiKey(params.getApiKey());
 

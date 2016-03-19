@@ -51,17 +51,9 @@ public class UserServiceImpl implements UserService {
         return this.userDAO.getUserByPhoneNumber(phoneNumber);
     }
 
-    public boolean userExistsWithPhoneNumber(String phoneNumber) {
-        return (this.userDAO.getUserByPhoneNumber(phoneNumber) != null);
-    }
-
     @Transactional
     public User getUserByApiKey(String apiKey) {
         return this.userDAO.getUserByApiKey(apiKey);
     }
 
-    @Transactional
-    public boolean userExistsWithApiKey(String apiKey) {
-        return (this.userDAO.getUserByApiKey(apiKey) != null);
-    }
 }

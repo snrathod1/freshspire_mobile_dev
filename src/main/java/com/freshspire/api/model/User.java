@@ -47,7 +47,7 @@ public class User {
     @Type(type = "org.hibernate.type.NumericBooleanType")
     private boolean restricted;
 
-    //public User() {}
+    public User() {}
 
     public User(String firstName, String phoneNumber, String apiKey, String password, String salt,
                 Date created, boolean admin, boolean banned) {

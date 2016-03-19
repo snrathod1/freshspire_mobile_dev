@@ -1,15 +1,19 @@
 package com.freshspire.api.model.params;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  * com.freshspire.api.model
  *
  * @created 2/29/16.
  */
-public class ApiKeyLoginParams {
+public class ApiKeyParams {
 
     private String apiKey;
 
-    public ApiKeyLoginParams(String apiKey) {
+    public ApiKeyParams() {}
+
+    public ApiKeyParams(String apiKey) {
         this.apiKey = apiKey;
     }
 
