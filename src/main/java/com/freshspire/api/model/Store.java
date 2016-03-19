@@ -1,7 +1,14 @@
 package com.freshspire.api.model;
 
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Latitude;
+import org.hibernate.search.annotations.Longitude;
+import org.hibernate.search.annotations.Spatial;
+
 import javax.persistence.*;
 
+@Spatial
+@Indexed
 @Entity
 @Table(name="store")
 public class Store {
@@ -14,11 +21,13 @@ public class Store {
     @Column(name = "address")
     private String address;
 
+    @Latitude
     @Column(name = "lat")
-    private float latitude;
+    private double latitude;
 
+    @Longitude
     @Column(name = "long")
-    private float longitude;
+    private double longitude;
 
     public int getStoreId() {
         return storeId;
@@ -36,19 +45,19 @@ public class Store {
         this.address = address;
     }
 
-    public float getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(float latitude) {
+    public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
-    public float getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(float longitude) {
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 
