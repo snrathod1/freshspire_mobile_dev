@@ -1,5 +1,6 @@
 package com.freshspire.api.utils;
 
+import com.freshspire.api.model.User;
 import org.apache.commons.codec.binary.Base64;
 
 import javax.crypto.SecretKeyFactory;
@@ -51,12 +52,13 @@ public class PasswordUtil {
         }
     }
 
-    public static boolean matchPassword(String password, String salt, String hash) {
-        String encryptedPassword = encryptString(password, salt);
-        if (hash.equals(encryptedPassword)) {
-            return true;
-        }
-
-        return false;
+    /**
+     * Checks if a given password string is the correct password for a user
+     * @param user
+     * @param password
+     * @return If the password is correct for the user
+     */
+    public static boolean isCorrectPasswordForUser(User user, String password) {
+        return PasswordUtil.encryptString(password, user.getSalt()).equals(user.getPassword());
     }
 }

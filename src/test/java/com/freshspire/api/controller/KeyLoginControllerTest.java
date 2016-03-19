@@ -1,5 +1,6 @@
 package com.freshspire.api.controller;
 
+import com.freshspire.api.model.ResponseMessage;
 import com.freshspire.api.model.User;
 import com.freshspire.api.model.params.ApiKeyParams;
 import com.freshspire.api.service.UserService;
@@ -15,12 +16,10 @@ import org.springframework.http.ResponseEntity;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
- * com.freshspire.api.controller
+ * Tests the login with API key endpoint and methods.
  *
  * @created 2/29/16.
  */
@@ -39,27 +38,9 @@ public class KeyLoginControllerTest {
 
     private Gson gson = new Gson();
 
-    private User makeDummyUser() {
-        User user = new User("Name",
-                "1234567890",
-                "6CKyrO2AIVxFBFOLX4At3g==",
-                "RWOYO5KaKB02QMKjLGABxK8vWQzPN7wwAX+KGYgkdSA=",
-                "sJ6/Kiw3qs3Z5rkc9Sns4w==",
-                new Date(),
-                false,
-                false);
-
-        return user;
-    }
-
-    private UserService makeDummyUserService(User user) {
-        UserService userService = mock(UserService.class);
-
-        when(userService.getUserByApiKey(user.getApiKey())).thenReturn(user);
-
-        return userService;
-    }
-
+    /**
+     * Sets up key login controller with mocked dependencies
+     */
     @Before
     public void setUp() {
         mockUserService = mock(UserService.class);
@@ -67,6 +48,10 @@ public class KeyLoginControllerTest {
         keyLoginController.setUserService(mockUserService);
     }
 
+    /**
+     * Tests POST /users/key-login
+     * with valid API key parameter
+     */
     @Test
     public void validApiKeyShouldLoginUser() {
         // Setup
@@ -90,6 +75,34 @@ public class KeyLoginControllerTest {
 
     }
 
+    /**
+     * Tests POST /users/key-login
+     * with empty API key param
+     */
+    @Test
+    public void emptyApiKeyShouldNotLoginUser() {
+        // Setup
+        ApiKeyParams params = new ApiKeyParams("");
+
+        // Expected
+        ResponseEntity expected = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseUtil.asJsonString(
+                new ResponseMessage("error", "API key cannot be empty"), ResponseMessage.class));
+
+        // Actual
+        ResponseEntity actual = keyLoginController.loginWithApiKey(params);
+
+        // Verify user service not called, HTTP response correct
+        verifyZeroInteractions(mockUserService);
+        assertEquals("HTTP status code is incorrect",
+                expected.getStatusCode(), actual.getStatusCode());
+        assertEquals("Response body is incorrect",
+                expected.getBody(), actual.getBody());
+    }
+
+    /**
+     * Tests POST /users/key-login
+     * with invalid API key param
+     */
     @Test
     public void invalidApiKeyShouldNotLoginUser() {
         // Setup

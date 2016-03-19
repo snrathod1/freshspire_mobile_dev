@@ -13,6 +13,7 @@ import com.freshspire.api.utils.PasswordUtil;
 import com.freshspire.api.utils.ResponseUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import org.omg.CORBA.PUBLIC_MEMBER;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -208,7 +209,7 @@ public class UsersController {
         if(user == null) return ResponseUtil.unauthorized("Invalid authentication credentials");
 
         // If the supplied password matches the user's password, then update it
-        if (isCorrectPasswordForUser(user, params.getCurrentPassword())) {
+        if (PasswordUtil.isCorrectPasswordForUser(user, params.getCurrentPassword())) {
             user.setPassword(PasswordUtil.encryptString(params.getNewPassword(), user.getSalt()));
             user.setRestricted(false);
             userService.updateUser(user);
@@ -238,16 +239,5 @@ public class UsersController {
         } else { // Otherwise, return error
             return ResponseUtil.unauthorized("User ID/API key pair incorrect");
         }
-    }
-
-
-    /**
-     * Checks if a given password string is the correct password for a user
-     * @param user
-     * @param password
-     * @return If the password is correct for the user
-     */
-    private boolean isCorrectPasswordForUser(User user, String password) {
-        return PasswordUtil.encryptString(password, user.getSalt()).equals(user.getPassword());
     }
 }

@@ -38,6 +38,10 @@ public class KeyLoginController {
 
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
     public ResponseEntity<String> loginWithApiKey(@RequestBody ApiKeyParams params) {
+        // If API key param is empty, return error
+        if(params.getApiKey().length() == 0)
+            return ResponseUtil.badRequest("API key cannot be empty");
+
         // Try to find the user based on API key parameter
         User user = userService.getUserByApiKey(params.getApiKey());
 

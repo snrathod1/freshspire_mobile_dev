@@ -58,11 +58,8 @@ public class LoginController {
         if(user == null)
             return ResponseUtil.unauthorized("Phone number/password pair is invalid");
 
-        // Check that the password matches
-        String inputPasswordHashed = PasswordUtil.encryptString(params.getPassword(), user.getSalt());
-
-        // If it does...
-        if(inputPasswordHashed.equals(user.getPassword())) {
+        // If password is correct...
+        if(PasswordUtil.isCorrectPasswordForUser(user, params.getPassword())) {
 
             // Return the user
             return ResponseUtil.makeUserObjectResponse(user, HttpStatus.OK);
