@@ -43,13 +43,14 @@ public class StoreDAOImpl implements StoreDAO {
         return store;
     }
 
+    //TODO: get lat long from zipcode and then call getStoreByLocation
     public List<Store> getStoreByZip(int zipcode) {
         return null;
     }
 
     public List<Store> getStoreByLocation(double latitude, double longitude) {
         Session session = getCurrentSession();
-        Query query = session.createSQLQuery("SELECT id, ( 3959 * acos( cos( radians(37) ) * cos( radians( lat ) ) * cos( radians( lng ) - radians(-122) ) + sin( radians(37) ) * sin( radians( lat ) ) ) ) AS distance FROM markers HAVING distance < 25 ORDER BY distance LIMIT 0 , 20;");
+        Query query = session.createSQLQuery("SELECT *, ( 3959 * acos( cos( radians(37) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(-122) ) + sin( radians(37) ) * sin( radians( latitude ) ) ) ) AS distance FROM Store HAVING distance < 25 ORDER BY distance LIMIT 0 , 20;");
         return query.list();
     }
 

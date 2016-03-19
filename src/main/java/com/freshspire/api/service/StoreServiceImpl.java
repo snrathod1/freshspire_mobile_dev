@@ -23,16 +23,16 @@ public class StoreServiceImpl implements StoreService {
 
     @Transactional
     public Store getStore(String storeId) {
-        return null;
+        return storeDAO.getStoreById(storeId);
     }
 
     @Transactional
     public List<Store> getStore(int zipcode) {
-        return null;
+        return storeDAO.getStoreByZip(zipcode);
     }
 
     @Transactional
     public List<Store> getStore(float latitude, float longitude) {
-        return null;
+        return storeDAO.getStoreByLocation(latitude, longitude);
     }
 }
