@@ -27,13 +27,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/users/login")
 public class LoginController {
 
-    @Autowired
     private UserService userService;
 
     private static Gson gson = new Gson();
 
     private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
     /**
      * POST /users/login
      *
@@ -44,14 +47,16 @@ public class LoginController {
      */
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
     public ResponseEntity<String> loginWithPhoneAndPassword(@RequestBody LoginParams params) {
+        // If parameters empty, return error
+        if(params.getPhoneNumber().length() == 0) return ResponseUtil.badRequest("Phone cannot be empty");
+        if(params.getPassword().length() == 0) return ResponseUtil.badRequest("Password cannot be empty");
+
         // Try to get the user by their phone number
         User user = userService.getUserByPhoneNumber(params.getPhoneNumber());
 
         // If there's no user for that phone number...
-        if(user == null) {
-            ResponseMessage res = new ResponseMessage("error", "Bad request");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseUtil.asJsonString(res, ResponseMessage.class));
-        }
+        if(user == null)
+            return ResponseUtil.unauthorized("Phone number/password pair is invalid");
 
         // Check that the password matches
         String inputPasswordHashed = PasswordUtil.encryptString(params.getPassword(), user.getSalt());
@@ -60,11 +65,11 @@ public class LoginController {
         if(inputPasswordHashed.equals(user.getPassword())) {
 
             // Return the user
-            return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.asJsonString(user, user.getClass()));
+            return ResponseUtil.makeUserObjectResponse(user, HttpStatus.OK);
         } else {
 
             // Password invalid, return 400 Bad Request
-            return ResponseUtil.badRequest("Bad request");
+            return ResponseUtil.unauthorized("Phone number/password pair is invalid");
         }
 
     }

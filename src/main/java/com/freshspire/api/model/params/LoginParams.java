@@ -11,6 +11,13 @@ public class LoginParams {
 
     private String password;
 
+    public LoginParams() {}
+
+    public LoginParams(String phoneNumber, String password) {
+        this.phoneNumber = phoneNumber;
+        this.password = password;
+    }
+
     public String getPhoneNumber() {
         return phoneNumber;
     }

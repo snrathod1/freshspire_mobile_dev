@@ -88,11 +88,9 @@ public class ResponseUtil {
         userJson.addProperty("apiKey", user.getApiKey());
         userJson.addProperty("firstName", user.getFirstName());
         userJson.addProperty("phoneNumber", user.getPhoneNumber());
-        if(user.getUserId() == null) {
-            userJson.addProperty("userId", "nuuuuullll");
-        } else { userJson.addProperty("userId", user.getUserId()); }
+        userJson.addProperty("userId", user.getUserId());
 
 
-        return ResponseEntity.status(status).body(gson.toJson(userJson));
+        return ResponseEntity.status(status).body(userJson.toString());
     }
 }
