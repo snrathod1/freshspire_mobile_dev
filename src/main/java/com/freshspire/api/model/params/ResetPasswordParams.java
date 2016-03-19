@@ -5,22 +5,22 @@ package com.freshspire.api.model.params;
  */
 public class ResetPasswordParams {
 
-    private String currentPassword;
+    private String oldPassword;
     private String newPassword;
     private String apiKey;
 
-    public ResetPasswordParams(String apiKey, String currentPassword, String newPassword) {
+    public ResetPasswordParams(String apiKey, String oldPassword, String newPassword) {
         this.apiKey = apiKey;
-        this.currentPassword = currentPassword;
+        this.oldPassword = oldPassword;
         this.newPassword = newPassword;
     }
 
-    public String getCurrentPassword() {
-        return currentPassword;
+    public String getOldPassword() {
+        return oldPassword;
     }
 
-    public void setCurrentPassword(String currentPassword) {
-        this.currentPassword = currentPassword;
+    public void setOldPassword(String oldPassword) {
+        this.oldPassword = oldPassword;
     }
 
     public String getNewPassword() {

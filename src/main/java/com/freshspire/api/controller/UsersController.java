@@ -13,7 +13,6 @@ import com.freshspire.api.utils.PasswordUtil;
 import com.freshspire.api.utils.ResponseUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.omg.CORBA.PUBLIC_MEMBER;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -197,7 +196,7 @@ public class UsersController {
      * @param params
      * @return status of password reset
      */
-    @RequestMapping(value = "/reset-password", method = RequestMethod.POST, produces = "application/json")
+    @RequestMapping(value = "/reset-password", method = RequestMethod.PUT, produces = "application/json")
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordParams params) {
         // New password can't be empty
         if(params.getNewPassword().length() == 0) {
@@ -209,7 +208,7 @@ public class UsersController {
         if(user == null) return ResponseUtil.unauthorized("Invalid authentication credentials");
 
         // If the supplied password matches the user's password, then update it
-        if (PasswordUtil.isCorrectPasswordForUser(user, params.getCurrentPassword())) {
+        if (PasswordUtil.isCorrectPasswordForUser(user, params.getOldPassword())) {
             user.setPassword(PasswordUtil.encryptString(params.getNewPassword(), user.getSalt()));
             user.setRestricted(false);
             userService.updateUser(user);
