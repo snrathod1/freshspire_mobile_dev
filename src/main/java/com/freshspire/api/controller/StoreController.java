@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -26,7 +27,7 @@ public class StoreController {
         this.storeService = storeService;
     }
 
-    @RequestMapping(value = "/{storeId}")
+    @RequestMapping(value = "/{storeId}", method = RequestMethod.GET)
     public ResponseEntity<String> getStoreById(@PathVariable String storeId) {
         return ResponseUtil.ok(gson.toJson(storeService.getStore(storeId)));
     }

@@ -45,15 +45,23 @@
         <beans:property name="sessionFactory" ref="sessionFactory" />
     </beans:bean>
 
+    <beans:bean id="storeDAO" class="com.freshspire.api.dao.StoreDAOImpl">
+        <beans:property name="sessionFactory" ref="sessionFactory" />
+    </beans:bean>
 
     <!-- Controller Beans -->
     <beans:bean id="usersController" class="com.freshspire.api.controller.UsersController"></beans:bean>
     <beans:bean id="discountsController" class="com.freshspire.api.controller.DiscountsController"></beans:bean>
     <beans:bean id="loginController" class="com.freshspire.api.controller.LoginController"></beans:bean>
+    <beans:bean id="storeController" class="com.freshspire.api.controller.StoreController"></beans:bean>
 
     <!-- Services -->
     <beans:bean id="userService" class="com.freshspire.api.service.UserServiceImpl">
         <beans:property name="userDAO" ref="userDAO" />
+    </beans:bean>
+
+    <beans:bean id="storeService" class="com.freshspire.api.service.StoreServiceImpl">
+        <beans:property name="storeDAO" ref="storeDAO" />
     </beans:bean>
 
     <!-- Authy Client -->
