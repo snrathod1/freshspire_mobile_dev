@@ -98,7 +98,7 @@ public class UsersController {
         String code = params.getValidationCode();
 
         if(code.length() == 0) {
-            return ResponseUtil.unauthorized("Invalid authentication credentials");
+            return ResponseUtil.unauthorized("Invalid phone number/authentication code pair");
         } else if(params.getPassword().length() == 0) {
             return ResponseUtil.badRequest("Password parameter cannot be empty");
         } else if(params.getFirstName().length() == 0) {
@@ -112,7 +112,6 @@ public class UsersController {
 
         // Verification was good, so now validate new user params and then create the user
         if(params.getPassword() == null
-                || params.getPassword().length() == 0
                 || params.getFirstName() == null
                 || params.getPhoneNumber() == null) {
             return ResponseUtil.badRequest("Invalid request parameters");

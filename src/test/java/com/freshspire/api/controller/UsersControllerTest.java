@@ -23,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 /**
@@ -255,6 +256,16 @@ public class UsersControllerTest {
                 expected.getStatusCode(), actual.getStatusCode());
         assertEquals("Response body is incorrect",
                 expectedBody, actual.getBody());
+    }
+
+    /**
+     * Tests POST /users/create
+     * with a phone number that already exists for another user. API does not allow multiple accounts per phone number.
+     * @throws Exception
+     */
+    @Test
+    public void duplicatePhoneNumberShouldNotCreateUser() throws Exception {
+        fail("Add this: Account already exists with phone number");
     }
 
     /**
