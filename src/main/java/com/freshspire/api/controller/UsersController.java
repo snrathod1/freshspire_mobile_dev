@@ -218,6 +218,14 @@ public class UsersController {
         }
     }
 
+    /**
+     * DELETE /users/{userId}
+     *
+     * Deletes user with user ID "userId". Body must contain API key of the user.
+     * @param userId User's unique ID
+     * @param params Request body containing user's API key
+     * @return Success or error message for bad or unauthenticated request
+     */
     @RequestMapping(value = "/{userId}", method = RequestMethod.DELETE, produces = "application/json")
     public ResponseEntity<String> deleteUser(@PathVariable("userId") String userId, @RequestBody ApiKeyParams params) {
         // If API key is empty, return error
@@ -238,6 +246,15 @@ public class UsersController {
         }
     }
 
+    /**
+     * GET /users/{userId}/enabledLocation
+     *
+     * Returns a user's enabledLocation property. enabledLocation is a boolean value that specifies if the user
+     * has enabled location services on their mobile device.
+     * @param userId User's unique ID
+     * @param apiKey User's API key
+     * @return The user's enabledLocation value, or an error message for bad or unauthenticated request
+     */
     @RequestMapping(value = "/{userId}/enabledLocation", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<String> getEnabledLocation(@PathVariable("userId") String userId, @RequestParam String apiKey) {
         // If API key is empty, return error
@@ -259,8 +276,20 @@ public class UsersController {
         }
     }
 
+    /**
+     * PUT /users/{userId}/enabledLocation
+     *
+     * Updates a user's enabledLocation property. enabledLocation is a boolean value that specifies if the user
+     * has enabled location services on their mobile device.
+     * @param userId User's unique ID
+     * @param apiKey User's API key
+     * @param params Request body parameters (contains enabledLocation parameter)
+     * @return Status and message indicating if enabledLocation was successfully updated
+     */
     @RequestMapping(value = "/{userId}/enabledLocation", method = RequestMethod.PUT, produces = "application/json")
-    public ResponseEntity<String> updateEnabledLocation(@PathVariable("userId") String userId, @RequestParam String apiKey, @RequestBody SetEnabledLocationParams params) {
+    public ResponseEntity<String> updateEnabledLocation(@PathVariable("userId") String userId,
+                                                        @RequestParam String apiKey,
+                                                        @RequestBody SetEnabledLocationParams params) {
         // If API key is empty, return error
         if(apiKey.length() == 0)
             return ResponseUtil.badRequest("API key cannot be empty");
