@@ -720,4 +720,73 @@ public class UsersControllerTest {
                 expected.getBody(), actual.getBody());
     }
 
+    /**
+     * Tests GET /users/{userId}/enabledLocation
+     * with invalid user ID (userId for user that doesn't exist)
+     * @throws Exception
+     */
+    @Test
+    public void invalidUserIdShouldNotReturnEnabledLocation() throws Exception {
+        when(mockUserService.getUserById("invalidUserId")).thenReturn(null);
+
+        // Expected
+        ResponseEntity expected = ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseUtil.asJsonString(
+                new ResponseMessage("error", "User not found"), ResponseMessage.class));
+
+        // Actual
+        ResponseEntity actual = usersController.getEnabledLocation("invalidUserId", VALID_API_KEY);
+
+        // Verify user service called, HTTP response correct
+        verify(mockUserService).getUserById("invalidUserId");
+        assertEquals("HTTP status code should be 404 Not Found",
+                expected.getStatusCode(), actual.getStatusCode());
+        assertEquals("Response body is incorrect",
+                expected.getBody(), actual.getBody());
+    }
+
+    /**
+     * Tests GET /users/{userId}/enabledLocation
+     * with invalid API key parameter, valid user ID
+     * @throws Exception
+     */
+    @Test
+    public void invalidApiKeyShouldNotReturnEnabledLocation() throws Exception {
+        User user = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY,
+                VALID_PASSWORD, VALID_SALT, new Date(0), false, false);
+        when(mockUserService.getUserById(VALID_USER_ID)).thenReturn(null);
+
+        // Expected
+        ResponseEntity expected = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseUtil.asJsonString(
+                new ResponseMessage("error", "User ID/API key pair incorrect"), ResponseMessage.class));
+
+        // Actual
+        ResponseEntity actual = usersController.getEnabledLocation(VALID_USER_ID, "invalid API key");
+
+        // Verify user service called, HTTP response correct
+        verify(mockUserService).getUserById(VALID_USER_ID);
+        assertEquals("HTTP status code should be 401 Unauthorized",
+                expected.getStatusCode(), actual.getStatusCode());
+        assertEquals("Response body is incorrect",
+                expected.getBody(), actual.getBody());
+    }
+
+    /**
+     * Tests GET /users/{userId}/enabledLocation
+     * with empty API key parameter
+     * @throws Exception
+     */
+    @Test
+    public void emptyApiKeyShouldNotReturnEnabledLocation() throws Exception {
+
+    }
+
+    /**
+     * Tests GET /users/{userId}/enabledLocation
+     * with valid user ID and API key parameter
+     * @throws Exception
+     */
+    @Test
+    public void validParamsShouldReturnEnabledLocation() throws Exception {
+
+    }
 }

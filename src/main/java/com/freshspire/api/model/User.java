@@ -47,6 +47,10 @@ public class User {
     @Type(type = "org.hibernate.type.NumericBooleanType")
     private boolean restricted;
 
+    @Column(name="enabledLocation", columnDefinition = "TINYINT")
+    @Type(type = "org.hibernate.type.NumericBooleanType")
+    private boolean enabledLocation;
+
     public User() {}
 
     public User(String firstName, String phoneNumber, String apiKey, String password, String salt,
@@ -139,6 +143,14 @@ public class User {
 
     public void setRestricted(boolean restricted) {
         this.restricted = restricted;
+    }
+
+    public boolean getEnabledLocation() {
+        return enabledLocation;
+    }
+
+    public void setEnabledLocation(boolean enabledLocation) {
+        this.enabledLocation = enabledLocation;
     }
 
     @Override

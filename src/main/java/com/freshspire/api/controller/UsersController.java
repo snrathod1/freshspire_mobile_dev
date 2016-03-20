@@ -239,4 +239,25 @@ public class UsersController {
             return ResponseUtil.unauthorized("User ID/API key pair incorrect");
         }
     }
+
+    @RequestMapping(value = "/{userId}/enabledLocation", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<String> getEnabledLocation(@PathVariable("userId") String userId, @RequestParam String apiKey) {
+        // If API key is empty, return error
+        if(apiKey.length() == 0)
+            return ResponseUtil.badRequest("API key cannot be empty");
+
+        // Find user
+        User user = userService.getUserById(userId);
+        if(user == null) return ResponseUtil.notFound("User not found");
+
+        // If API key is correct, then user is authenticated, so return enabledLocation
+        if(user.getApiKey().equals(apiKey)) {
+            JsonObject json = new JsonObject();
+            json.addProperty("enabledLocation", user.getEnabledLocation());
+            return ResponseEntity.ok(gson.toJson(json));
+        } else {
+            // API key incorrect, return error
+            return ResponseUtil.unauthorized("User ID/API key pair incorrect");
+        }
+    }
 }
