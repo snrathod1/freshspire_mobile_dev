@@ -26,11 +26,16 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class KeyLoginControllerTest {
 
-    private static final String VALID_API_KEY = "a valid API key";
-    private static final String VALID_FIRST_NAME = "FirstName";
-    private static final String VALID_PHONE_NUMBER = "1234567890";
-    private static final String VALID_PASSWORD = "password";
-    private static final String VALID_SALT = "salt";
+    private static final String VALID_API_KEY               = "a valid API key";
+    private static final String VALID_FIRST_NAME            = "FirstName";
+    private static final String VALID_PHONE_NUMBER          = "1234567890";
+    private static final String VALID_PASSWORD              = "password";
+    private static final String VALID_SALT                  = "salt";
+    private static final boolean VALID_ADMIN                = false;
+    private static final boolean VALID_BANNED               = false;
+    private static final boolean VALID_ENABLED_LOCATION     = false;
+    private static final Date VALID_DATE                    = new Date(123);
+
 
     private UserService mockUserService;
 
@@ -57,7 +62,7 @@ public class KeyLoginControllerTest {
         // Setup
         ApiKeyParams params = new ApiKeyParams(VALID_API_KEY);
         User user = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY,
-                VALID_PASSWORD, VALID_SALT, new Date(0), false, false);
+                VALID_PASSWORD, VALID_SALT, VALID_DATE, VALID_ADMIN, VALID_BANNED, VALID_ENABLED_LOCATION);
         when(mockUserService.getUserByApiKey(VALID_API_KEY)).thenReturn(user);
 
         // Expected
@@ -107,8 +112,6 @@ public class KeyLoginControllerTest {
     public void invalidApiKeyShouldNotLoginUser() {
         // Setup
         ApiKeyParams params = new ApiKeyParams("invalid API key");
-        User user = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY,
-                VALID_PASSWORD, VALID_SALT, new Date(0), false, false);
         when(mockUserService.getUserByApiKey("invalid API key")).thenReturn(null);
 
         // Expected

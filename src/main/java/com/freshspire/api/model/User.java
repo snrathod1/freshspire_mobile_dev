@@ -54,7 +54,7 @@ public class User {
     public User() {}
 
     public User(String firstName, String phoneNumber, String apiKey, String password, String salt,
-                Date created, boolean admin, boolean banned) {
+                Date created, boolean admin, boolean banned, boolean enabledLocation) {
         this.firstName = firstName;
         this.phoneNumber = phoneNumber;
         this.apiKey = apiKey;
@@ -63,6 +63,7 @@ public class User {
         this.created = created;
         this.admin = admin;
         this.banned = banned;
+        this.enabledLocation = enabledLocation;
     }
 
     public String getUserId() {

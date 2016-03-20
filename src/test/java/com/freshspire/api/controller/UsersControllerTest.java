@@ -4,10 +4,7 @@ import com.authy.api.Verification;
 import com.freshspire.api.client.AuthyClient;
 import com.freshspire.api.model.ResponseMessage;
 import com.freshspire.api.model.User;
-import com.freshspire.api.model.params.ApiKeyParams;
-import com.freshspire.api.model.params.NewUserParams;
-import com.freshspire.api.model.params.PhoneNumberAuthenticationParams;
-import com.freshspire.api.model.params.ResetPasswordParams;
+import com.freshspire.api.model.params.*;
 import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.PasswordUtil;
 import com.freshspire.api.utils.ResponseUtil;
@@ -49,6 +46,10 @@ public class UsersControllerTest {
     private static final String VALID_SALT                  = "salt";
     private static final String VALID_PHONE_NUMBER          = "1234567890";
     private static final String VALID_AUTHENTICATION_CODE   = "0000";
+    private static final boolean VALID_ENABLED_LOCATION     = false;
+    private static final boolean VALID_ADMIN                = false;
+    private static final boolean VALID_BANNED               = false;
+    private static final Date VALID_DATE                    = new Date(123);
 
     @Before
     public void setUp() {
@@ -383,7 +384,7 @@ public class UsersControllerTest {
         when(mockUserFromDatabase.getApiKey()).thenReturn(VALID_API_KEY);
         when(mockUserFromDatabase.getPassword()).thenReturn(VALID_PASSWORD);
         when(mockUserFromDatabase.getSalt()).thenReturn(VALID_SALT);
-        when(mockUserFromDatabase.getCreated()).thenReturn(new Date(0));
+        when(mockUserFromDatabase.getCreated()).thenReturn(VALID_DATE);
         when(mockUserFromDatabase.isAdmin()).thenReturn(false);
         when(mockUserFromDatabase.isBanned()).thenReturn(false);
 
@@ -523,7 +524,7 @@ public class UsersControllerTest {
         when(mockUserFromDatabase.getApiKey()).thenReturn(VALID_API_KEY);
         when(mockUserFromDatabase.getPassword()).thenReturn(PasswordUtil.encryptString(VALID_PASSWORD, VALID_SALT));
         when(mockUserFromDatabase.getSalt()).thenReturn(VALID_SALT);
-        when(mockUserFromDatabase.getCreated()).thenReturn(new Date(0));
+        when(mockUserFromDatabase.getCreated()).thenReturn(VALID_DATE);
         when(mockUserFromDatabase.isAdmin()).thenReturn(false);
         when(mockUserFromDatabase.isBanned()).thenReturn(false);
 
@@ -587,7 +588,7 @@ public class UsersControllerTest {
         when(mockUser.getApiKey()).thenReturn(VALID_API_KEY);
         when(mockUser.getPassword()).thenReturn(PasswordUtil.encryptString(VALID_PASSWORD, VALID_SALT));
         when(mockUser.getSalt()).thenReturn(VALID_SALT);
-        when(mockUser.getCreated()).thenReturn(new Date(0));
+        when(mockUser.getCreated()).thenReturn(VALID_DATE);
         when(mockUser.isAdmin()).thenReturn(false);
         when(mockUser.isBanned()).thenReturn(false);
         // Mock user service behavior
@@ -652,7 +653,7 @@ public class UsersControllerTest {
     public void invalidApiKeyShouldNotDeleteUser() throws Exception {
         ApiKeyParams params = new ApiKeyParams("invalid API key");
         User validUser = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY,
-                VALID_PASSWORD, VALID_SALT, new Date(0), false, false);
+                VALID_PASSWORD, VALID_SALT, VALID_DATE, VALID_ADMIN, VALID_BANNED, VALID_ENABLED_LOCATION);
         when(mockUserService.getUserById(VALID_USER_ID)).thenReturn(validUser);
 
         // Expected
@@ -673,8 +674,6 @@ public class UsersControllerTest {
     @Test
     public void emptyApiKeyShouldNotDeleteUser() throws Exception {
         ApiKeyParams params = new ApiKeyParams("");
-        User validUser = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY,
-                VALID_PASSWORD, VALID_SALT, new Date(0), false, false);
 
         // Expected
         ResponseEntity expected = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseUtil.asJsonString(
@@ -700,7 +699,7 @@ public class UsersControllerTest {
     public void validParametersShouldDeleteUser() throws Exception {
         ApiKeyParams params = new ApiKeyParams(VALID_API_KEY);
         User validUser = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY,
-                VALID_PASSWORD, VALID_SALT, new Date(0), false, false);
+                VALID_PASSWORD, VALID_SALT, VALID_DATE, VALID_ADMIN, VALID_BANNED, VALID_ENABLED_LOCATION);
         when(mockUserService.getUserById(VALID_USER_ID)).thenReturn(validUser);
 
         // Expected
@@ -752,8 +751,8 @@ public class UsersControllerTest {
     @Test
     public void invalidApiKeyShouldNotReturnEnabledLocation() throws Exception {
         User user = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY,
-                VALID_PASSWORD, VALID_SALT, new Date(0), false, false);
-        when(mockUserService.getUserById(VALID_USER_ID)).thenReturn(null);
+                VALID_PASSWORD, VALID_SALT, VALID_DATE, VALID_ADMIN, VALID_BANNED, VALID_ENABLED_LOCATION);
+        when(mockUserService.getUserById(VALID_USER_ID)).thenReturn(user);
 
         // Expected
         ResponseEntity expected = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseUtil.asJsonString(
@@ -777,7 +776,19 @@ public class UsersControllerTest {
      */
     @Test
     public void emptyApiKeyShouldNotReturnEnabledLocation() throws Exception {
+        // Expected
+        ResponseEntity expected = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseUtil.asJsonString(
+                new ResponseMessage("error", "API key cannot be empty"), ResponseMessage.class));
 
+        // Actual
+        ResponseEntity actual = usersController.getEnabledLocation(VALID_USER_ID, "");
+
+        // Verify user service not called, HTTP response is correct
+        verifyZeroInteractions(mockUserService);
+        assertEquals("HTTP status code should be 400 Bad Request",
+                expected.getStatusCode(), actual.getStatusCode());
+        assertEquals("Response body is incorrect",
+                expected.getBody(), actual.getBody());
     }
 
     /**
@@ -787,6 +798,106 @@ public class UsersControllerTest {
      */
     @Test
     public void validParamsShouldReturnEnabledLocation() throws Exception {
+        User user = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY, VALID_PASSWORD,
+                VALID_SALT, VALID_DATE, VALID_ADMIN, VALID_BANNED, VALID_ENABLED_LOCATION);
+        when(mockUserService.getUserById(VALID_USER_ID)).thenReturn(user);
 
+        // Expected
+        JsonObject json = new JsonObject();
+        json.addProperty("enabledLocation", false);
+        ResponseEntity expected = ResponseEntity.status(HttpStatus.OK).body(gson.toJson(json));
+
+        // Actual
+        ResponseEntity actual = usersController.getEnabledLocation(VALID_USER_ID, VALID_API_KEY);
+
+        // Verify user service called, HTTP response is correct
+        verify(mockUserService).getUserById(VALID_USER_ID);
+        assertEquals("HTTP status code should be 400 Bad Request",
+                expected.getStatusCode(), actual.getStatusCode());
+        assertEquals("Response body is incorrect",
+                expected.getBody(), actual.getBody());
+    }
+
+    /**
+     * Tests PUT /users/{userId}/enabledLocation
+     * with invalid user ID (userId for user that doesn't exist)
+     * @throws Exception
+     */
+    @Test
+    public void invalidUserIdShouldNotUpdateEnabledLocation() throws Exception {
+        // Setup
+        SetEnabledLocationParams params = new SetEnabledLocationParams(true);
+        when(mockUserService.getUserById("invalid user ID")).thenReturn(null);
+
+        // Expected
+        ResponseEntity expected = ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseUtil.asJsonString(
+                new ResponseMessage("error", "User not found"), ResponseMessage.class));
+
+        // Actual
+        ResponseEntity actual = usersController.updateEnabledLocation("invalid user ID", VALID_API_KEY, params);
+
+        // Verify user service called, HTTP response correct
+        verify(mockUserService).getUserById("invalid user ID");
+        assertEquals("HTTP status code should be 404 Not Found",
+                expected.getStatusCode(), actual.getStatusCode());
+        assertEquals("Response body is incorrect",
+                expected.getBody(), actual.getBody());
+
+    }
+
+    /**
+     * Tests PUT /users/{userId}/enabledLocation
+     * with empty API key parameter
+     * @throws Exception
+     */
+    @Test
+    public void emptyApiKeyShouldNotUpdateEnabledLocation() throws Exception {
+        // Setup
+        SetEnabledLocationParams params = new SetEnabledLocationParams(false);
+
+        // Expected
+        ResponseEntity expected = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseUtil.asJsonString(
+                new ResponseMessage("error", "API key cannot be empty"), ResponseMessage.class));
+
+        // Actual
+        ResponseEntity actual = usersController.updateEnabledLocation(VALID_USER_ID, "", params);
+
+        // Verify user service not called, HTTP response is correct
+        verifyZeroInteractions(mockUserService);
+        assertEquals("HTTP status code should be 400 Bad Request",
+                expected.getStatusCode(), actual.getStatusCode());
+        assertEquals("Response body is incorrect",
+                expected.getBody(), actual.getBody());
+    }
+
+    /**
+     * Tests PUT /users/{userId}/enabledLocation
+     * with valid user ID and API key parameter
+     * @throws Exception
+     */
+    @Test
+    public void validParamsShouldUpdateEnabledLocation() throws Exception {
+        // Setup
+        SetEnabledLocationParams params = new SetEnabledLocationParams(true);
+        User mockUser = mock(User.class);
+
+        when(mockUser.getApiKey()).thenReturn(VALID_API_KEY);
+        when(mockUserService.getUserById(VALID_USER_ID)).thenReturn(mockUser);
+
+        // Expected
+        ResponseEntity expected = ResponseEntity.ok(ResponseUtil.asJsonString(
+                new ResponseMessage("ok", "Successfully updated enabledLocation"), ResponseMessage.class));
+
+        // Actual
+        ResponseEntity actual = usersController.updateEnabledLocation(VALID_USER_ID, VALID_API_KEY, params);
+
+        // Verify user service called, HTTP response is correct
+        verify(mockUserService).getUserById(VALID_USER_ID);
+        verify(mockUserService).updateUser(mockUser);
+        verify(mockUser).setEnabledLocation(params.getEnabledLocation());
+        assertEquals("HTTP status code should be 400 Bad Request",
+                expected.getStatusCode(), actual.getStatusCode());
+        assertEquals("Response body is incorrect",
+                expected.getBody(), actual.getBody());
     }
 }

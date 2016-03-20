@@ -4,10 +4,7 @@ import com.authy.api.Verification;
 import com.freshspire.api.client.AuthyClient;
 import com.freshspire.api.model.ResponseMessage;
 import com.freshspire.api.model.User;
-import com.freshspire.api.model.params.ApiKeyParams;
-import com.freshspire.api.model.params.NewUserParams;
-import com.freshspire.api.model.params.PhoneNumberAuthenticationParams;
-import com.freshspire.api.model.params.ResetPasswordParams;
+import com.freshspire.api.model.params.*;
 import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.PasswordUtil;
 import com.freshspire.api.utils.ResponseUtil;
@@ -128,6 +125,7 @@ public class UsersController {
                 PasswordUtil.encryptString(password, salt),
                 salt,
                 new Date(),
+                false,
                 false,
                 false);
 
@@ -255,6 +253,28 @@ public class UsersController {
             JsonObject json = new JsonObject();
             json.addProperty("enabledLocation", user.getEnabledLocation());
             return ResponseEntity.ok(gson.toJson(json));
+        } else {
+            // API key incorrect, return error
+            return ResponseUtil.unauthorized("User ID/API key pair incorrect");
+        }
+    }
+
+    @RequestMapping(value = "/{userId}/enabledLocation", method = RequestMethod.PUT, produces = "application/json")
+    public ResponseEntity<String> updateEnabledLocation(@PathVariable("userId") String userId, @RequestParam String apiKey, @RequestBody SetEnabledLocationParams params) {
+        // If API key is empty, return error
+        if(apiKey.length() == 0)
+            return ResponseUtil.badRequest("API key cannot be empty");
+
+        // Find user
+        User user = userService.getUserById(userId);
+        if(user == null) return ResponseUtil.notFound("User not found");
+
+        // If API key is correct, then user is authenticated, so update enabledLocation
+        if(user.getApiKey().equals(apiKey)) {
+            user.setEnabledLocation(params.getEnabledLocation());
+            userService.updateUser(user);
+
+            return ResponseUtil.ok("Successfully updated enabledLocation");
         } else {
             // API key incorrect, return error
             return ResponseUtil.unauthorized("User ID/API key pair incorrect");
