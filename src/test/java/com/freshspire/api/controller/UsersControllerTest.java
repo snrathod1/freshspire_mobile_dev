@@ -51,6 +51,9 @@ public class UsersControllerTest {
     private static final boolean VALID_BANNED               = false;
     private static final Date VALID_DATE                    = new Date(123);
 
+    /**
+     * Sets up UsersController with mocked dependencies.
+     */
     @Before
     public void setUp() {
         gson = new Gson();
@@ -272,6 +275,7 @@ public class UsersControllerTest {
         // Expected
         JsonObject newUser = new JsonObject();
         newUser.addProperty("apiKey", VALID_API_KEY);
+        newUser.addProperty("enabledLocation", VALID_ENABLED_LOCATION);
         newUser.addProperty("firstName", VALID_FIRST_NAME);
         newUser.addProperty("phoneNumber", VALID_PHONE_NUMBER);
         newUser.addProperty("userId", VALID_USER_ID);
@@ -391,6 +395,7 @@ public class UsersControllerTest {
         // Expected response body is the updated user object
         JsonObject body = new JsonObject();
         body.addProperty("apiKey", VALID_API_KEY);
+        body.addProperty("enabledLocation", VALID_ENABLED_LOCATION);
         body.addProperty("firstName", VALID_FIRST_NAME);
         body.addProperty("phoneNumber", VALID_PHONE_NUMBER);
         body.addProperty("userId", VALID_USER_ID);
@@ -671,6 +676,11 @@ public class UsersControllerTest {
                 expected.getBody(), actual.getBody());
     }
 
+    /**
+     * Tests DELETE /users/{userId} method
+     * with empty API key
+     * @throws Exception
+     */
     @Test
     public void emptyApiKeyShouldNotDeleteUser() throws Exception {
         ApiKeyParams params = new ApiKeyParams("");

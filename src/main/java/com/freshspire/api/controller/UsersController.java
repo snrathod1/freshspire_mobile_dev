@@ -19,12 +19,17 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 
+/**
+ * Handles all methods under /users endpoint, except login endpoints (/users/login and /users/key-login)
+ */
 @RestController
 @RequestMapping("/users")
 public class UsersController {
 
+    /** Service layer for Users in database */
     private UserService userService;
 
+    /** Client instance for sending & authenticating text messages with Authy */
     private AuthyClient authyClient;
 
     private static Gson gson = new Gson();

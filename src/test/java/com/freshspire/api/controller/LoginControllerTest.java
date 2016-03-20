@@ -137,6 +137,7 @@ public class LoginControllerTest {
         // Expected
         JsonObject userJson = new JsonObject();
         userJson.addProperty("apiKey", VALID_API_KEY);
+        userJson.addProperty("enabledLocation", VALID_ENABLED_LOCATION);
         userJson.addProperty("firstName", VALID_FIRST_NAME);
         userJson.addProperty("phoneNumber", VALID_PHONE_NUMBER);
         userJson.addProperty("userId", VALID_USER_ID);

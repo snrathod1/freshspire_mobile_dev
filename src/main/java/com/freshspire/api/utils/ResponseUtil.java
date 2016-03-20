@@ -86,6 +86,7 @@ public class ResponseUtil {
         JsonObject userJson = new JsonObject();
 
         userJson.addProperty("apiKey", user.getApiKey());
+        userJson.addProperty("enabledLocation", user.getEnabledLocation());
         userJson.addProperty("firstName", user.getFirstName());
         userJson.addProperty("phoneNumber", user.getPhoneNumber());
         userJson.addProperty("userId", user.getUserId());
