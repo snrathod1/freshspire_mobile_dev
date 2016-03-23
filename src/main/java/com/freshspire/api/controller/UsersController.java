@@ -159,8 +159,7 @@ public class UsersController {
     /**
      * PUT /users/forgot-password/
      *
-     * Verify the code and set the user to restricted mode if verification passes, this enables
-     * users to reset password without providing the old password.
+     * Verify the code and set the new password
      * @param params
      * @return user json with status message
      */
@@ -178,7 +177,7 @@ public class UsersController {
 
         // If it is...
         if (verification.isOk()) {
-            // Set the user associated with the phone number to restricted: true
+            // Set the password of the user associated with the given phone number
             User user = userService.getUserByPhoneNumber(params.getPhoneNumber());
             String hashedPassword = PasswordUtil.encryptString(params.getNewPassword(), user.getSalt());
             user.setPassword(hashedPassword);
@@ -193,8 +192,7 @@ public class UsersController {
     /**
      * POST /reset-password
      *
-     * Reset password for a user, two methods one by providing current and new password for a non restricted
-     * account, the other is to provide only the new password for a restricted account.
+     * Reset password for a user by providing the old and new password, and API key associated with the user.
      * @param params
      * @return status of password reset
      */
@@ -212,7 +210,6 @@ public class UsersController {
         // If the supplied password matches the user's password, then update it
         if (PasswordUtil.isCorrectPasswordForUser(user, params.getOldPassword())) {
             user.setPassword(PasswordUtil.encryptString(params.getNewPassword(), user.getSalt()));
-            user.setRestricted(false);
             userService.updateUser(user);
 
             return ResponseUtil.ok("Successfully updated password");

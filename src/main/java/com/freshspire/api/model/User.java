@@ -43,10 +43,6 @@ public class User {
     @Type(type = "org.hibernate.type.NumericBooleanType")
     private boolean banned;
 
-    @Column(name="restricted", columnDefinition = "TINYINT")
-    @Type(type = "org.hibernate.type.NumericBooleanType")
-    private boolean restricted;
-
     @Column(name="enabledLocation", columnDefinition = "TINYINT")
     @Type(type = "org.hibernate.type.NumericBooleanType")
     private boolean enabledLocation;
@@ -136,14 +132,6 @@ public class User {
 
     public void setBanned(boolean banned) {
         this.banned = banned;
-    }
-
-    public boolean isRestricted() {
-        return restricted;
-    }
-
-    public void setRestricted(boolean restricted) {
-        this.restricted = restricted;
     }
 
     public boolean getEnabledLocation() {
