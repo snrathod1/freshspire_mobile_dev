@@ -22,6 +22,7 @@ public class PasswordUtil {
         return salt;
     }
 
+    // TODO make API key only contain letters (currently contains '=' characters)
     public static String generateApiKey() {
         return byteToString(generateSalt());
     }

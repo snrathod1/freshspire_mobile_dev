@@ -65,7 +65,7 @@ public class ResponseUtil {
     /**
      * Returns a 401 Unauthorized with status: error and message: (message) properties in JSON in the body
      * @param message Message to include
-     * @return A 401 Unauthorized response with the JSON information include in the body
+     * @return A 401 Unauthorized response with the JSON information included in the body
      */
     public static ResponseEntity<String> unauthorized(String message) {
         JsonObject json = new JsonObject();
@@ -86,11 +86,24 @@ public class ResponseUtil {
         JsonObject userJson = new JsonObject();
 
         userJson.addProperty("apiKey", user.getApiKey());
+        userJson.addProperty("enabledLocation", user.getEnabledLocation());
         userJson.addProperty("firstName", user.getFirstName());
         userJson.addProperty("phoneNumber", user.getPhoneNumber());
         userJson.addProperty("userId", user.getUserId());
 
 
         return ResponseEntity.status(status).body(userJson.toString());
+    }
+
+    /**
+     * Returns a 404 Not Found with status: error and message: (message) properties in JSON in the body
+     * @param message Message to include
+     * @return A 404 Not Found response with the JSON information included in the body
+     */
+    public static ResponseEntity<String> notFound(String message) {
+        JsonObject json = new JsonObject();
+        json.addProperty(STATUS, ERROR);
+        json.addProperty(MESSAGE, message);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(gson.toJson(json));
     }
 }

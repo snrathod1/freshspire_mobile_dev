@@ -43,14 +43,14 @@ public class User {
     @Type(type = "org.hibernate.type.NumericBooleanType")
     private boolean banned;
 
-    @Column(name="restricted", columnDefinition = "TINYINT")
+    @Column(name="enabledLocation", columnDefinition = "TINYINT")
     @Type(type = "org.hibernate.type.NumericBooleanType")
-    private boolean restricted;
+    private boolean enabledLocation;
 
     public User() {}
 
     public User(String firstName, String phoneNumber, String apiKey, String password, String salt,
-                Date created, boolean admin, boolean banned) {
+                Date created, boolean admin, boolean banned, boolean enabledLocation) {
         this.firstName = firstName;
         this.phoneNumber = phoneNumber;
         this.apiKey = apiKey;
@@ -59,6 +59,7 @@ public class User {
         this.created = created;
         this.admin = admin;
         this.banned = banned;
+        this.enabledLocation = enabledLocation;
     }
 
     public String getUserId() {
@@ -133,12 +134,12 @@ public class User {
         this.banned = banned;
     }
 
-    public boolean isRestricted() {
-        return restricted;
+    public boolean getEnabledLocation() {
+        return enabledLocation;
     }
 
-    public void setRestricted(boolean restricted) {
-        this.restricted = restricted;
+    public void setEnabledLocation(boolean enabledLocation) {
+        this.enabledLocation = enabledLocation;
     }
 
     @Override

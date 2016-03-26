@@ -36,6 +36,10 @@ public class LoginControllerTest {
     private static final String VALID_SALT                  = "salt";
     private static final String VALID_PHONE_NUMBER          = "1234567890";
     private static final String VALID_AUTHENTICATION_CODE   = "0000";
+    private static final boolean VALID_ENABLED_LOCATION     = false;
+    private static final boolean VALID_ADMIN                = false;
+    private static final boolean VALID_BANNED               = false;
+    private static final Date VALID_DATE                    = new Date(123);
 
     @Before
     public void setUp() {
@@ -70,7 +74,7 @@ public class LoginControllerTest {
         // Set up parameters and mock behavior
         LoginParams params = new LoginParams(VALID_PHONE_NUMBER, "invalid password");
         User user = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY, VALID_PASSWORD,
-                VALID_SALT, new Date(0), false, false);
+                VALID_SALT, VALID_DATE, VALID_ADMIN, VALID_BANNED, VALID_ENABLED_LOCATION);
         when(mockUserService.getUserByPhoneNumber(VALID_PHONE_NUMBER)).thenReturn(user);
 
         // Expected
@@ -94,7 +98,7 @@ public class LoginControllerTest {
         LoginParams emptyPassword = new LoginParams(VALID_PHONE_NUMBER, "");
         LoginParams emptyPhone = new LoginParams("", VALID_PASSWORD);
         User user = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY, VALID_PASSWORD,
-                VALID_SALT, new Date(0), false, false);
+                VALID_SALT, VALID_DATE, VALID_ADMIN, VALID_BANNED, VALID_ENABLED_LOCATION);
         when(mockUserService.getUserByPhoneNumber(VALID_PHONE_NUMBER)).thenReturn(user);
         when(mockUserService.getUserByPhoneNumber("")).thenReturn(null);
 
@@ -125,7 +129,7 @@ public class LoginControllerTest {
         // Set up parameters and mock behavior
         LoginParams params = new LoginParams(VALID_PHONE_NUMBER, VALID_PASSWORD);
         User user = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY, VALID_PASSWORD,
-                VALID_SALT, new Date(0), false, false);
+                VALID_SALT, VALID_DATE, VALID_ADMIN, VALID_BANNED, VALID_ENABLED_LOCATION);
         user.setPassword(PasswordUtil.encryptString(VALID_PASSWORD, VALID_SALT));
         user.setUserId(VALID_USER_ID);
         when(mockUserService.getUserByPhoneNumber(VALID_PHONE_NUMBER)).thenReturn(user);
@@ -133,6 +137,7 @@ public class LoginControllerTest {
         // Expected
         JsonObject userJson = new JsonObject();
         userJson.addProperty("apiKey", VALID_API_KEY);
+        userJson.addProperty("enabledLocation", VALID_ENABLED_LOCATION);
         userJson.addProperty("firstName", VALID_FIRST_NAME);
         userJson.addProperty("phoneNumber", VALID_PHONE_NUMBER);
         userJson.addProperty("userId", VALID_USER_ID);

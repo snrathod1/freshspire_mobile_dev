@@ -4,10 +4,7 @@ import com.authy.api.Verification;
 import com.freshspire.api.client.AuthyClient;
 import com.freshspire.api.model.ResponseMessage;
 import com.freshspire.api.model.User;
-import com.freshspire.api.model.params.ApiKeyParams;
-import com.freshspire.api.model.params.NewUserParams;
-import com.freshspire.api.model.params.PhoneNumberAuthenticationParams;
-import com.freshspire.api.model.params.ResetPasswordParams;
+import com.freshspire.api.model.params.*;
 import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.PasswordUtil;
 import com.freshspire.api.utils.ResponseUtil;
@@ -22,12 +19,17 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 
+/**
+ * Handles all methods under /users endpoint, except login endpoints (/users/login and /users/key-login)
+ */
 @RestController
 @RequestMapping("/users")
 public class UsersController {
 
+    /** Service layer for Users in database */
     private UserService userService;
 
+    /** Client instance for sending & authenticating text messages with Authy */
     private AuthyClient authyClient;
 
     private static Gson gson = new Gson();
@@ -96,7 +98,7 @@ public class UsersController {
         String code = params.getValidationCode();
 
         if(code.length() == 0) {
-            return ResponseUtil.unauthorized("Invalid authentication credentials");
+            return ResponseUtil.unauthorized("Invalid phone number/authentication code pair");
         } else if(params.getPassword().length() == 0) {
             return ResponseUtil.badRequest("Password parameter cannot be empty");
         } else if(params.getFirstName().length() == 0) {
@@ -110,7 +112,6 @@ public class UsersController {
 
         // Verification was good, so now validate new user params and then create the user
         if(params.getPassword() == null
-                || params.getPassword().length() == 0
                 || params.getFirstName() == null
                 || params.getPhoneNumber() == null) {
             return ResponseUtil.badRequest("Invalid request parameters");
@@ -128,6 +129,7 @@ public class UsersController {
                 PasswordUtil.encryptString(password, salt),
                 salt,
                 new Date(),
+                false,
                 false,
                 false);
 
@@ -157,8 +159,7 @@ public class UsersController {
     /**
      * PUT /users/forgot-password/
      *
-     * Verify the code and set the user to restricted mode if verification passes, this enables
-     * users to reset password without providing the old password.
+     * Verify the code and set the new password
      * @param params
      * @return user json with status message
      */
@@ -176,7 +177,7 @@ public class UsersController {
 
         // If it is...
         if (verification.isOk()) {
-            // Set the user associated with the phone number to restricted: true
+            // Set the password of the user associated with the given phone number
             User user = userService.getUserByPhoneNumber(params.getPhoneNumber());
             String hashedPassword = PasswordUtil.encryptString(params.getNewPassword(), user.getSalt());
             user.setPassword(hashedPassword);
@@ -191,8 +192,7 @@ public class UsersController {
     /**
      * POST /reset-password
      *
-     * Reset password for a user, two methods one by providing current and new password for a non restricted
-     * account, the other is to provide only the new password for a restricted account.
+     * Reset password for a user by providing the old and new password, and API key associated with the user.
      * @param params
      * @return status of password reset
      */
@@ -210,7 +210,6 @@ public class UsersController {
         // If the supplied password matches the user's password, then update it
         if (PasswordUtil.isCorrectPasswordForUser(user, params.getOldPassword())) {
             user.setPassword(PasswordUtil.encryptString(params.getNewPassword(), user.getSalt()));
-            user.setRestricted(false);
             userService.updateUser(user);
 
             return ResponseUtil.ok("Successfully updated password");
@@ -220,6 +219,14 @@ public class UsersController {
         }
     }
 
+    /**
+     * DELETE /users/{userId}
+     *
+     * Deletes user with user ID "userId". Body must contain API key of the user.
+     * @param userId User's unique ID
+     * @param params Request body containing user's API key
+     * @return Success or error message for bad or unauthenticated request
+     */
     @RequestMapping(value = "/{userId}", method = RequestMethod.DELETE, produces = "application/json")
     public ResponseEntity<String> deleteUser(@PathVariable("userId") String userId, @RequestBody ApiKeyParams params) {
         // If API key is empty, return error
@@ -236,6 +243,70 @@ public class UsersController {
             return ResponseUtil.ok("Successfully deleted user");
 
         } else { // Otherwise, return error
+            return ResponseUtil.unauthorized("User ID/API key pair incorrect");
+        }
+    }
+
+    /**
+     * GET /users/{userId}/enabledLocation
+     *
+     * Returns a user's enabledLocation property. enabledLocation is a boolean value that specifies if the user
+     * has enabled location services on their mobile device.
+     * @param userId User's unique ID
+     * @param apiKey User's API key
+     * @return The user's enabledLocation value, or an error message for bad or unauthenticated request
+     */
+    @RequestMapping(value = "/{userId}/enabledLocation", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<String> getEnabledLocation(@PathVariable("userId") String userId, @RequestParam String apiKey) {
+        // If API key is empty, return error
+        if(apiKey.length() == 0)
+            return ResponseUtil.badRequest("API key cannot be empty");
+
+        // Find user
+        User user = userService.getUserById(userId);
+        if(user == null) return ResponseUtil.notFound("User not found");
+
+        // If API key is correct, then user is authenticated, so return enabledLocation
+        if(user.getApiKey().equals(apiKey)) {
+            JsonObject json = new JsonObject();
+            json.addProperty("enabledLocation", user.getEnabledLocation());
+            return ResponseEntity.ok(gson.toJson(json));
+        } else {
+            // API key incorrect, return error
+            return ResponseUtil.unauthorized("User ID/API key pair incorrect");
+        }
+    }
+
+    /**
+     * PUT /users/{userId}/enabledLocation
+     *
+     * Updates a user's enabledLocation property. enabledLocation is a boolean value that specifies if the user
+     * has enabled location services on their mobile device.
+     * @param userId User's unique ID
+     * @param apiKey User's API key
+     * @param params Request body parameters (contains enabledLocation parameter)
+     * @return Status and message indicating if enabledLocation was successfully updated
+     */
+    @RequestMapping(value = "/{userId}/enabledLocation", method = RequestMethod.PUT, produces = "application/json")
+    public ResponseEntity<String> updateEnabledLocation(@PathVariable("userId") String userId,
+                                                        @RequestParam String apiKey,
+                                                        @RequestBody SetEnabledLocationParams params) {
+        // If API key is empty, return error
+        if(apiKey.length() == 0)
+            return ResponseUtil.badRequest("API key cannot be empty");
+
+        // Find user
+        User user = userService.getUserById(userId);
+        if(user == null) return ResponseUtil.notFound("User not found");
+
+        // If API key is correct, then user is authenticated, so update enabledLocation
+        if(user.getApiKey().equals(apiKey)) {
+            user.setEnabledLocation(params.getEnabledLocation());
+            userService.updateUser(user);
+
+            return ResponseUtil.ok("Successfully updated enabledLocation");
+        } else {
+            // API key incorrect, return error
             return ResponseUtil.unauthorized("User ID/API key pair incorrect");
         }
     }
