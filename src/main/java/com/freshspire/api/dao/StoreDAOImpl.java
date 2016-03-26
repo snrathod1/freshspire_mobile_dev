@@ -1,5 +1,6 @@
 package com.freshspire.api.dao;
 
+import com.freshspire.api.model.Discount;
 import com.freshspire.api.model.Store;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -51,6 +52,14 @@ public class StoreDAOImpl implements StoreDAO {
     public List<Store> getStoreByLocation(double latitude, double longitude) {
         Session session = getCurrentSession();
         Query query = session.createSQLQuery("SELECT *, ( 3959 * acos( cos( radians(37) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(-122) ) + sin( radians(37) ) * sin( radians( latitude ) ) ) ) AS distance FROM Store HAVING distance < 25 ORDER BY distance LIMIT 0 , 20;");
+        return query.list();
+    }
+
+    public List<Discount> getDiscountsByStoreId(String storeId) {
+        Session session = getCurrentSession();
+        Query query = session.createQuery("From Discount D where D.storeId = :storeId");
+        query.setParameter("storeId", storeId);
+
         return query.list();
     }
 

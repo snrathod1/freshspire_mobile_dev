@@ -1,6 +1,7 @@
 package com.freshspire.api.service;
 
 import com.freshspire.api.dao.StoreDAO;
+import com.freshspire.api.model.Discount;
 import com.freshspire.api.model.Store;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,5 +35,10 @@ public class StoreServiceImpl implements StoreService {
     @Transactional
     public List<Store> getStore(float latitude, float longitude) {
         return storeDAO.getStoreByLocation(latitude, longitude);
+    }
+
+    @Transactional
+    public List<Discount> getDiscounts(String storeId) {
+        return storeDAO.getDiscountsByStoreId(storeId);
     }
 }

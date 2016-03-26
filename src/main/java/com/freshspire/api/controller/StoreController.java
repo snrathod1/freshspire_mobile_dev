@@ -27,8 +27,13 @@ public class StoreController {
         this.storeService = storeService;
     }
 
-    @RequestMapping(value = "/{storeId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{storeId}", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<String> getStoreById(@PathVariable String storeId) {
         return ResponseUtil.ok(gson.toJson(storeService.getStore(storeId)));
+    }
+
+    @RequestMapping(value = "/discounts/{storeId}", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<String> getDiscountsInStoreById(@PathVariable String storeId) {
+        return ResponseEntity.ok(gson.toJson(storeService.getDiscounts(storeId)));
     }
 }

@@ -1,8 +1,5 @@
 package com.freshspire.api.model.params;
 
-/**
- * Created by aadisriram on 2/25/16.
- */
 public class ResetPasswordParams {
 
     private String oldPassword;
