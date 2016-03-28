@@ -55,7 +55,6 @@
 
     <!-- Controller Beans -->
     <beans:bean id="usersController" class="com.freshspire.api.controller.UsersController"></beans:bean>
-    <beans:bean id="discountsController" class="com.freshspire.api.controller.DiscountController"></beans:bean>
     <beans:bean id="loginController" class="com.freshspire.api.controller.LoginController"></beans:bean>
     <beans:bean id="storeController" class="com.freshspire.api.controller.StoreController"></beans:bean>
     <beans:bean id="discountController" class="com.freshspire.api.controller.DiscountController"></beans:bean>
