@@ -1,22 +1,23 @@
 package com.freshspire.api.controller;
 
+import com.freshspire.api.model.params.NewDiscountParams;
 import com.freshspire.api.service.StoreService;
+import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.ResponseUtil;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/stores/")
 public class StoreController {
 
     private StoreService storeService;
+
+    private UserService userService;
 
     private static Gson gson = new Gson();
 
@@ -26,14 +27,51 @@ public class StoreController {
     public void setStoreService(StoreService storeService) {
         this.storeService = storeService;
     }
+    
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
 
-    @RequestMapping(value = "/{storeId}", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity<String> getStoreById(@PathVariable String storeId) {
+    /**
+     * GET /stores/{storeId}
+     *
+     * @param storeId
+     * @param apiKey
+     * @return
+     */
+    @RequestMapping(value = "/{storeId}", method = RequestMethod.GET)
+    public ResponseEntity<String> getStoreById(@PathVariable String storeId, @RequestParam String apiKey) {
         return ResponseUtil.ok(gson.toJson(storeService.getStore(storeId)));
     }
 
-    @RequestMapping(value = "/discounts/{storeId}", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity<String> getDiscountsInStoreById(@PathVariable String storeId) {
-        return ResponseEntity.ok(gson.toJson(storeService.getDiscounts(storeId)));
+    /**
+     * GET /stores/{storeId}/discounts
+     *
+     * @param storeId
+     * @param type
+     * @param apiKey
+     * @return
+     */
+    @RequestMapping(value = "/{storeId}/discounts", method = RequestMethod.GET)
+    public ResponseEntity<String> getDiscountsForStore(@PathVariable String storeId, @RequestParam(required = false) String type, @RequestParam String apiKey) {
+        return ResponseUtil.ok("This will return discounts for store '" + storeId + "'");
+    }
+
+    /**
+     * POST /stores/{storeId}/discounts
+     *
+     * @param storeId
+     * @param params
+     * @param apiKey
+     * @return
+     */
+    @RequestMapping(value = "/{storeId}/discounts", method = RequestMethod.POST)
+    public ResponseEntity<String> addNewDiscountToStore(@PathVariable String storeId, @RequestBody NewDiscountParams params, @RequestParam String apiKey) {
+        if(userService.getUserByApiKey(apiKey) == null) {
+            return ResponseUtil.unauthorized("Unauthenticated");
+        }
+
+        return ResponseUtil.ok("This will add a discount to the store");
     }
 }
