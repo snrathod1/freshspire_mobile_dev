@@ -1,5 +1,6 @@
 package com.freshspire.api.controller;
 
+import com.freshspire.api.model.Discount;
 import com.freshspire.api.model.params.NewDiscountParams;
 import com.freshspire.api.service.StoreService;
 import com.freshspire.api.service.UserService;
@@ -10,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/stores/")
@@ -34,6 +37,16 @@ public class StoreController {
     }
 
     /**
+     * GET /
+     *
+     * @return list of stores with discounts
+     */
+    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<String> getStores(@RequestParam String apiKey) {
+        return ResponseUtil.ok(gson.toJson(storeService.getStores()));
+    }
+
+    /**
      * GET /stores/{storeId}
      *
      * @param storeId
@@ -54,8 +67,13 @@ public class StoreController {
      * @return
      */
     @RequestMapping(value = "/{storeId}/discounts", method = RequestMethod.GET)
-    public ResponseEntity<String> getDiscountsForStore(@PathVariable String storeId, @RequestParam(required = false) String type, @RequestParam String apiKey) {
-        return ResponseUtil.ok("This will return discounts for store '" + storeId + "'");
+    public ResponseEntity<String> getDiscountsForStore(
+            @PathVariable String storeId,
+            @RequestParam(required = false) String query,
+            @RequestParam(required = false) String type,
+            @RequestParam String apiKey) {
+        List<Discount> discounts = storeService.getDiscounts(storeId);
+        return ResponseUtil.ok(gson.toJson(discounts));
     }
 
     /**

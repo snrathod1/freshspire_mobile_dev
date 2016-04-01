@@ -19,7 +19,7 @@ public class StoreServiceImpl implements StoreService {
 
     @Transactional
     public List<Store> getStores() {
-        return null;
+        return storeDAO.getStores();
     }
 
     @Transactional
@@ -40,5 +40,10 @@ public class StoreServiceImpl implements StoreService {
     @Transactional
     public List<Discount> getDiscounts(String storeId) {
         return storeDAO.getDiscountsByStoreId(storeId);
+    }
+
+    @Transactional
+    public List<Discount> getDiscounts(String storeId, String query, String foodType) {
+        return storeDAO.getDiscountsByStoreId(storeId, query, foodType);
     }
 }

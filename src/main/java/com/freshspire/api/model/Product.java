@@ -17,6 +17,9 @@ public class Product {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "foodType")
+    private String foodType;
+
     public int getProductId() {
         return productId;
     }

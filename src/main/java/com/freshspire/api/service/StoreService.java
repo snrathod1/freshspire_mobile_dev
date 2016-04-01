@@ -12,4 +12,5 @@ public interface StoreService {
     List<Store> getStore(int zipcode);
     List<Store> getStore(float latitude, float longitude);
     List<Discount> getDiscounts(String storeId);
+    List<Discount> getDiscounts(String storeId, String query, String foodType);
 }

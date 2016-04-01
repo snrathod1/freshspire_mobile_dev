@@ -7,6 +7,8 @@ import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 public class DiscountDAOImpl implements DiscountDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(StoreDAOImpl.class);
@@ -23,6 +25,21 @@ public class DiscountDAOImpl implements DiscountDAO {
         Query query = session.createQuery("From Discount D where D.discountId = :discountId");
         query.setParameter("discountId", discountId);
         return (Discount) query.uniqueResult();
+    }
+
+    public List<Discount> getDiscountByLatLong(
+            float latitude,
+            float longitude,
+            String queryParam,
+            float within,
+            String foodType,
+            String chain) {
+        Session session = getCurrentSession();
+        StringBuilder queryString = new StringBuilder();
+        queryString.append("From Discount D, Store S, Product P where D.storeId = S.storeId and D.productId = P.productId");
+        Query query = session.createQuery(queryString.toString());
+
+        return query.list();
     }
 
     private Session getCurrentSession() {
