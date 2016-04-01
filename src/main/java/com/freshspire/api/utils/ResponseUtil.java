@@ -1,6 +1,7 @@
 package com.freshspire.api.utils;
 
 import com.freshspire.api.model.ResponseMessage;
+import com.freshspire.api.model.Store;
 import com.freshspire.api.model.User;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -91,8 +92,25 @@ public class ResponseUtil {
         userJson.addProperty("phoneNumber", user.getPhoneNumber());
         userJson.addProperty("userId", user.getUserId());
 
-
         return ResponseEntity.status(status).body(userJson.toString());
+    }
+
+    /**
+     * Returns HTTP response with a store object in the response body formatted as JSON according
+     * to the API specification.
+     * @param store The store object to put in the response
+     * @param status The desired HTTP status of the response
+     * @return The HTTP response with the store JSON object in the response body
+     */
+    public static ResponseEntity<String> makeStoreObjectResponse(Store store, HttpStatus status) {
+        JsonObject storeJson = new JsonObject();
+
+        storeJson.addProperty("address", store.getAddress());
+        storeJson.addProperty("lat", store.getLatitude());
+        storeJson.addProperty("long", store.getLongitude());
+        storeJson.addProperty("storeId", store.getStoreId());
+
+        return ResponseEntity.status(status).body(storeJson.toString());
     }
 
     /**
