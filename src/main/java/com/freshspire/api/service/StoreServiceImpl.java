@@ -18,27 +18,32 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Transactional
+    @Override
     public List<Store> getStores() {
         return null;
     }
 
     @Transactional
-    public Store getStore(String storeId) {
+    @Override
+    public Store getStoreById(String storeId) {
         return storeDAO.getStoreById(storeId);
     }
 
     @Transactional
-    public List<Store> getStore(int zipcode) {
+    @Override
+    public List<Store> getStoresByZipCode(int zipcode) {
         return storeDAO.getStoreByZip(zipcode);
     }
 
     @Transactional
-    public List<Store> getStore(float latitude, float longitude) {
+    @Override
+    public List<Store> getStoresByLatLong(float latitude, float longitude) {
         return storeDAO.getStoreByLocation(latitude, longitude);
     }
 
     @Transactional
-    public List<Discount> getDiscounts(String storeId) {
+    @Override
+    public List<Discount> getDiscountsInStore(String storeId) {
         return storeDAO.getDiscountsByStoreId(storeId);
     }
 }

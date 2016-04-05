@@ -7,7 +7,16 @@ import java.util.List;
 
 public interface UserDAO {
 
+    /**
+     * Adds a user to the persistence layer.
+     * @param user The User object to add
+     */
     void addUser(User user);
+
+    /**
+     *
+     * @param user
+     */
     void updateUser(User user);
     User getUserById(String userId);
     void deleteUser(String userId);

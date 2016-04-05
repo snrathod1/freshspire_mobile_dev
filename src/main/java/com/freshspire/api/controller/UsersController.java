@@ -239,7 +239,7 @@ public class UsersController {
 
         // If API key is valid, delete user
         if(user.getApiKey().equals(params.getApiKey())) {
-            userService.deleteUser(userId, params.getApiKey());
+            userService.deleteUser(userId);
             return ResponseUtil.ok("Successfully deleted user");
 
         } else { // Otherwise, return error

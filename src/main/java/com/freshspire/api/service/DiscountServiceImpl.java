@@ -15,6 +15,7 @@ public class DiscountServiceImpl implements DiscountService {
     }
 
     @Transactional
+    @Override
     public Discount getDiscountById(String discountId) {
         return discountDAO.getDiscountById(discountId);
     }

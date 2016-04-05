@@ -27,6 +27,15 @@ public class Discount {
     @Temporal(TemporalType.TIMESTAMP)
     private Date expires;
 
+    public Discount() {}
+
+    public Discount(int storeId, int productId, Date posted, Date expires) {
+        this.storeId = storeId;
+        this.productId = productId;
+        this.posted = posted;
+        this.expires = expires;
+    }
+
     public int getDiscountId() {
         return discountId;
     }

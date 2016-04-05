@@ -21,18 +21,21 @@ public class UserDAOImpl implements UserDAO {
         this.sessionFactory = sessionFactory;
     }
 
+    @Override
     public void addUser(User user) {
         Session session = getCurrentSession();
         session.persist(user);
         logger.info("User saved : " + user);
     }
 
+    @Override
     public void updateUser(User user) {
         Session session = getCurrentSession();
         session.update(user);
         logger.info("User updated : " + user);
     }
 
+    @Override
     public void deleteUser(String userId) {
         Session session = getCurrentSession();
         User user = (User) session.load(User.class, userId);
@@ -42,6 +45,7 @@ public class UserDAOImpl implements UserDAO {
         logger.info("User deleted : " + user);
     }
 
+    @Override
     public User getUserByPhoneNumber(String phoneNumber) {
         Session session = getCurrentSession();
         Query query = session.createQuery("from User U where U.phoneNumber = :phoneNumber");
@@ -51,6 +55,7 @@ public class UserDAOImpl implements UserDAO {
         return result;
     }
 
+    @Override
     public User getUserByApiKey(String apiKey) {
         Session session = getCurrentSession();
         Query query = session.createQuery("from User U where U.apiKey = :apiKey");
@@ -59,6 +64,7 @@ public class UserDAOImpl implements UserDAO {
         return result;
     }
 
+    @Override
     public User getUserById(String userId) {
         Session session = getCurrentSession();
         Query query = session.createQuery("from User U where U.userId = :userId");
@@ -68,6 +74,7 @@ public class UserDAOImpl implements UserDAO {
         return result;
     }
 
+    @Override
     public List<User> getAdmins() {
         Session session = getCurrentSession();
         Query query = session.createQuery("from User U where U.admin = :admin");

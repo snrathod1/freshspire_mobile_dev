@@ -15,43 +15,47 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional
+    @Override
     public void addUser(User user) {
         this.userDAO.addUser(user);
     }
 
     @Transactional
+    @Override
     public void updateUser(User user) {
         this.userDAO.updateUser(user);
     }
 
     @Transactional
+    @Override
     public User getUserById(String userId) {
         return this.userDAO.getUserById(userId);
     }
 
     @Transactional
-    public void deleteUser(String userId, String authKey) {
+    @Override
+    public void deleteUser(String userId) {
         this.userDAO.deleteUser(userId);
     }
 
-    /**
-     * @param userId
-     * @param apiKey
-     * @return
-     */
+    @Override
     public boolean authenticateUser(String userId, String apiKey) {
-        User userByApiKey = this.userDAO.getUserByApiKey(apiKey);
-        User userByUserId = this.userDAO.getUserById(userId);
-
-        return userByApiKey == userByUserId;
+        User user = this.userDAO.getUserById(userId);
+        if(user == null) {
+            return false;
+        } else {
+            return user.getApiKey().equals(apiKey);
+        }
     }
 
     @Transactional
+    @Override
     public User getUserByPhoneNumber(String phoneNumber) {
         return this.userDAO.getUserByPhoneNumber(phoneNumber);
     }
 
     @Transactional
+    @Override
     public User getUserByApiKey(String apiKey) {
         return this.userDAO.getUserByApiKey(apiKey);
     }

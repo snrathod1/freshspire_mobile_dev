@@ -8,8 +8,8 @@ import java.util.List;
 public interface StoreService {
 
     List<Store> getStores();
-    Store getStore(String storeId);
-    List<Store> getStore(int zipcode);
-    List<Store> getStore(float latitude, float longitude);
-    List<Discount> getDiscounts(String storeId);
+    Store getStoreById(String storeId);
+    List<Store> getStoresByZipCode(int zipcode);
+    List<Store> getStoresByLatLong(float latitude, float longitude);
+    List<Discount> getDiscountsInStore(String storeId);
 }

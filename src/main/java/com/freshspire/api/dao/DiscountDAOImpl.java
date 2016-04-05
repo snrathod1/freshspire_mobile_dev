@@ -18,6 +18,7 @@ public class DiscountDAOImpl implements DiscountDAO {
     }
 
 
+    @Override
     public Discount getDiscountById(String discountId) {
         Session session = getCurrentSession();
         Query query = session.createQuery("From Discount D where D.discountId = :discountId");

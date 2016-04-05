@@ -21,11 +21,13 @@ public class StoreDAOImpl implements StoreDAO {
     }
 
     //TODO : Add implementation to add a new store to database
+    @Override
     public void addStore(Store store) {
 
     }
 
     //TODO : Add implementation to update an existing store
+    @Override
     public void updateStore(Store store) {
 
     }
@@ -35,6 +37,7 @@ public class StoreDAOImpl implements StoreDAO {
      * @param storeId the id of the store to be fetched
      * @return
      */
+    @Override
     public Store getStoreById(String storeId) {
         Session session = getCurrentSession();
         Query query = session.createQuery("From Store S where S.storeId = :storeId");
@@ -45,6 +48,7 @@ public class StoreDAOImpl implements StoreDAO {
     }
 
     //TODO: get lat long from zipcode and then call getStoreByLocation
+    @Override
     public List<Store> getStoreByZip(int zipcode) {
         return null;
     }
@@ -55,6 +59,7 @@ public class StoreDAOImpl implements StoreDAO {
         return query.list();
     }
 
+    @Override
     public List<Discount> getDiscountsByStoreId(String storeId) {
         Session session = getCurrentSession();
         Query query = session.createQuery("From Discount D where D.storeId = :storeId");
