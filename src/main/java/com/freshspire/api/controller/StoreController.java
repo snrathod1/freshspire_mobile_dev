@@ -63,7 +63,7 @@ public class StoreController {
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
         }
-        Store store = storeService.getStore(storeId);
+        Store store = storeService.getStoreById(storeId);
         if(store == null) {
             return ResponseUtil.notFound("Store not found!");
         }

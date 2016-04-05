@@ -732,7 +732,7 @@ public class UsersControllerTest {
 
         // Verify user service called, HTTP response is correct
         verify(mockUserService).getUserById(VALID_USER_ID);
-        verify(mockUserService).deleteUser(VALID_USER_ID, VALID_API_KEY);
+        verify(mockUserService).deleteUser(VALID_USER_ID);
         verifyNoMoreInteractions(mockUserService);
         assertEquals("HTTP status code should be 200 OK",
                 expected.getStatusCode(), actual.getStatusCode());
