@@ -48,10 +48,10 @@ public class DiscountController {
             @PathVariable float latitude,
             @PathVariable float longitude,
             @RequestParam String apiKey,
-            @RequestParam String q,
-            @RequestParam float within,
-            @RequestParam String foodType,
-            @RequestParam String chain) {
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) float within,
+            @RequestParam(required = false) String foodType,
+            @RequestParam(required = false) String chain) {
         return ResponseEntity.ok(gson.toJson(discountService.getDiscountsByLatLong(latitude, longitude, q, within, foodType, chain)));
     }
 }
