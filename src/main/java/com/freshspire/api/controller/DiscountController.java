@@ -28,7 +28,7 @@ public class DiscountController {
      * @return unique discount data
      */
     @RequestMapping(value = "/{discountId}", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity<String> getDiscountById(@PathVariable String discountId) {
+    public ResponseEntity<String> getDiscountById(@PathVariable int discountId) {
         return ResponseEntity.ok(gson.toJson(discountService.getDiscountById(discountId)));
     }
 

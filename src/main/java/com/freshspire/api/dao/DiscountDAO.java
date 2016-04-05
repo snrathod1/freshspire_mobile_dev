@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface DiscountDAO {
 
-    Discount getDiscountById(String discountId);
+    Discount getDiscountById(int discountId);
     List<Discount> getDiscountByLatLong(float latitude, float longitude, String queryParam, float within, String foodType, String chain);
 }

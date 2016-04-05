@@ -12,7 +12,7 @@ public interface StoreDAO {
     Store getStoreById(int storeId);
     List<Store> getStoreByZip(int zipcode);
     List<Store> getStoreByLocation(double latitude, double longitude);
-    List<Discount> getDiscountsByStoreId(String storeId);
-    List<Discount> getDiscountsByStoreId(String storeId, String query, String foodType);
+    List<Discount> getDiscountsByStoreId(int storeId);
+    List<Discount> getDiscountsByStoreId(int storeId, String query, String foodType);
     List<Store> getStores();
 }

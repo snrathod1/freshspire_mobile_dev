@@ -70,21 +70,13 @@ public class StoreController {
      * @return
      */
     @RequestMapping(value = "/{storeId}", method = RequestMethod.GET)
-    public ResponseEntity<String> getStoreById(@PathVariable String storeId, @RequestParam String apiKey) {
+    public ResponseEntity<String> getStoreById(@PathVariable int storeId, @RequestParam String apiKey) {
         // Authenticate user first
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
         }
 
-        // Try to get Integer store ID from the storeId parameter
-        int integerStoreId = -1;
-        try {
-            integerStoreId = Integer.parseInt(storeId);
-        } catch(NumberFormatException e) {
-            return ResponseUtil.badRequest("Bad request - are the parameters formatted correctly?");
-        }
-
-        Store store = storeService.getStoreById(integerStoreId);
+        Store store = storeService.getStoreById(storeId);
 
         if(store == null) return ResponseUtil.notFound("Store with ID " + storeId + " not found");
 
@@ -101,7 +93,7 @@ public class StoreController {
      */
     @RequestMapping(value = "/{storeId}/discounts", method = RequestMethod.GET)
     public ResponseEntity<String> getDiscountsForStore(
-            @PathVariable String storeId,
+            @PathVariable int storeId,
             @RequestParam(required = false) String query,
             @RequestParam(required = false) String foodType,
             @RequestParam String apiKey) {
@@ -122,7 +114,7 @@ public class StoreController {
      * @return
      */
     @RequestMapping(value = "/{storeId}/discounts", method = RequestMethod.POST)
-    public ResponseEntity<String> addNewDiscountToStore(@PathVariable String storeId, @RequestBody NewDiscountParams params, @RequestParam String apiKey) {
+    public ResponseEntity<String> addNewDiscountToStore(@PathVariable int storeId, @RequestBody NewDiscountParams params, @RequestParam String apiKey) {
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
         }

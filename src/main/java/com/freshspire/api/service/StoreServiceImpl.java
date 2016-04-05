@@ -43,12 +43,12 @@ public class StoreServiceImpl implements StoreService {
 
     @Transactional
     @Override
-    public List<Discount> getDiscounts(String storeId) {
+    public List<Discount> getDiscounts(int storeId) {
         return storeDAO.getDiscountsByStoreId(storeId);
     }
 
     @Transactional
-    public List<Discount> getDiscounts(String storeId, String query, String foodType) {
+    public List<Discount> getDiscounts(int storeId, String query, String foodType) {
         return storeDAO.getDiscountsByStoreId(storeId, query, foodType);
     }
 }

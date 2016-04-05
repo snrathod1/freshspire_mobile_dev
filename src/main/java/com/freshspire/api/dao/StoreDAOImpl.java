@@ -63,7 +63,7 @@ public class StoreDAOImpl implements StoreDAO {
     }
 
     @Override
-    public List<Discount> getDiscountsByStoreId(String storeId) {
+    public List<Discount> getDiscountsByStoreId(int storeId) {
         Session session = getCurrentSession();
         Query query = session.createQuery("From Discount D where D.storeId = :storeId");
         query.setParameter("storeId", storeId);
@@ -77,7 +77,7 @@ public class StoreDAOImpl implements StoreDAO {
         return query.list();
     }
 
-    public List<Discount> getDiscountsByStoreId(String storeId, String queryParam, String foodType) {
+    public List<Discount> getDiscountsByStoreId(int storeId, String queryParam, String foodType) {
         Session session = getCurrentSession();
         StringBuilder queryString = new StringBuilder();
         queryString.append("From Discount D, Product P where D.storeId = :storeId ");
