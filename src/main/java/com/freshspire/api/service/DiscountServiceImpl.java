@@ -22,6 +22,7 @@ public class DiscountServiceImpl implements DiscountService {
         return discountDAO.getDiscountById(discountId);
     }
 
+    @Transactional
     public List<Discount> getDiscountsByLatLong(float latitude, float longitude, String queryParam, float within, String foodType, String chain) {
         return discountDAO.getDiscountByLatLong(latitude, longitude, queryParam, within, foodType, chain);
     }

@@ -16,10 +16,10 @@ public class Store {
     @Column(name = "address")
     private String address;
 
-    @Column(name = "lat")
+    @Column(name = "latitude")
     private double latitude;
 
-    @Column(name = "long")
+    @Column(name = "longitude")
     private double longitude;
 
     public int getStoreId() {

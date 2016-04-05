@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/stores/")
+@RequestMapping("/stores")
 public class StoreController {
 
     private StoreService storeService;
@@ -58,6 +58,15 @@ public class StoreController {
         }
 
         return ResponseUtil.ok(gson.toJson(storeService.getStores()));
+    }
+
+    @RequestMapping(value = "/location", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<String> getStoreByLatLong(@RequestParam long latitude, @RequestParam long longitude) {
+//        if (userService.getUserByApiKey(apiKey) == null) {
+//            return ResponseUtil.unauthorized("Unauthenticated");
+//        }
+
+        return ResponseUtil.ok(gson.toJson(storeService.getStoresByLatLong(latitude, longitude)));
     }
 
     /**
