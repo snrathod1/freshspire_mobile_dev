@@ -7,9 +7,12 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
+import com.google.common.base.Strings;
 
 import java.util.List;
 
+@Repository
 public class StoreDAOImpl implements StoreDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(StoreDAOImpl.class);
@@ -64,6 +67,43 @@ public class StoreDAOImpl implements StoreDAO {
         Session session = getCurrentSession();
         Query query = session.createQuery("From Discount D where D.storeId = :storeId");
         query.setParameter("storeId", storeId);
+
+        return query.list();
+    }
+
+    public List<Store> getStores() {
+        Session session = getCurrentSession();
+        Query query = session.createQuery("From Store");
+        return query.list();
+    }
+
+    public List<Discount> getDiscountsByStoreId(String storeId, String queryParam, String foodType) {
+        Session session = getCurrentSession();
+        StringBuilder queryString = new StringBuilder();
+        queryString.append("From Discount D, Product P where D.storeId = :storeId ");
+
+        boolean isQueryParamEmpty = Strings.isNullOrEmpty(queryParam);
+        boolean isFoodTypeEmpty = Strings.isNullOrEmpty(foodType);
+
+        if ( !(isQueryParamEmpty && isFoodTypeEmpty)) {
+            queryString.append("and D.productId = P.productId ");
+        }
+        if (!isQueryParamEmpty) {
+            queryString.append("and P.name = :query ");
+        }
+        if (!isFoodTypeEmpty) {
+            queryString.append("and P.foodType = :foodType ");
+        }
+        Query query = session.createQuery(queryString.toString());
+
+        query.setParameter("storeId", storeId);
+        if (!isQueryParamEmpty) {
+            query.setParameter("query", "%" + queryParam + "%");
+        }
+
+        if (!isFoodTypeEmpty) {
+            query.setParameter("foodType", foodType);
+        }
 
         return query.list();
     }

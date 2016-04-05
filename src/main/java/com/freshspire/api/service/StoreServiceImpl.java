@@ -20,7 +20,7 @@ public class StoreServiceImpl implements StoreService {
     @Transactional
     @Override
     public List<Store> getStores() {
-        return null;
+        return storeDAO.getStores();
     }
 
     @Transactional
@@ -45,5 +45,10 @@ public class StoreServiceImpl implements StoreService {
     @Override
     public List<Discount> getDiscountsInStore(String storeId) {
         return storeDAO.getDiscountsByStoreId(storeId);
+    }
+
+    @Transactional
+    public List<Discount> getDiscounts(String storeId, String query, String foodType) {
+        return storeDAO.getDiscountsByStoreId(storeId, query, foodType);
     }
 }

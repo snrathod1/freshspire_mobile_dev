@@ -5,6 +5,8 @@ import com.freshspire.api.model.Discount;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class DiscountServiceImpl implements DiscountService {
 
@@ -18,5 +20,9 @@ public class DiscountServiceImpl implements DiscountService {
     @Override
     public Discount getDiscountById(String discountId) {
         return discountDAO.getDiscountById(discountId);
+    }
+
+    public List<Discount> getDiscountsByLatLong(float latitude, float longitude, String queryParam, float within, String foodType, String chain) {
+        return discountDAO.getDiscountByLatLong(latitude, longitude, queryParam, within, foodType, chain);
     }
 }

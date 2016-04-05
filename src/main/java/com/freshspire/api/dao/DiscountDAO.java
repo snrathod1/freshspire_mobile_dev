@@ -2,7 +2,10 @@ package com.freshspire.api.dao;
 
 import com.freshspire.api.model.Discount;
 
+import java.util.List;
+
 public interface DiscountDAO {
 
     Discount getDiscountById(String discountId);
+    List<Discount> getDiscountByLatLong(float latitude, float longitude, String queryParam, float within, String foodType, String chain);
 }

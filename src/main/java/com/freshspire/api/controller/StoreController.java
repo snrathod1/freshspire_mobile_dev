@@ -8,7 +8,6 @@ import com.freshspire.api.service.StoreService;
 import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.ResponseUtil;
 import com.google.gson.Gson;
-import org.omg.PortableInterceptor.DISCARDING;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -50,6 +47,16 @@ public class StoreController {
     }
 
     /**
+     * GET /
+     *
+     * @return list of stores with discounts
+     */
+    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<String> getStores(@RequestParam String apiKey) {
+        return ResponseUtil.ok(gson.toJson(storeService.getStores()));
+    }
+
+    /**
      * GET /stores/{storeId}
      *
      * TODO: ensure this complies with API specification
@@ -79,23 +86,17 @@ public class StoreController {
      * @return
      */
     @RequestMapping(value = "/{storeId}/discounts", method = RequestMethod.GET)
-    public ResponseEntity<String> getDiscountsForStore(@PathVariable String storeId,
-                                                       @RequestParam(value = "foodType", required = false) String foodType,
-                                                       @RequestParam String apiKey) {
+    public ResponseEntity<String> getDiscountsForStore(
+            @PathVariable String storeId,
+            @RequestParam(required = false) String query,
+            @RequestParam(required = false) String foodType,
+            @RequestParam String apiKey) {
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
         }
 
-        if(foodType == null) {
-            List discounts = new ArrayList(5);
-            discounts.add(new Discount(1, 1, new Date(0), new Date(10000)));
-            discounts.add(new Discount(1, 2, new Date(500), new Date(12000)));
-            discounts.add(new Discount(2, 3, new Date(1000), new Date(14000)));
-            discounts.add(new Discount(1, 4, new Date(1500), new Date(16000)));
-            discounts.add(new Discount(2, 5, new Date(2000), new Date(18000)));
-
-        }
-        return ResponseUtil.ok("Food types: " + foodType);
+        List<Discount> discounts = storeService.getDiscounts(storeId, query, foodType);
+        return ResponseUtil.ok(gson.toJson(discounts));
     }
 
     /**
