@@ -47,12 +47,16 @@ public class StoreController {
     }
 
     /**
-     * GET /
+     * GET /stores
      *
      * @return list of stores with discounts
      */
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<String> getStores(@RequestParam String apiKey) {
+        if(userService.getUserByApiKey(apiKey) == null) {
+            return ResponseUtil.unauthorized("Unauthenticated");
+        }
+
         return ResponseUtil.ok(gson.toJson(storeService.getStores()));
     }
 
@@ -67,13 +71,23 @@ public class StoreController {
      */
     @RequestMapping(value = "/{storeId}", method = RequestMethod.GET)
     public ResponseEntity<String> getStoreById(@PathVariable String storeId, @RequestParam String apiKey) {
+        // Authenticate user first
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
         }
-        Store store = storeService.getStoreById(storeId);
-        if(store == null) {
-            return ResponseUtil.notFound("Store not found!");
+
+        // Try to get Integer store ID from the storeId parameter
+        int integerStoreId = -1;
+        try {
+            integerStoreId = Integer.parseInt(storeId);
+        } catch(NumberFormatException e) {
+            return ResponseUtil.badRequest("Bad request - are the parameters formatted correctly?");
         }
+
+        Store store = storeService.getStoreById(integerStoreId);
+
+        if(store == null) return ResponseUtil.notFound("Store with ID " + storeId + " not found");
+
         return ResponseUtil.makeStoreObjectResponse(store, HttpStatus.OK);
     }
 

@@ -8,7 +8,7 @@ import java.util.List;
 public interface StoreService {
 
     List<Store> getStores();
-    Store getStoreById(String storeId);
+    Store getStoreById(int storeId);
     List<Store> getStoresByZipCode(int zipcode);
     List<Store> getStoresByLatLong(float latitude, float longitude);
     List<Discount> getDiscounts(String storeId);

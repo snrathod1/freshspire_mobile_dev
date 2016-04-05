@@ -41,7 +41,7 @@ public class StoreDAOImpl implements StoreDAO {
      * @return
      */
     @Override
-    public Store getStoreById(String storeId) {
+    public Store getStoreById(int storeId) {
         Session session = getCurrentSession();
         Query query = session.createQuery("From Store S where S.storeId = :storeId");
         query.setParameter("storeId", storeId);

@@ -29,6 +29,9 @@
         <beans:property name="annotatedClasses">
             <beans:list>
                 <beans:value>com.freshspire.api.model.User</beans:value>
+                <beans:value>com.freshspire.api.model.Store</beans:value>
+                <beans:value>com.freshspire.api.model.Discount</beans:value>
+                <beans:value>com.freshspire.api.model.Product</beans:value>
             </beans:list>
         </beans:property>
         <beans:property name="hibernateProperties">

@@ -9,7 +9,7 @@ public interface StoreDAO {
 
     void addStore(Store store);
     void updateStore(Store store);
-    Store getStoreById(String storeId);
+    Store getStoreById(int storeId);
     List<Store> getStoreByZip(int zipcode);
     List<Store> getStoreByLocation(double latitude, double longitude);
     List<Discount> getDiscountsByStoreId(String storeId);

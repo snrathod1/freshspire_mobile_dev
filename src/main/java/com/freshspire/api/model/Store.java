@@ -1,9 +1,11 @@
 package com.freshspire.api.model;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 @Entity
-@Table(name="store")
+@Table(name="stores")
 public class Store {
 
     @Id
