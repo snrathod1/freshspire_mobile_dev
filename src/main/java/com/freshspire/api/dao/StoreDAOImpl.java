@@ -2,13 +2,14 @@ package com.freshspire.api.dao;
 
 import com.freshspire.api.model.Discount;
 import com.freshspire.api.model.Store;
+import com.google.common.base.Strings;
+import com.google.gson.Gson;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
-import com.google.common.base.Strings;
 
 import java.util.List;
 
@@ -58,8 +59,7 @@ public class StoreDAOImpl implements StoreDAO {
 
     public List<Store> getStoreByLocation(double latitude, double longitude) {
         Session session = getCurrentSession();
-        Query query = session.createSQLQuery("SELECT *, ( 3959 * acos( cos( radians(37) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(-122) ) + sin( radians(37) ) * sin( radians( latitude ) ) ) ) AS distance FROM stores HAVING distance < 25 ORDER BY distance LIMIT 0 , 20;");
-        Object obj = query.list();
+        Query query = session.createSQLQuery("SELECT *, ( 3959 * acos( cos( radians( " + latitude + ") ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(" + longitude + ") ) + sin( radians( " + latitude + ") ) * sin( radians( latitude ) ) ) ) AS distance FROM stores HAVING distance < 1000000 ORDER BY distance LIMIT 0 , 20;");
         return query.list();
     }
 
