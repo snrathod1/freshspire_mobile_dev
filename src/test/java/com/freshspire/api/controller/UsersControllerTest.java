@@ -23,7 +23,6 @@ import org.springframework.http.ResponseEntity;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 /**
@@ -72,7 +71,6 @@ public class UsersControllerTest {
     @Test
     public void validPhoneShouldSendNewUserAuthCode() throws Exception {
         // Test: valid phone number supplied
-        final String VALID_PHONE_NUMBER = "1234567890";
         // First create the expected ResponseEntity
         String expectedBody = ResponseUtil.asJsonString(
                 new ResponseMessage("ok", "Authentication code sent to " + VALID_PHONE_NUMBER),
@@ -101,7 +99,8 @@ public class UsersControllerTest {
 
         // Check that user service wasn't touched, and authy client wasn't called
         // other than startAuthentication
-        verifyZeroInteractions(mockUserService);
+        verify(mockUserService).getUserByPhoneNumber(VALID_PHONE_NUMBER);
+        verifyNoMoreInteractions(mockUserService);
         verifyNoMoreInteractions(mockAuthyClient);
     }
 
@@ -167,10 +166,45 @@ public class UsersControllerTest {
         assertEquals("Response body is incorrect",
                 expectedBody, actual.getBody());
 
-        // Check that user service wasn't touched, and authy client wasn't called
-        // other than startAuthentication
-        verifyZeroInteractions(mockUserService);
+        // Check that user service was called for validating the phone number, and authy
+        // client wasn't called other than startAuthentication
+        verify(mockUserService).getUserByPhoneNumber(INVALID_PHONE_NUMBER);
+        verifyNoMoreInteractions(mockUserService);
         verifyNoMoreInteractions(mockAuthyClient);
+    }
+
+    /**
+     * Tests GET /users/create
+     * with a phone number that already exists for another user. API does not allow multiple accounts per phone number.
+     * @throws Exception
+     */
+    @Test
+    public void duplicatePhoneNumberShouldNotSendNewUserAuthCode() throws Exception {
+        // Set up parameters and mock verification
+        final String DUPLICATE_PHONE = "duplicate phone number";
+        NewUserParams params = new NewUserParams(VALID_FIRST_NAME, DUPLICATE_PHONE, VALID_PASSWORD, VALID_AUTHENTICATION_CODE);
+
+        Verification mockVerification = mock(Verification.class);
+        User mockUser = mock(User.class);
+
+        when(mockAuthyClient.checkAuthentication(DUPLICATE_PHONE, VALID_AUTHENTICATION_CODE)).thenReturn(mockVerification);
+        when(mockVerification.isOk()).thenReturn(true);
+        when(mockUserService.getUserByPhoneNumber(DUPLICATE_PHONE)).thenReturn(mockUser);
+
+        // Expected
+        ResponseEntity expected = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseUtil.asJsonString(
+                new ResponseMessage("error", "User already exists for phone number " + DUPLICATE_PHONE),
+                ResponseMessage.class));
+
+        // Actual
+        ResponseEntity actual = usersController.getNewUserAuthCode(DUPLICATE_PHONE);
+
+        // Verify authy not called, HTTP response correct
+        verifyZeroInteractions(mockAuthyClient);
+        assertEquals("HTTP response status should be 400",
+                expected.getStatusCode(), actual.getStatusCode());
+        assertEquals("Response body is incorrect",
+                expected.getBody(), actual.getBody());
     }
 
     /**
@@ -251,21 +285,12 @@ public class UsersControllerTest {
 
         // Verify auth was checked, user service is called, HTTP response is correct
         verify(mockAuthyClient).checkAuthentication(VALID_PHONE_NUMBER, "invalid code");
-        verifyZeroInteractions(mockUserService);
+        verify(mockUserService).getUserByPhoneNumber(VALID_PHONE_NUMBER);
+        verifyNoMoreInteractions(mockUserService);
         assertEquals("HTTP status code should be 401 Unauthorized",
                 expected.getStatusCode(), actual.getStatusCode());
         assertEquals("Response body is incorrect",
                 expectedBody, actual.getBody());
-    }
-
-    /**
-     * Tests POST /users/create
-     * with a phone number that already exists for another user. API does not allow multiple accounts per phone number.
-     * @throws Exception
-     */
-    @Test
-    public void duplicatePhoneNumberShouldNotCreateUser() throws Exception {
-        fail("Add this: Account already exists with phone number");
     }
 
     /**

@@ -73,6 +73,10 @@ public class UsersController {
             return ResponseUtil.badRequest("Phone number is empty");
         }
 
+        if(userService.getUserByPhoneNumber(phoneNumber) != null) {
+            return ResponseUtil.badRequest("User already exists for phone number " + phoneNumber);
+        }
+
         Verification verification = authyClient.startAuthentication(phoneNumber);
 
         if(!verification.isOk()) {
@@ -103,6 +107,10 @@ public class UsersController {
             return ResponseUtil.badRequest("Password parameter cannot be empty");
         } else if(params.getFirstName().length() == 0) {
             return ResponseUtil.badRequest("First name parameter cannot be empty");
+        }
+
+        if(userService.getUserByPhoneNumber(params.getPhoneNumber()) != null) {
+            return ResponseUtil.badRequest("User already exists for phone number " + params.getPhoneNumber());
         }
 
         Verification verification = authyClient.checkAuthentication(params.getPhoneNumber(), code);
