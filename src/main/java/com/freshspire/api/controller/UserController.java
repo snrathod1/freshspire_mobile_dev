@@ -24,7 +24,7 @@ import java.util.Date;
  */
 @RestController
 @RequestMapping("/users")
-public class UsersController {
+public class UserController {
 
     /** Service layer for Users in database */
     private UserService userService;
@@ -34,7 +34,7 @@ public class UsersController {
 
     private static Gson gson = new Gson();
 
-    private static final Logger logger = LoggerFactory.getLogger(UsersController.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     public void setUserService(UserService userService) {

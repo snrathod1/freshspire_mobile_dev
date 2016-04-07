@@ -26,10 +26,10 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 /**
- * Tests for UsersController
+ * Tests for UserController
  */
 @RunWith(MockitoJUnitRunner.class)
-public class UsersControllerTest {
+public class UserControllerTest {
 
     @Mock private UserService mockUserService;
 
@@ -37,7 +37,7 @@ public class UsersControllerTest {
 
     private Gson gson;
 
-    private UsersController usersController;
+    private UserController userController;
 
     private static final String VALID_API_KEY               = "apiKey";
     private static final String VALID_USER_ID               = "1";
@@ -52,15 +52,15 @@ public class UsersControllerTest {
     private static final Date VALID_DATE                    = new Date(123);
 
     /**
-     * Sets up UsersController with mocked dependencies.
+     * Sets up UserController with mocked dependencies.
      */
     @Before
     public void setUp() {
         gson = new Gson();
 
-        usersController = new UsersController();
-        usersController.setUserService(mockUserService);
-        usersController.setAuthyClient(mockAuthyClient);
+        userController = new UserController();
+        userController.setUserService(mockUserService);
+        userController.setAuthyClient(mockAuthyClient);
     }
 
     /**
@@ -86,7 +86,7 @@ public class UsersControllerTest {
         when(mockVerification.isOk()).thenReturn(true);
 
         // Exercise method with valid phone number
-        ResponseEntity actual = usersController.getNewUserAuthCode(VALID_PHONE_NUMBER);
+        ResponseEntity actual = userController.getNewUserAuthCode(VALID_PHONE_NUMBER);
 
         // Verify that authy API was correctly called, HTTP status is correct, and body is correct
         verify(mockAuthyClient, times(1)).startAuthentication(VALID_PHONE_NUMBER);
@@ -121,7 +121,7 @@ public class UsersControllerTest {
                 .body(expectedBody);
 
         // Exercise method
-        ResponseEntity actual = usersController.getNewUserAuthCode(EMPTY_PHONE_NUMBER);
+        ResponseEntity actual = userController.getNewUserAuthCode(EMPTY_PHONE_NUMBER);
 
         // Make sure authy API not called, HTTP status is correct, and body is correct
         verifyZeroInteractions(mockAuthyClient);
@@ -157,7 +157,7 @@ public class UsersControllerTest {
         when(mockVerification.isOk()).thenReturn(false);
 
         // Exercise method
-        ResponseEntity actual = usersController.getNewUserAuthCode(INVALID_PHONE_NUMBER);
+        ResponseEntity actual = userController.getNewUserAuthCode(INVALID_PHONE_NUMBER);
 
         // Make sure authy API called, HTTP status is correct, and body is correct
         verify(mockAuthyClient).startAuthentication(INVALID_PHONE_NUMBER);
@@ -197,7 +197,7 @@ public class UsersControllerTest {
                 ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = usersController.getNewUserAuthCode(DUPLICATE_PHONE);
+        ResponseEntity actual = userController.getNewUserAuthCode(DUPLICATE_PHONE);
 
         // Verify authy not called, HTTP response correct
         verifyZeroInteractions(mockAuthyClient);
@@ -246,8 +246,8 @@ public class UsersControllerTest {
 
 
         // Actual response
-        ResponseEntity emptyFirstNameActual = usersController.createUser(emptyFirstNameParams);
-        ResponseEntity emptyPasswordActual = usersController.createUser(emptyPasswordParams);
+        ResponseEntity emptyFirstNameActual = userController.createUser(emptyFirstNameParams);
+        ResponseEntity emptyPasswordActual = userController.createUser(emptyPasswordParams);
 
         // Verify authy was not called (should avoid calling authy until all params are good)
         verifyZeroInteractions(mockAuthyClient);
@@ -281,7 +281,7 @@ public class UsersControllerTest {
         ResponseEntity expected = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(expectedBody);
 
         // Actual
-        ResponseEntity actual = usersController.createUser(params);
+        ResponseEntity actual = userController.createUser(params);
 
         // Verify auth was checked, user service is called, HTTP response is correct
         verify(mockAuthyClient).checkAuthentication(VALID_PHONE_NUMBER, "invalid code");
@@ -319,7 +319,7 @@ public class UsersControllerTest {
         ResponseEntity expected = ResponseEntity.status(HttpStatus.CREATED).body(newUser);
 
         // Actual
-        ResponseEntity actual = usersController.createUser(params);
+        ResponseEntity actual = userController.createUser(params);
 
         // Verify that authy was called, user service was called, and HTTP response is correct
         verify(mockAuthyClient).checkAuthentication(VALID_PHONE_NUMBER, VALID_AUTHENTICATION_CODE);
@@ -357,7 +357,7 @@ public class UsersControllerTest {
                 + " if account exists with that number");
 
         // Actual response
-        ResponseEntity actual = usersController.sendCodeForForgotPassword(INVALID_PHONE);
+        ResponseEntity actual = userController.sendCodeForForgotPassword(INVALID_PHONE);
 
         // Verify that userService was called, authy wasn't called, and HTTP response is correct
         verify(mockUserService).getUserByPhoneNumber(INVALID_PHONE);
@@ -385,7 +385,7 @@ public class UsersControllerTest {
                 + " if account exists with that number");
 
         // Actual
-        ResponseEntity actual = usersController.sendCodeForForgotPassword(VALID_PHONE_NUMBER);
+        ResponseEntity actual = userController.sendCodeForForgotPassword(VALID_PHONE_NUMBER);
 
         // Verify user service and authy called appropriately, and HTTP response is correct
         verify(mockUserService).getUserByPhoneNumber(VALID_PHONE_NUMBER);
@@ -440,7 +440,7 @@ public class UsersControllerTest {
         ResponseEntity expected = ResponseEntity.ok(gson.toJson(body));
 
         // Actual
-        ResponseEntity actual = usersController.verifyCodeForForgotPassword(validParams);
+        ResponseEntity actual = userController.verifyCodeForForgotPassword(validParams);
 
         // Verify authy is called once, userService is called, mock user is updated with
         // new password, and HTTP response is correct
@@ -482,7 +482,7 @@ public class UsersControllerTest {
         ResponseEntity expected = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(gson.toJson(expectedBody));
 
         // Actual
-        ResponseEntity actual = usersController.verifyCodeForForgotPassword(params);
+        ResponseEntity actual = userController.verifyCodeForForgotPassword(params);
 
         // Verify authy called, user service not touched, HTTP response is correct
         verify(mockAuthyClient).checkAuthentication(VALID_PHONE_NUMBER, "invalid code");
@@ -510,7 +510,7 @@ public class UsersControllerTest {
         ResponseEntity expected = ResponseUtil.badRequest("New password cannot be empty");
 
         // Actual
-        ResponseEntity actual = usersController.verifyCodeForForgotPassword(params);
+        ResponseEntity actual = userController.verifyCodeForForgotPassword(params);
 
         // Verify authy not called, user service not touched, HTTP response is correct
         verifyZeroInteractions(mockAuthyClient);
@@ -536,7 +536,7 @@ public class UsersControllerTest {
         ResponseEntity expected = ResponseUtil.unauthorized("Invalid authentication credentials");
 
         // Actual
-        ResponseEntity actual = usersController.resetPassword(params);
+        ResponseEntity actual = userController.resetPassword(params);
 
         // Verify authy not called, user service called correctly, HTTP response is correct
         verifyZeroInteractions(mockAuthyClient);
@@ -576,7 +576,7 @@ public class UsersControllerTest {
         ResponseEntity expected = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(gson.toJson(expectedBody));
 
         // Actual
-        ResponseEntity actual = usersController.resetPassword(params);
+        ResponseEntity actual = userController.resetPassword(params);
 
         // Verify authy not called, user service called correctly, HTTP response is correct
         verifyZeroInteractions(mockAuthyClient);
@@ -602,7 +602,7 @@ public class UsersControllerTest {
                 gson.toJson(new ResponseMessage("error", "New password cannot be empty")));
 
         // Actual
-        ResponseEntity actual = usersController.resetPassword(params);
+        ResponseEntity actual = userController.resetPassword(params);
 
         // Verify authy and user service untouched, HTTP response is correct
         verifyZeroInteractions(mockAuthyClient, mockUserService);
@@ -639,7 +639,7 @@ public class UsersControllerTest {
         ResponseEntity expected = ResponseUtil.ok("Successfully updated password");
 
         // Actual
-        ResponseEntity actual = usersController.resetPassword(params);
+        ResponseEntity actual = userController.resetPassword(params);
 
         // Verify authy not touched, user service correctly called, and HTTP response is correct
         verifyZeroInteractions(mockAuthyClient);
@@ -675,7 +675,7 @@ public class UsersControllerTest {
                 new ResponseMessage("error", "User ID/API key pair incorrect"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = usersController.deleteUser("invalid user ID", params);
+        ResponseEntity actual = userController.deleteUser("invalid user ID", params);
 
         // Verify mock user service called, HTTP response is correct
         verify(mockUserService).getUserById("invalid user ID");
@@ -702,7 +702,7 @@ public class UsersControllerTest {
                 new ResponseMessage("error", "User ID/API key pair incorrect"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = usersController.deleteUser(VALID_USER_ID, params);
+        ResponseEntity actual = userController.deleteUser(VALID_USER_ID, params);
 
         // Verify user service called and HTTP response is correct
         verify(mockUserService).getUserById(VALID_USER_ID);
@@ -726,7 +726,7 @@ public class UsersControllerTest {
                 new ResponseMessage("error", "User ID/API key pair incorrect"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = usersController.deleteUser(VALID_USER_ID, params);
+        ResponseEntity actual = userController.deleteUser(VALID_USER_ID, params);
 
         // Verify user service not called, HTTP response correct
         verifyZeroInteractions(mockUserService);
@@ -753,7 +753,7 @@ public class UsersControllerTest {
                 new ResponseMessage("ok", "Successfully deleted user"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = usersController.deleteUser(VALID_USER_ID, params);
+        ResponseEntity actual = userController.deleteUser(VALID_USER_ID, params);
 
         // Verify user service called, HTTP response is correct
         verify(mockUserService).getUserById(VALID_USER_ID);
@@ -779,7 +779,7 @@ public class UsersControllerTest {
                 new ResponseMessage("error", "User not found"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = usersController.getEnabledLocation("invalidUserId", VALID_API_KEY);
+        ResponseEntity actual = userController.getEnabledLocation("invalidUserId", VALID_API_KEY);
 
         // Verify user service called, HTTP response correct
         verify(mockUserService).getUserById("invalidUserId");
@@ -805,7 +805,7 @@ public class UsersControllerTest {
                 new ResponseMessage("error", "User ID/API key pair incorrect"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = usersController.getEnabledLocation(VALID_USER_ID, "invalid API key");
+        ResponseEntity actual = userController.getEnabledLocation(VALID_USER_ID, "invalid API key");
 
         // Verify user service called, HTTP response correct
         verify(mockUserService).getUserById(VALID_USER_ID);
@@ -827,7 +827,7 @@ public class UsersControllerTest {
                 new ResponseMessage("error", "API key cannot be empty"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = usersController.getEnabledLocation(VALID_USER_ID, "");
+        ResponseEntity actual = userController.getEnabledLocation(VALID_USER_ID, "");
 
         // Verify user service not called, HTTP response is correct
         verifyZeroInteractions(mockUserService);
@@ -854,7 +854,7 @@ public class UsersControllerTest {
         ResponseEntity expected = ResponseEntity.status(HttpStatus.OK).body(gson.toJson(json));
 
         // Actual
-        ResponseEntity actual = usersController.getEnabledLocation(VALID_USER_ID, VALID_API_KEY);
+        ResponseEntity actual = userController.getEnabledLocation(VALID_USER_ID, VALID_API_KEY);
 
         // Verify user service called, HTTP response is correct
         verify(mockUserService).getUserById(VALID_USER_ID);
@@ -880,7 +880,7 @@ public class UsersControllerTest {
                 new ResponseMessage("error", "User not found"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = usersController.updateEnabledLocation("invalid user ID", VALID_API_KEY, params);
+        ResponseEntity actual = userController.updateEnabledLocation("invalid user ID", VALID_API_KEY, params);
 
         // Verify user service called, HTTP response correct
         verify(mockUserService).getUserById("invalid user ID");
@@ -906,7 +906,7 @@ public class UsersControllerTest {
                 new ResponseMessage("error", "API key cannot be empty"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = usersController.updateEnabledLocation(VALID_USER_ID, "", params);
+        ResponseEntity actual = userController.updateEnabledLocation(VALID_USER_ID, "", params);
 
         // Verify user service not called, HTTP response is correct
         verifyZeroInteractions(mockUserService);
@@ -935,7 +935,7 @@ public class UsersControllerTest {
                 new ResponseMessage("ok", "Successfully updated enabledLocation"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = usersController.updateEnabledLocation(VALID_USER_ID, VALID_API_KEY, params);
+        ResponseEntity actual = userController.updateEnabledLocation(VALID_USER_ID, VALID_API_KEY, params);
 
         // Verify user service called, HTTP response is correct
         verify(mockUserService).getUserById(VALID_USER_ID);
