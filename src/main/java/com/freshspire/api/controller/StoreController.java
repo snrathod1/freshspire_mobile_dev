@@ -8,6 +8,8 @@ import com.freshspire.api.service.StoreService;
 import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.ResponseUtil;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,24 +51,25 @@ public class StoreController {
     /**
      * GET /stores
      *
-     * @return list of stores with discounts
+     * @return list of all stores with discounts
      */
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<String> getStores(@RequestParam String apiKey) {
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
         }
+        List<Store> stores = storeService.getStores();
+        JsonArray storesJson = new JsonArray();
 
-        return ResponseUtil.ok(gson.toJson(storeService.getStores()));
-    }
+        for(Store store : stores) {
+            storesJson.add(gson.toJsonTree(store));
+        }
 
-    @RequestMapping(value = "/location", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity<String> getStoreByLatLong(@RequestParam long latitude, @RequestParam long longitude) {
-//        if (userService.getUserByApiKey(apiKey) == null) {
-//            return ResponseUtil.unauthorized("Unauthenticated");
-//        }
+        JsonObject body = new JsonObject();
+        body.addProperty("count", stores.size());
+        body.add("stores", storesJson);
 
-        return ResponseUtil.ok(gson.toJson(storeService.getStoresByLatLong(latitude, longitude)));
+        return ResponseEntity.status(HttpStatus.OK).body(body.toString());
     }
 
     /**
@@ -103,9 +106,10 @@ public class StoreController {
     @RequestMapping(value = "/{storeId}/discounts", method = RequestMethod.GET)
     public ResponseEntity<String> getDiscountsForStore(
             @PathVariable int storeId,
+            @RequestParam String apiKey,
             @RequestParam(required = false) String query,
-            @RequestParam(required = false) String foodType,
-            @RequestParam String apiKey) {
+            @RequestParam(required = false) String foodType) {
+        // Authenticate first
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
         }

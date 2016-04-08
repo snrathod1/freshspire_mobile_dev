@@ -1,6 +1,7 @@
 package com.freshspire.api.controller;
 
 import com.authy.api.Verification;
+import com.freshspire.api.TestConstants;
 import com.freshspire.api.client.AuthyClient;
 import com.freshspire.api.model.ResponseMessage;
 import com.freshspire.api.model.User;
@@ -39,18 +40,6 @@ public class UserControllerTest {
 
     private UserController userController;
 
-    private static final String VALID_API_KEY               = "apiKey";
-    private static final String VALID_USER_ID               = "1";
-    private static final String VALID_FIRST_NAME            = "FirstName";
-    private static final String VALID_PASSWORD              = "A valid password";
-    private static final String VALID_SALT                  = "salt";
-    private static final String VALID_PHONE_NUMBER          = "1234567890";
-    private static final String VALID_AUTHENTICATION_CODE   = "0000";
-    private static final boolean VALID_ENABLED_LOCATION     = false;
-    private static final boolean VALID_ADMIN                = false;
-    private static final boolean VALID_BANNED               = false;
-    private static final Date VALID_DATE                    = new Date(123);
-
     /**
      * Sets up UserController with mocked dependencies.
      */
@@ -73,7 +62,7 @@ public class UserControllerTest {
         // Test: valid phone number supplied
         // First create the expected ResponseEntity
         String expectedBody = ResponseUtil.asJsonString(
-                new ResponseMessage("ok", "Authentication code sent to " + VALID_PHONE_NUMBER),
+                new ResponseMessage("ok", "Authentication code sent to " + TestConstants.VALID_PHONE_NUMBER),
                 ResponseMessage.class);
         ResponseEntity<String> expected = ResponseEntity.status(HttpStatus.OK)
                 .body(expectedBody);
@@ -81,15 +70,15 @@ public class UserControllerTest {
         // Set up mock responses for authy client
         Verification mockVerification = mock(Verification.class);
         // startAuthentication returns mockVerification
-        when(mockAuthyClient.startAuthentication(VALID_PHONE_NUMBER)).thenReturn(mockVerification);
+        when(mockAuthyClient.startAuthentication(TestConstants.VALID_PHONE_NUMBER)).thenReturn(mockVerification);
         // mockVerification is valid because we're using VALID_PHONE_NUMBER
         when(mockVerification.isOk()).thenReturn(true);
 
         // Exercise method with valid phone number
-        ResponseEntity actual = userController.getNewUserAuthCode(VALID_PHONE_NUMBER);
+        ResponseEntity actual = userController.getNewUserAuthCode(TestConstants.VALID_PHONE_NUMBER);
 
         // Verify that authy API was correctly called, HTTP status is correct, and body is correct
-        verify(mockAuthyClient, times(1)).startAuthentication(VALID_PHONE_NUMBER);
+        verify(mockAuthyClient, times(1)).startAuthentication(TestConstants.VALID_PHONE_NUMBER);
         verify(mockVerification, times(1)).isOk();
 
         assertEquals("valid phone number should return 200 OK",
@@ -99,7 +88,7 @@ public class UserControllerTest {
 
         // Check that user service wasn't touched, and authy client wasn't called
         // other than startAuthentication
-        verify(mockUserService).getUserByPhoneNumber(VALID_PHONE_NUMBER);
+        verify(mockUserService).getUserByPhoneNumber(TestConstants.VALID_PHONE_NUMBER);
         verifyNoMoreInteractions(mockUserService);
         verifyNoMoreInteractions(mockAuthyClient);
     }
@@ -182,12 +171,12 @@ public class UserControllerTest {
     public void duplicatePhoneNumberShouldNotSendNewUserAuthCode() throws Exception {
         // Set up parameters and mock verification
         final String DUPLICATE_PHONE = "duplicate phone number";
-        NewUserParams params = new NewUserParams(VALID_FIRST_NAME, DUPLICATE_PHONE, VALID_PASSWORD, VALID_AUTHENTICATION_CODE);
+        NewUserParams params = new NewUserParams(TestConstants.VALID_FIRST_NAME, DUPLICATE_PHONE, TestConstants.VALID_PASSWORD, TestConstants.VALID_AUTHENTICATION_CODE);
 
         Verification mockVerification = mock(Verification.class);
         User mockUser = mock(User.class);
 
-        when(mockAuthyClient.checkAuthentication(DUPLICATE_PHONE, VALID_AUTHENTICATION_CODE)).thenReturn(mockVerification);
+        when(mockAuthyClient.checkAuthentication(DUPLICATE_PHONE, TestConstants.VALID_AUTHENTICATION_CODE)).thenReturn(mockVerification);
         when(mockVerification.isOk()).thenReturn(true);
         when(mockUserService.getUserByPhoneNumber(DUPLICATE_PHONE)).thenReturn(mockUser);
 
@@ -217,18 +206,18 @@ public class UserControllerTest {
         // Set up empty params to send to method
         NewUserParams emptyFirstNameParams = new NewUserParams(
                 "", // This is invalid
-                VALID_PHONE_NUMBER,
-                VALID_PASSWORD,
-                VALID_AUTHENTICATION_CODE);
+                TestConstants.VALID_PHONE_NUMBER,
+                TestConstants.VALID_PASSWORD,
+                TestConstants.VALID_AUTHENTICATION_CODE);
         NewUserParams emptyPasswordParams = new NewUserParams(
-                VALID_FIRST_NAME,
-                VALID_PHONE_NUMBER,
+                TestConstants.VALID_FIRST_NAME,
+                TestConstants.VALID_PHONE_NUMBER,
                 "", // This is invalid (empty password)
-                VALID_AUTHENTICATION_CODE);
+                TestConstants.VALID_AUTHENTICATION_CODE);
 
         // Set up mock authy client behavior (should never be called since there are empty params)
         Verification mockAuthentication = mock(Verification.class);
-        when(mockAuthyClient.checkAuthentication(VALID_PHONE_NUMBER, VALID_AUTHENTICATION_CODE))
+        when(mockAuthyClient.checkAuthentication(TestConstants.VALID_PHONE_NUMBER, TestConstants.VALID_AUTHENTICATION_CODE))
                 .thenReturn(mockAuthentication);
         when(mockAuthentication.isOk()).thenReturn(true);
 
@@ -269,9 +258,9 @@ public class UserControllerTest {
     @Test
     public void invalidAuthShouldNotCreateNewUser() throws Exception {
         // Set up test params and mock authy/user service objects
-        NewUserParams params = new NewUserParams(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_PASSWORD, "invalid code");
+        NewUserParams params = new NewUserParams(TestConstants.VALID_FIRST_NAME, TestConstants.VALID_PHONE_NUMBER, TestConstants.VALID_PASSWORD, "invalid code");
         Verification mockVerification = mock(Verification.class);
-        when(mockAuthyClient.checkAuthentication(VALID_PHONE_NUMBER, "invalid code")).thenReturn(mockVerification);
+        when(mockAuthyClient.checkAuthentication(TestConstants.VALID_PHONE_NUMBER, "invalid code")).thenReturn(mockVerification);
         when(mockVerification.isOk()).thenReturn(false);
 
         // Expected
@@ -284,8 +273,8 @@ public class UserControllerTest {
         ResponseEntity actual = userController.createUser(params);
 
         // Verify auth was checked, user service is called, HTTP response is correct
-        verify(mockAuthyClient).checkAuthentication(VALID_PHONE_NUMBER, "invalid code");
-        verify(mockUserService).getUserByPhoneNumber(VALID_PHONE_NUMBER);
+        verify(mockAuthyClient).checkAuthentication(TestConstants.VALID_PHONE_NUMBER, "invalid code");
+        verify(mockUserService).getUserByPhoneNumber(TestConstants.VALID_PHONE_NUMBER);
         verifyNoMoreInteractions(mockUserService);
         assertEquals("HTTP status code should be 401 Unauthorized",
                 expected.getStatusCode(), actual.getStatusCode());
@@ -303,18 +292,18 @@ public class UserControllerTest {
     public void validParametersShouldCreateNewUser() throws Exception {
         // TODO this test doesn't pass because generated user has random API key and null userId
         // Set up test params and mock authy/user service objects
-        NewUserParams params = new NewUserParams(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_PASSWORD, VALID_AUTHENTICATION_CODE);
+        NewUserParams params = new NewUserParams(TestConstants.VALID_FIRST_NAME, TestConstants.VALID_PHONE_NUMBER, TestConstants.VALID_PASSWORD, TestConstants.VALID_AUTHENTICATION_CODE);
         Verification mockVerification = mock(Verification.class);
-        when(mockAuthyClient.checkAuthentication(VALID_PHONE_NUMBER, VALID_AUTHENTICATION_CODE)).thenReturn(mockVerification);
+        when(mockAuthyClient.checkAuthentication(TestConstants.VALID_PHONE_NUMBER, TestConstants.VALID_AUTHENTICATION_CODE)).thenReturn(mockVerification);
         when(mockVerification.isOk()).thenReturn(true);
 
         // Expected
         JsonObject newUser = new JsonObject();
-        newUser.addProperty("apiKey", VALID_API_KEY);
-        newUser.addProperty("enabledLocation", VALID_ENABLED_LOCATION);
-        newUser.addProperty("firstName", VALID_FIRST_NAME);
-        newUser.addProperty("phoneNumber", VALID_PHONE_NUMBER);
-        newUser.addProperty("userId", VALID_USER_ID);
+        newUser.addProperty("apiKey", TestConstants.VALID_API_KEY);
+        newUser.addProperty("enabledLocation", TestConstants.VALID_ENABLED_LOCATION);
+        newUser.addProperty("firstName", TestConstants.VALID_FIRST_NAME);
+        newUser.addProperty("phoneNumber", TestConstants.VALID_PHONE_NUMBER);
+        newUser.addProperty("userId", TestConstants.VALID_USER_ID);
 
         ResponseEntity expected = ResponseEntity.status(HttpStatus.CREATED).body(newUser);
 
@@ -322,7 +311,7 @@ public class UserControllerTest {
         ResponseEntity actual = userController.createUser(params);
 
         // Verify that authy was called, user service was called, and HTTP response is correct
-        verify(mockAuthyClient).checkAuthentication(VALID_PHONE_NUMBER, VALID_AUTHENTICATION_CODE);
+        verify(mockAuthyClient).checkAuthentication(TestConstants.VALID_PHONE_NUMBER, TestConstants.VALID_AUTHENTICATION_CODE);
 
         // TODO this doesn't check that user is CORRECTLY added to DB. Look into spy objects for sln.
         verify(mockUserService).addUser(any(User.class));
@@ -377,19 +366,19 @@ public class UserControllerTest {
     public void validPhoneShouldSendForgotPasswordCode() throws Exception {
         // Set up mock behavior
         User mockUser = mock(User.class);
-        when(mockUserService.getUserByPhoneNumber(VALID_PHONE_NUMBER)).thenReturn(mockUser);
+        when(mockUserService.getUserByPhoneNumber(TestConstants.VALID_PHONE_NUMBER)).thenReturn(mockUser);
 
         // Expected response
         ResponseEntity expected = ResponseUtil.ok("Authentication code sent to "
-                + VALID_PHONE_NUMBER
+                + TestConstants.VALID_PHONE_NUMBER
                 + " if account exists with that number");
 
         // Actual
-        ResponseEntity actual = userController.sendCodeForForgotPassword(VALID_PHONE_NUMBER);
+        ResponseEntity actual = userController.sendCodeForForgotPassword(TestConstants.VALID_PHONE_NUMBER);
 
         // Verify user service and authy called appropriately, and HTTP response is correct
-        verify(mockUserService).getUserByPhoneNumber(VALID_PHONE_NUMBER);
-        verify(mockAuthyClient).startAuthentication(VALID_PHONE_NUMBER);
+        verify(mockUserService).getUserByPhoneNumber(TestConstants.VALID_PHONE_NUMBER);
+        verify(mockAuthyClient).startAuthentication(TestConstants.VALID_PHONE_NUMBER);
         assertEquals("Status code should be 200 OK",
                 expected.getStatusCode(), actual.getStatusCode());
         assertEquals("Response body is incorrect",
@@ -405,36 +394,36 @@ public class UserControllerTest {
     public void correctAuthShouldUpdateForgottenPassword() throws Exception {
         // Set up parameters
         PhoneNumberAuthenticationParams validParams = new PhoneNumberAuthenticationParams(
-                VALID_PHONE_NUMBER,
-                VALID_AUTHENTICATION_CODE,
+                TestConstants.VALID_PHONE_NUMBER,
+                TestConstants.VALID_AUTHENTICATION_CODE,
                 "newPassword"
         );
         // Set up mock responses
         Verification mockVerification = mock(Verification.class);
         User mockUserFromDatabase = mock(User.class);
 
-        when(mockUserService.getUserByPhoneNumber(VALID_PHONE_NUMBER)).thenReturn(mockUserFromDatabase);
-        when(mockAuthyClient.checkAuthentication(VALID_PHONE_NUMBER, VALID_AUTHENTICATION_CODE))
+        when(mockUserService.getUserByPhoneNumber(TestConstants.VALID_PHONE_NUMBER)).thenReturn(mockUserFromDatabase);
+        when(mockAuthyClient.checkAuthentication(TestConstants.VALID_PHONE_NUMBER, TestConstants.VALID_AUTHENTICATION_CODE))
                 .thenReturn(mockVerification);
         when(mockVerification.isOk()).thenReturn(true);
         // Mock user responses
-        when(mockUserFromDatabase.getUserId()).thenReturn(VALID_USER_ID);
-        when(mockUserFromDatabase.getFirstName()).thenReturn(VALID_FIRST_NAME);
-        when(mockUserFromDatabase.getPhoneNumber()).thenReturn(VALID_PHONE_NUMBER);
-        when(mockUserFromDatabase.getApiKey()).thenReturn(VALID_API_KEY);
-        when(mockUserFromDatabase.getPassword()).thenReturn(VALID_PASSWORD);
-        when(mockUserFromDatabase.getSalt()).thenReturn(VALID_SALT);
-        when(mockUserFromDatabase.getCreated()).thenReturn(VALID_DATE);
+        when(mockUserFromDatabase.getUserId()).thenReturn(TestConstants.VALID_USER_ID);
+        when(mockUserFromDatabase.getFirstName()).thenReturn(TestConstants.VALID_FIRST_NAME);
+        when(mockUserFromDatabase.getPhoneNumber()).thenReturn(TestConstants.VALID_PHONE_NUMBER);
+        when(mockUserFromDatabase.getApiKey()).thenReturn(TestConstants.VALID_API_KEY);
+        when(mockUserFromDatabase.getPassword()).thenReturn(TestConstants.VALID_PASSWORD);
+        when(mockUserFromDatabase.getSalt()).thenReturn(TestConstants.VALID_SALT);
+        when(mockUserFromDatabase.getCreated()).thenReturn(TestConstants.VALID_DATE);
         when(mockUserFromDatabase.isAdmin()).thenReturn(false);
         when(mockUserFromDatabase.isBanned()).thenReturn(false);
 
         // Expected response body is the updated user object
         JsonObject body = new JsonObject();
-        body.addProperty("apiKey", VALID_API_KEY);
-        body.addProperty("enabledLocation", VALID_ENABLED_LOCATION);
-        body.addProperty("firstName", VALID_FIRST_NAME);
-        body.addProperty("phoneNumber", VALID_PHONE_NUMBER);
-        body.addProperty("userId", VALID_USER_ID);
+        body.addProperty("apiKey", TestConstants.VALID_API_KEY);
+        body.addProperty("enabledLocation", TestConstants.VALID_ENABLED_LOCATION);
+        body.addProperty("firstName", TestConstants.VALID_FIRST_NAME);
+        body.addProperty("phoneNumber", TestConstants.VALID_PHONE_NUMBER);
+        body.addProperty("userId", TestConstants.VALID_USER_ID);
 
         // Expected
         ResponseEntity expected = ResponseEntity.ok(gson.toJson(body));
@@ -444,9 +433,9 @@ public class UserControllerTest {
 
         // Verify authy is called once, userService is called, mock user is updated with
         // new password, and HTTP response is correct
-        verify(mockAuthyClient).checkAuthentication(VALID_PHONE_NUMBER, VALID_AUTHENTICATION_CODE);
+        verify(mockAuthyClient).checkAuthentication(TestConstants.VALID_PHONE_NUMBER, TestConstants.VALID_AUTHENTICATION_CODE);
         verify(mockUserFromDatabase).setPassword(
-                PasswordUtil.encryptString("newPassword", VALID_SALT));
+                PasswordUtil.encryptString("newPassword", TestConstants.VALID_SALT));
         verify(mockUserService).updateUser(mockUserFromDatabase);
         // Verify no other setters called
         verify(mockUserFromDatabase, never()).setUserId(anyString());
@@ -470,9 +459,9 @@ public class UserControllerTest {
      */
     @Test
     public void incorrectAuthCodeShouldNotUpdateForgottenPassword() throws Exception {
-        PhoneNumberAuthenticationParams params = new PhoneNumberAuthenticationParams(VALID_PHONE_NUMBER, "invalid code", "newPassword");
+        PhoneNumberAuthenticationParams params = new PhoneNumberAuthenticationParams(TestConstants.VALID_PHONE_NUMBER, "invalid code", "newPassword");
         Verification mockVerification = mock(Verification.class);
-        when(mockAuthyClient.checkAuthentication(VALID_PHONE_NUMBER, "invalid code")).thenReturn(mockVerification);
+        when(mockAuthyClient.checkAuthentication(TestConstants.VALID_PHONE_NUMBER, "invalid code")).thenReturn(mockVerification);
         when(mockVerification.isOk()).thenReturn(false);
 
         // Expected
@@ -485,7 +474,7 @@ public class UserControllerTest {
         ResponseEntity actual = userController.verifyCodeForForgotPassword(params);
 
         // Verify authy called, user service not touched, HTTP response is correct
-        verify(mockAuthyClient).checkAuthentication(VALID_PHONE_NUMBER, "invalid code");
+        verify(mockAuthyClient).checkAuthentication(TestConstants.VALID_PHONE_NUMBER, "invalid code");
         verifyZeroInteractions(mockUserService);
         assertEquals("HTTP status code should be 401 Unauthorized",
                 expected.getStatusCode(), actual.getStatusCode());
@@ -501,8 +490,8 @@ public class UserControllerTest {
     @Test
     public void emptyNewPasswordShouldNotUpdateForgottenPassword() throws Exception {
         PhoneNumberAuthenticationParams params = new PhoneNumberAuthenticationParams(
-                VALID_PHONE_NUMBER,
-                VALID_AUTHENTICATION_CODE,
+                TestConstants.VALID_PHONE_NUMBER,
+                TestConstants.VALID_AUTHENTICATION_CODE,
                 "" // This is invalid
         );
 
@@ -528,7 +517,7 @@ public class UserControllerTest {
      */
     @Test
     public void incorrectApiKeyShouldNotResetPassword() throws Exception {
-        ResetPasswordParams params = new ResetPasswordParams("invalid API key", VALID_PASSWORD, "newPassword");
+        ResetPasswordParams params = new ResetPasswordParams("invalid API key", TestConstants.VALID_PASSWORD, "newPassword");
         when(mockUserService.getUserByApiKey("invalid API key")).thenReturn(null);
         when(mockUserService.getUserByApiKey("invalid API key")).thenReturn(null);
 
@@ -555,17 +544,17 @@ public class UserControllerTest {
      */
     @Test
     public void incorrectOldPasswordShouldNotResetPassword() throws Exception {
-        ResetPasswordParams params = new ResetPasswordParams(VALID_API_KEY, "differentPassword", "newPassword");
+        ResetPasswordParams params = new ResetPasswordParams(TestConstants.VALID_API_KEY, "differentPassword", "newPassword");
         User mockUserFromDatabase = mock(User.class);
-        when(mockUserService.getUserByApiKey(VALID_API_KEY)).thenReturn(mockUserFromDatabase);
+        when(mockUserService.getUserByApiKey(TestConstants.VALID_API_KEY)).thenReturn(mockUserFromDatabase);
 
-        when(mockUserFromDatabase.getUserId()).thenReturn(VALID_USER_ID);
-        when(mockUserFromDatabase.getFirstName()).thenReturn(VALID_FIRST_NAME);
-        when(mockUserFromDatabase.getPhoneNumber()).thenReturn(VALID_PHONE_NUMBER);
-        when(mockUserFromDatabase.getApiKey()).thenReturn(VALID_API_KEY);
-        when(mockUserFromDatabase.getPassword()).thenReturn(PasswordUtil.encryptString(VALID_PASSWORD, VALID_SALT));
-        when(mockUserFromDatabase.getSalt()).thenReturn(VALID_SALT);
-        when(mockUserFromDatabase.getCreated()).thenReturn(VALID_DATE);
+        when(mockUserFromDatabase.getUserId()).thenReturn(TestConstants.VALID_USER_ID);
+        when(mockUserFromDatabase.getFirstName()).thenReturn(TestConstants.VALID_FIRST_NAME);
+        when(mockUserFromDatabase.getPhoneNumber()).thenReturn(TestConstants.VALID_PHONE_NUMBER);
+        when(mockUserFromDatabase.getApiKey()).thenReturn(TestConstants.VALID_API_KEY);
+        when(mockUserFromDatabase.getPassword()).thenReturn(PasswordUtil.encryptString(TestConstants.VALID_PASSWORD, TestConstants.VALID_SALT));
+        when(mockUserFromDatabase.getSalt()).thenReturn(TestConstants.VALID_SALT);
+        when(mockUserFromDatabase.getCreated()).thenReturn(TestConstants.VALID_DATE);
         when(mockUserFromDatabase.isAdmin()).thenReturn(false);
         when(mockUserFromDatabase.isBanned()).thenReturn(false);
 
@@ -580,7 +569,7 @@ public class UserControllerTest {
 
         // Verify authy not called, user service called correctly, HTTP response is correct
         verifyZeroInteractions(mockAuthyClient);
-        verify(mockUserService).getUserByApiKey(VALID_API_KEY);
+        verify(mockUserService).getUserByApiKey(TestConstants.VALID_API_KEY);
         verify(mockUserService, never()).updateUser(any(User.class));
         assertEquals("HTTP status code should be 401 Unauthorized",
                 expected.getStatusCode(), actual.getStatusCode());
@@ -595,7 +584,7 @@ public class UserControllerTest {
      */
     @Test
     public void emptyNewPasswordShouldNotResetPassword() throws Exception {
-        ResetPasswordParams params = new ResetPasswordParams(VALID_API_KEY, VALID_PASSWORD, "");
+        ResetPasswordParams params = new ResetPasswordParams(TestConstants.VALID_API_KEY, TestConstants.VALID_PASSWORD, "");
 
         // Expected
         ResponseEntity expected = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
@@ -620,20 +609,20 @@ public class UserControllerTest {
     @Test
     public void validAuthAndNewPasswordShouldResetPassword() throws Exception {
         // Request parameters
-        ResetPasswordParams params = new ResetPasswordParams(VALID_API_KEY, VALID_PASSWORD, "newPassword");
+        ResetPasswordParams params = new ResetPasswordParams(TestConstants.VALID_API_KEY, TestConstants.VALID_PASSWORD, "newPassword");
         // Mock user to be updated
         User mockUser = mock(User.class);
-        when(mockUser.getUserId()).thenReturn(VALID_USER_ID);
-        when(mockUser.getFirstName()).thenReturn(VALID_FIRST_NAME);
-        when(mockUser.getPhoneNumber()).thenReturn(VALID_PHONE_NUMBER);
-        when(mockUser.getApiKey()).thenReturn(VALID_API_KEY);
-        when(mockUser.getPassword()).thenReturn(PasswordUtil.encryptString(VALID_PASSWORD, VALID_SALT));
-        when(mockUser.getSalt()).thenReturn(VALID_SALT);
-        when(mockUser.getCreated()).thenReturn(VALID_DATE);
+        when(mockUser.getUserId()).thenReturn(TestConstants.VALID_USER_ID);
+        when(mockUser.getFirstName()).thenReturn(TestConstants.VALID_FIRST_NAME);
+        when(mockUser.getPhoneNumber()).thenReturn(TestConstants.VALID_PHONE_NUMBER);
+        when(mockUser.getApiKey()).thenReturn(TestConstants.VALID_API_KEY);
+        when(mockUser.getPassword()).thenReturn(PasswordUtil.encryptString(TestConstants.VALID_PASSWORD, TestConstants.VALID_SALT));
+        when(mockUser.getSalt()).thenReturn(TestConstants.VALID_SALT);
+        when(mockUser.getCreated()).thenReturn(TestConstants.VALID_DATE);
         when(mockUser.isAdmin()).thenReturn(false);
         when(mockUser.isBanned()).thenReturn(false);
         // Mock user service behavior
-        when(mockUserService.getUserByApiKey(VALID_API_KEY)).thenReturn(mockUser);
+        when(mockUserService.getUserByApiKey(TestConstants.VALID_API_KEY)).thenReturn(mockUser);
 
         // Expected
         ResponseEntity expected = ResponseUtil.ok("Successfully updated password");
@@ -644,7 +633,7 @@ public class UserControllerTest {
         // Verify authy not touched, user service correctly called, and HTTP response is correct
         verifyZeroInteractions(mockAuthyClient);
         //verify(mockUserService).updateUser(mockUser);
-        //verify(mockUser).setPassword(PasswordUtil.encryptString("newPassword", VALID_SALT));
+        //verify(mockUser).setPassword(PasswordUtil.encryptString("newPassword", TestConstants.VALID_SALT));
         verify(mockUser, never()).setPhoneNumber(anyString());
         verify(mockUser, never()).setBanned(anyBoolean());
         verify(mockUser, never()).setSalt(anyString());
@@ -667,7 +656,7 @@ public class UserControllerTest {
     @Test
     public void unknownUserIdShouldDeleteUser() throws Exception{
         // Set up mocks and parameters
-        ApiKeyParams params = new ApiKeyParams(VALID_API_KEY);
+        ApiKeyParams params = new ApiKeyParams(TestConstants.VALID_API_KEY);
         when(mockUserService.getUserById("invalid user ID")).thenReturn(null);
 
         // Expected
@@ -693,19 +682,19 @@ public class UserControllerTest {
     @Test
     public void invalidApiKeyShouldNotDeleteUser() throws Exception {
         ApiKeyParams params = new ApiKeyParams("invalid API key");
-        User validUser = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY,
-                VALID_PASSWORD, VALID_SALT, VALID_DATE, VALID_ADMIN, VALID_BANNED, VALID_ENABLED_LOCATION);
-        when(mockUserService.getUserById(VALID_USER_ID)).thenReturn(validUser);
+        User validUser = new User(TestConstants.VALID_FIRST_NAME, TestConstants.VALID_PHONE_NUMBER, TestConstants.VALID_API_KEY,
+                TestConstants.VALID_PASSWORD, TestConstants.VALID_SALT, TestConstants.VALID_DATE, TestConstants.VALID_ADMIN, TestConstants.VALID_BANNED, TestConstants.VALID_ENABLED_LOCATION);
+        when(mockUserService.getUserById(TestConstants.VALID_USER_ID)).thenReturn(validUser);
 
         // Expected
         ResponseEntity expected = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseUtil.asJsonString(
                 new ResponseMessage("error", "User ID/API key pair incorrect"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = userController.deleteUser(VALID_USER_ID, params);
+        ResponseEntity actual = userController.deleteUser(TestConstants.VALID_USER_ID, params);
 
         // Verify user service called and HTTP response is correct
-        verify(mockUserService).getUserById(VALID_USER_ID);
+        verify(mockUserService).getUserById(TestConstants.VALID_USER_ID);
         assertEquals("HTTP status code should be 401 Unauthorized",
                 expected.getStatusCode(), actual.getStatusCode());
         assertEquals("Response body is incorrect",
@@ -726,7 +715,7 @@ public class UserControllerTest {
                 new ResponseMessage("error", "User ID/API key pair incorrect"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = userController.deleteUser(VALID_USER_ID, params);
+        ResponseEntity actual = userController.deleteUser(TestConstants.VALID_USER_ID, params);
 
         // Verify user service not called, HTTP response correct
         verifyZeroInteractions(mockUserService);
@@ -743,21 +732,21 @@ public class UserControllerTest {
      */
     @Test
     public void validParametersShouldDeleteUser() throws Exception {
-        ApiKeyParams params = new ApiKeyParams(VALID_API_KEY);
-        User validUser = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY,
-                VALID_PASSWORD, VALID_SALT, VALID_DATE, VALID_ADMIN, VALID_BANNED, VALID_ENABLED_LOCATION);
-        when(mockUserService.getUserById(VALID_USER_ID)).thenReturn(validUser);
+        ApiKeyParams params = new ApiKeyParams(TestConstants.VALID_API_KEY);
+        User validUser = new User(TestConstants.VALID_FIRST_NAME, TestConstants.VALID_PHONE_NUMBER, TestConstants.VALID_API_KEY,
+                TestConstants.VALID_PASSWORD, TestConstants.VALID_SALT, TestConstants.VALID_DATE, TestConstants.VALID_ADMIN, TestConstants.VALID_BANNED, TestConstants.VALID_ENABLED_LOCATION);
+        when(mockUserService.getUserById(TestConstants.VALID_USER_ID)).thenReturn(validUser);
 
         // Expected
         ResponseEntity expected = ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.asJsonString(
                 new ResponseMessage("ok", "Successfully deleted user"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = userController.deleteUser(VALID_USER_ID, params);
+        ResponseEntity actual = userController.deleteUser(TestConstants.VALID_USER_ID, params);
 
         // Verify user service called, HTTP response is correct
-        verify(mockUserService).getUserById(VALID_USER_ID);
-        verify(mockUserService).deleteUser(VALID_USER_ID);
+        verify(mockUserService).getUserById(TestConstants.VALID_USER_ID);
+        verify(mockUserService).deleteUser(TestConstants.VALID_USER_ID);
         verifyNoMoreInteractions(mockUserService);
         assertEquals("HTTP status code should be 200 OK",
                 expected.getStatusCode(), actual.getStatusCode());
@@ -779,7 +768,7 @@ public class UserControllerTest {
                 new ResponseMessage("error", "User not found"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = userController.getEnabledLocation("invalidUserId", VALID_API_KEY);
+        ResponseEntity actual = userController.getEnabledLocation("invalidUserId", TestConstants.VALID_API_KEY);
 
         // Verify user service called, HTTP response correct
         verify(mockUserService).getUserById("invalidUserId");
@@ -796,19 +785,19 @@ public class UserControllerTest {
      */
     @Test
     public void invalidApiKeyShouldNotReturnEnabledLocation() throws Exception {
-        User user = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY,
-                VALID_PASSWORD, VALID_SALT, VALID_DATE, VALID_ADMIN, VALID_BANNED, VALID_ENABLED_LOCATION);
-        when(mockUserService.getUserById(VALID_USER_ID)).thenReturn(user);
+        User user = new User(TestConstants.VALID_FIRST_NAME, TestConstants.VALID_PHONE_NUMBER, TestConstants.VALID_API_KEY,
+                TestConstants.VALID_PASSWORD, TestConstants.VALID_SALT, TestConstants.VALID_DATE, TestConstants.VALID_ADMIN, TestConstants.VALID_BANNED, TestConstants.VALID_ENABLED_LOCATION);
+        when(mockUserService.getUserById(TestConstants.VALID_USER_ID)).thenReturn(user);
 
         // Expected
         ResponseEntity expected = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseUtil.asJsonString(
                 new ResponseMessage("error", "User ID/API key pair incorrect"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = userController.getEnabledLocation(VALID_USER_ID, "invalid API key");
+        ResponseEntity actual = userController.getEnabledLocation(TestConstants.VALID_USER_ID, "invalid API key");
 
         // Verify user service called, HTTP response correct
-        verify(mockUserService).getUserById(VALID_USER_ID);
+        verify(mockUserService).getUserById(TestConstants.VALID_USER_ID);
         assertEquals("HTTP status code should be 401 Unauthorized",
                 expected.getStatusCode(), actual.getStatusCode());
         assertEquals("Response body is incorrect",
@@ -827,7 +816,7 @@ public class UserControllerTest {
                 new ResponseMessage("error", "API key cannot be empty"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = userController.getEnabledLocation(VALID_USER_ID, "");
+        ResponseEntity actual = userController.getEnabledLocation(TestConstants.VALID_USER_ID, "");
 
         // Verify user service not called, HTTP response is correct
         verifyZeroInteractions(mockUserService);
@@ -844,9 +833,9 @@ public class UserControllerTest {
      */
     @Test
     public void validParamsShouldReturnEnabledLocation() throws Exception {
-        User user = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY, VALID_PASSWORD,
-                VALID_SALT, VALID_DATE, VALID_ADMIN, VALID_BANNED, VALID_ENABLED_LOCATION);
-        when(mockUserService.getUserById(VALID_USER_ID)).thenReturn(user);
+        User user = new User(TestConstants.VALID_FIRST_NAME, TestConstants.VALID_PHONE_NUMBER, TestConstants.VALID_API_KEY, TestConstants.VALID_PASSWORD,
+                TestConstants.VALID_SALT, TestConstants.VALID_DATE, TestConstants.VALID_ADMIN, TestConstants.VALID_BANNED, TestConstants.VALID_ENABLED_LOCATION);
+        when(mockUserService.getUserById(TestConstants.VALID_USER_ID)).thenReturn(user);
 
         // Expected
         JsonObject json = new JsonObject();
@@ -854,10 +843,10 @@ public class UserControllerTest {
         ResponseEntity expected = ResponseEntity.status(HttpStatus.OK).body(gson.toJson(json));
 
         // Actual
-        ResponseEntity actual = userController.getEnabledLocation(VALID_USER_ID, VALID_API_KEY);
+        ResponseEntity actual = userController.getEnabledLocation(TestConstants.VALID_USER_ID, TestConstants.VALID_API_KEY);
 
         // Verify user service called, HTTP response is correct
-        verify(mockUserService).getUserById(VALID_USER_ID);
+        verify(mockUserService).getUserById(TestConstants.VALID_USER_ID);
         assertEquals("HTTP status code should be 400 Bad Request",
                 expected.getStatusCode(), actual.getStatusCode());
         assertEquals("Response body is incorrect",
@@ -880,7 +869,7 @@ public class UserControllerTest {
                 new ResponseMessage("error", "User not found"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = userController.updateEnabledLocation("invalid user ID", VALID_API_KEY, params);
+        ResponseEntity actual = userController.updateEnabledLocation("invalid user ID", TestConstants.VALID_API_KEY, params);
 
         // Verify user service called, HTTP response correct
         verify(mockUserService).getUserById("invalid user ID");
@@ -906,7 +895,7 @@ public class UserControllerTest {
                 new ResponseMessage("error", "API key cannot be empty"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = userController.updateEnabledLocation(VALID_USER_ID, "", params);
+        ResponseEntity actual = userController.updateEnabledLocation(TestConstants.VALID_USER_ID, "", params);
 
         // Verify user service not called, HTTP response is correct
         verifyZeroInteractions(mockUserService);
@@ -927,18 +916,18 @@ public class UserControllerTest {
         SetEnabledLocationParams params = new SetEnabledLocationParams(true);
         User mockUser = mock(User.class);
 
-        when(mockUser.getApiKey()).thenReturn(VALID_API_KEY);
-        when(mockUserService.getUserById(VALID_USER_ID)).thenReturn(mockUser);
+        when(mockUser.getApiKey()).thenReturn(TestConstants.VALID_API_KEY);
+        when(mockUserService.getUserById(TestConstants.VALID_USER_ID)).thenReturn(mockUser);
 
         // Expected
         ResponseEntity expected = ResponseEntity.ok(ResponseUtil.asJsonString(
                 new ResponseMessage("ok", "Successfully updated enabledLocation"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = userController.updateEnabledLocation(VALID_USER_ID, VALID_API_KEY, params);
+        ResponseEntity actual = userController.updateEnabledLocation(TestConstants.VALID_USER_ID, TestConstants.VALID_API_KEY, params);
 
         // Verify user service called, HTTP response is correct
-        verify(mockUserService).getUserById(VALID_USER_ID);
+        verify(mockUserService).getUserById(TestConstants.VALID_USER_ID);
         verify(mockUserService).updateUser(mockUser);
         verify(mockUser).setEnabledLocation(params.getEnabledLocation());
         assertEquals("HTTP status code should be 400 Bad Request",

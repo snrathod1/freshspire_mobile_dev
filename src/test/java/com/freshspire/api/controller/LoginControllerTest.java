@@ -1,5 +1,6 @@
 package com.freshspire.api.controller;
 
+import com.freshspire.api.TestConstants;
 import com.freshspire.api.model.ResponseMessage;
 import com.freshspire.api.model.User;
 import com.freshspire.api.model.params.LoginParams;
@@ -29,17 +30,7 @@ public class LoginControllerTest {
 
     private LoginController loginController;
 
-    private static final String VALID_API_KEY               = "apiKey";
-    private static final String VALID_USER_ID               = "1";
-    private static final String VALID_FIRST_NAME            = "FirstName";
-    private static final String VALID_PASSWORD              = "A valid password";
-    private static final String VALID_SALT                  = "salt";
-    private static final String VALID_PHONE_NUMBER          = "1234567890";
-    private static final String VALID_AUTHENTICATION_CODE   = "0000";
-    private static final boolean VALID_ENABLED_LOCATION     = false;
-    private static final boolean VALID_ADMIN                = false;
-    private static final boolean VALID_BANNED               = false;
-    private static final Date VALID_DATE                    = new Date(123);
+
 
     @Before
     public void setUp() {
@@ -50,7 +41,7 @@ public class LoginControllerTest {
     @Test
     public void invalidPhoneShouldNotLogin() throws Exception {
         // Set up parameters and mock behavior
-        LoginParams params = new LoginParams("invalid phone", VALID_PASSWORD);
+        LoginParams params = new LoginParams("invalid phone", TestConstants.VALID_PASSWORD);
         when(mockUserService.getUserByPhoneNumber("invalid phone")).thenReturn(null);
 
         // Expected
@@ -72,10 +63,19 @@ public class LoginControllerTest {
     @Test
     public void invalidPasswordShouldNotLogin() throws Exception {
         // Set up parameters and mock behavior
-        LoginParams params = new LoginParams(VALID_PHONE_NUMBER, "invalid password");
-        User user = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY, VALID_PASSWORD,
-                VALID_SALT, VALID_DATE, VALID_ADMIN, VALID_BANNED, VALID_ENABLED_LOCATION);
-        when(mockUserService.getUserByPhoneNumber(VALID_PHONE_NUMBER)).thenReturn(user);
+        LoginParams params = new LoginParams(
+                TestConstants.VALID_PHONE_NUMBER,
+                "invalid password");
+        User user = new User(TestConstants.VALID_FIRST_NAME,
+                TestConstants.VALID_PHONE_NUMBER,
+                TestConstants.VALID_API_KEY,
+                TestConstants.VALID_PASSWORD,
+                TestConstants.VALID_SALT,
+                TestConstants.VALID_DATE,
+                TestConstants.VALID_ADMIN,
+                TestConstants.VALID_BANNED,
+                TestConstants.VALID_ENABLED_LOCATION);
+        when(mockUserService.getUserByPhoneNumber(TestConstants.VALID_PHONE_NUMBER)).thenReturn(user);
 
         // Expected
         ResponseEntity expected = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseUtil.asJsonString(
@@ -85,7 +85,7 @@ public class LoginControllerTest {
         ResponseEntity actual = loginController.loginWithPhoneAndPassword(params);
 
         // Verify user service called, HTTP response is correct
-        verify(mockUserService).getUserByPhoneNumber(VALID_PHONE_NUMBER);
+        verify(mockUserService).getUserByPhoneNumber(TestConstants.VALID_PHONE_NUMBER);
         assertEquals("HTTP status code should be 401 Unauthorized",
                 expected.getStatusCode(), actual.getStatusCode());
         assertEquals("Response body is incorrect",
@@ -95,11 +95,18 @@ public class LoginControllerTest {
     @Test
     public void emptyPhoneOrPasswordShouldNotLogin() throws Exception {
         // Set up parameters and mock behavior
-        LoginParams emptyPassword = new LoginParams(VALID_PHONE_NUMBER, "");
-        LoginParams emptyPhone = new LoginParams("", VALID_PASSWORD);
-        User user = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY, VALID_PASSWORD,
-                VALID_SALT, VALID_DATE, VALID_ADMIN, VALID_BANNED, VALID_ENABLED_LOCATION);
-        when(mockUserService.getUserByPhoneNumber(VALID_PHONE_NUMBER)).thenReturn(user);
+        LoginParams emptyPassword = new LoginParams(TestConstants.VALID_PHONE_NUMBER, "");
+        LoginParams emptyPhone = new LoginParams("", TestConstants.VALID_PASSWORD);
+        User user = new User(TestConstants.VALID_FIRST_NAME,
+                TestConstants.VALID_PHONE_NUMBER,
+                TestConstants.VALID_API_KEY,
+                TestConstants.VALID_PASSWORD,
+                TestConstants.VALID_SALT,
+                TestConstants.VALID_DATE,
+                TestConstants.VALID_ADMIN,
+                TestConstants.VALID_BANNED,
+                TestConstants.VALID_ENABLED_LOCATION);
+        when(mockUserService.getUserByPhoneNumber(TestConstants.VALID_PHONE_NUMBER)).thenReturn(user);
         when(mockUserService.getUserByPhoneNumber("")).thenReturn(null);
 
         // Expected
@@ -127,20 +134,27 @@ public class LoginControllerTest {
     @Test
     public void validParamsShouldLogin() throws Exception {
         // Set up parameters and mock behavior
-        LoginParams params = new LoginParams(VALID_PHONE_NUMBER, VALID_PASSWORD);
-        User user = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY, VALID_PASSWORD,
-                VALID_SALT, VALID_DATE, VALID_ADMIN, VALID_BANNED, VALID_ENABLED_LOCATION);
-        user.setPassword(PasswordUtil.encryptString(VALID_PASSWORD, VALID_SALT));
-        user.setUserId(VALID_USER_ID);
-        when(mockUserService.getUserByPhoneNumber(VALID_PHONE_NUMBER)).thenReturn(user);
+        LoginParams params = new LoginParams(TestConstants.VALID_PHONE_NUMBER, TestConstants.VALID_PASSWORD);
+        User user = new User(TestConstants.VALID_FIRST_NAME,
+                TestConstants.VALID_PHONE_NUMBER,
+                TestConstants.VALID_API_KEY,
+                TestConstants.VALID_PASSWORD,
+                TestConstants.VALID_SALT,
+                TestConstants.VALID_DATE,
+                TestConstants.VALID_ADMIN,
+                TestConstants.VALID_BANNED,
+                TestConstants.VALID_ENABLED_LOCATION);
+        user.setPassword(PasswordUtil.encryptString(TestConstants.VALID_PASSWORD, TestConstants.VALID_SALT));
+        user.setUserId(TestConstants.VALID_USER_ID);
+        when(mockUserService.getUserByPhoneNumber(TestConstants.VALID_PHONE_NUMBER)).thenReturn(user);
 
         // Expected
         JsonObject userJson = new JsonObject();
-        userJson.addProperty("apiKey", VALID_API_KEY);
-        userJson.addProperty("enabledLocation", VALID_ENABLED_LOCATION);
-        userJson.addProperty("firstName", VALID_FIRST_NAME);
-        userJson.addProperty("phoneNumber", VALID_PHONE_NUMBER);
-        userJson.addProperty("userId", VALID_USER_ID);
+        userJson.addProperty("apiKey", TestConstants.VALID_API_KEY);
+        userJson.addProperty("enabledLocation", TestConstants.VALID_ENABLED_LOCATION);
+        userJson.addProperty("firstName", TestConstants.VALID_FIRST_NAME);
+        userJson.addProperty("phoneNumber", TestConstants.VALID_PHONE_NUMBER);
+        userJson.addProperty("userId", TestConstants.VALID_USER_ID);
 
         ResponseEntity expected = ResponseEntity.status(HttpStatus.OK).body(userJson.toString());
 
@@ -148,7 +162,7 @@ public class LoginControllerTest {
         ResponseEntity actual = loginController.loginWithPhoneAndPassword(params);
 
         // Verify user service called, HTTP response is correct
-        verify(mockUserService).getUserByPhoneNumber(VALID_PHONE_NUMBER);
+        verify(mockUserService).getUserByPhoneNumber(TestConstants.VALID_PHONE_NUMBER);
         verifyNoMoreInteractions(mockUserService);
         assertEquals("HTTP status code should be 401 Unauthorized",
                 expected.getStatusCode(), actual.getStatusCode());
