@@ -656,7 +656,6 @@ public class UserControllerTest {
     @Test
     public void unknownUserIdShouldDeleteUser() throws Exception{
         // Set up mocks and parameters
-        ApiKeyParams params = new ApiKeyParams(TestConstants.VALID_API_KEY);
         when(mockUserService.getUserById(TestConstants.INVALID_USER_ID)).thenReturn(null);
 
         // Expected
@@ -664,7 +663,7 @@ public class UserControllerTest {
                 new ResponseMessage("error", "User ID/API key pair incorrect"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = userController.deleteUser(TestConstants.INVALID_USER_ID, params);
+        ResponseEntity actual = userController.deleteUser(TestConstants.INVALID_USER_ID, TestConstants.VALID_API_KEY);
 
         // Verify mock user service called, HTTP response is correct
         verify(mockUserService).getUserById(TestConstants.INVALID_USER_ID);
@@ -681,7 +680,6 @@ public class UserControllerTest {
      */
     @Test
     public void invalidApiKeyShouldNotDeleteUser() throws Exception {
-        ApiKeyParams params = new ApiKeyParams("invalid API key");
         User validUser = new User(TestConstants.VALID_FIRST_NAME, TestConstants.VALID_PHONE_NUMBER, TestConstants.VALID_API_KEY,
                 TestConstants.VALID_PASSWORD, TestConstants.VALID_SALT, TestConstants.VALID_DATE, TestConstants.VALID_ADMIN, TestConstants.VALID_BANNED, TestConstants.VALID_ENABLED_LOCATION);
         when(mockUserService.getUserById(TestConstants.VALID_USER_ID)).thenReturn(validUser);
@@ -691,7 +689,7 @@ public class UserControllerTest {
                 new ResponseMessage("error", "User ID/API key pair incorrect"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = userController.deleteUser(TestConstants.VALID_USER_ID, params);
+        ResponseEntity actual = userController.deleteUser(TestConstants.VALID_USER_ID, TestConstants.INVALID_API_KEY);
 
         // Verify user service called and HTTP response is correct
         verify(mockUserService).getUserById(TestConstants.VALID_USER_ID);
@@ -708,14 +706,13 @@ public class UserControllerTest {
      */
     @Test
     public void emptyApiKeyShouldNotDeleteUser() throws Exception {
-        ApiKeyParams params = new ApiKeyParams("");
 
         // Expected
         ResponseEntity expected = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseUtil.asJsonString(
                 new ResponseMessage("error", "User ID/API key pair incorrect"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = userController.deleteUser(TestConstants.VALID_USER_ID, params);
+        ResponseEntity actual = userController.deleteUser(TestConstants.VALID_USER_ID, "");
 
         // Verify user service not called, HTTP response correct
         verifyZeroInteractions(mockUserService);
@@ -732,7 +729,6 @@ public class UserControllerTest {
      */
     @Test
     public void validParametersShouldDeleteUser() throws Exception {
-        ApiKeyParams params = new ApiKeyParams(TestConstants.VALID_API_KEY);
         User validUser = new User(TestConstants.VALID_FIRST_NAME, TestConstants.VALID_PHONE_NUMBER, TestConstants.VALID_API_KEY,
                 TestConstants.VALID_PASSWORD, TestConstants.VALID_SALT, TestConstants.VALID_DATE, TestConstants.VALID_ADMIN, TestConstants.VALID_BANNED, TestConstants.VALID_ENABLED_LOCATION);
         when(mockUserService.getUserById(TestConstants.VALID_USER_ID)).thenReturn(validUser);
@@ -742,7 +738,7 @@ public class UserControllerTest {
                 new ResponseMessage("ok", "Successfully deleted user"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = userController.deleteUser(TestConstants.VALID_USER_ID, params);
+        ResponseEntity actual = userController.deleteUser(TestConstants.VALID_USER_ID, TestConstants.VALID_API_KEY);
 
         // Verify user service called, HTTP response is correct
         verify(mockUserService).getUserById(TestConstants.VALID_USER_ID);

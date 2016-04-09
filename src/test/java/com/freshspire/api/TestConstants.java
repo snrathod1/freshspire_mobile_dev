@@ -17,4 +17,5 @@ public final class TestConstants {
     public static final boolean VALID_BANNED                = false;
     public static final Date VALID_DATE                     = new Date(0);
     public static final int INVALID_USER_ID                 = 1000;
+    public static final String INVALID_API_KEY              = "invalid API key";
 }

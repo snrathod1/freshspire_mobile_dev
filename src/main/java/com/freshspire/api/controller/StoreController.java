@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,7 +55,7 @@ public class StoreController {
      * @return list of all stores with discounts
      */
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity<String> getStores(@RequestParam String apiKey) {
+    public ResponseEntity<String> getStores(@RequestHeader("Authorization") String apiKey) {
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
         }
@@ -81,8 +82,8 @@ public class StoreController {
      * @param apiKey
      * @return
      */
-    @RequestMapping(value = "/{storeId}", method = RequestMethod.GET)
-    public ResponseEntity<String> getStoreById(@PathVariable int storeId, @RequestParam String apiKey) {
+    @RequestMapping(value = "/{storeId}", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<String> getStoreById(@PathVariable int storeId, @RequestHeader("Authorization") String apiKey) {
         // Authenticate user first
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
@@ -103,10 +104,10 @@ public class StoreController {
      * @param apiKey
      * @return
      */
-    @RequestMapping(value = "/{storeId}/discounts", method = RequestMethod.GET)
+    @RequestMapping(value = "/{storeId}/discounts", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<String> getDiscountsForStore(
             @PathVariable int storeId,
-            @RequestParam String apiKey,
+            @RequestHeader("Authorization") String apiKey,
             @RequestParam(required = false) String query,
             @RequestParam(required = false) String foodType) {
         // Authenticate first
@@ -126,8 +127,8 @@ public class StoreController {
      * @param apiKey
      * @return
      */
-    @RequestMapping(value = "/{storeId}/discounts", method = RequestMethod.POST)
-    public ResponseEntity<String> addNewDiscountToStore(@PathVariable int storeId, @RequestBody NewDiscountParams params, @RequestParam String apiKey) {
+    @RequestMapping(value = "/{storeId}/discounts", method = RequestMethod.POST, produces = "application/json")
+    public ResponseEntity<String> addNewDiscountToStore(@PathVariable int storeId, @RequestBody NewDiscountParams params, @RequestHeader("Authorization") String apiKey) {
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
         }

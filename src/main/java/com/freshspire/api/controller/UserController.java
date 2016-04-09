@@ -232,13 +232,13 @@ public class UserController {
      *
      * Deletes user with user ID "userId". Body must contain API key of the user.
      * @param userId User's unique ID
-     * @param params Request body containing user's API key
+     * @param apiKey The user's API key
      * @return Success or error message for bad or unauthenticated request
      */
     @RequestMapping(value = "/{userId}", method = RequestMethod.DELETE, produces = "application/json")
-    public ResponseEntity<String> deleteUser(@PathVariable("userId") int userId, @RequestBody ApiKeyParams params) {
+    public ResponseEntity<String> deleteUser(@PathVariable("userId") int userId, @RequestHeader("Authorization") String apiKey) {
         // If API key is empty, return error
-        if(params.getApiKey().length() == 0)
+        if(apiKey.length() == 0)
             return ResponseUtil.unauthorized("User ID/API key pair incorrect");
 
         User user = userService.getUserById(userId);
@@ -246,7 +246,7 @@ public class UserController {
         if(user == null) return ResponseUtil.unauthorized("User ID/API key pair incorrect");
 
         // If API key is valid, delete user
-        if(user.getApiKey().equals(params.getApiKey())) {
+        if(user.getApiKey().equals(apiKey)) {
             userService.deleteUser(userId);
             return ResponseUtil.ok("Successfully deleted user");
 
@@ -265,7 +265,7 @@ public class UserController {
      * @return The user's enabledLocation value, or an error message for bad or unauthenticated request
      */
     @RequestMapping(value = "/{userId}/enabledLocation", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity<String> getEnabledLocation(@PathVariable("userId") int userId, @RequestParam String apiKey) {
+    public ResponseEntity<String> getEnabledLocation(@PathVariable("userId") int userId, @RequestHeader("Authorization") String apiKey) {
         // If API key is empty, return error
         if(apiKey.length() == 0)
             return ResponseUtil.badRequest("API key cannot be empty");
@@ -297,7 +297,7 @@ public class UserController {
      */
     @RequestMapping(value = "/{userId}/enabledLocation", method = RequestMethod.PUT, produces = "application/json")
     public ResponseEntity<String> updateEnabledLocation(@PathVariable("userId") int userId,
-                                                        @RequestParam String apiKey,
+                                                        @RequestHeader("Authorization") String apiKey,
                                                         @RequestBody SetEnabledLocationParams params) {
         // If API key is empty, return error
         if(apiKey.length() == 0)

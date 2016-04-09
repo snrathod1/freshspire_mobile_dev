@@ -10,10 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * com.freshspire.api.controller
@@ -37,13 +34,13 @@ public class KeyLoginController {
     }
 
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity<String> loginWithApiKey(@RequestBody ApiKeyParams params) {
+    public ResponseEntity<String> loginWithApiKey(@RequestHeader("Authorization") String apiKey) {
         // If API key param is empty, return error
-        if(params.getApiKey().length() == 0)
+        if(apiKey.length() == 0)
             return ResponseUtil.badRequest("API key cannot be empty");
 
         // Try to find the user based on API key parameter
-        User user = userService.getUserByApiKey(params.getApiKey());
+        User user = userService.getUserByApiKey(apiKey);
 
         // If user doesn't exist for that API key...
         if(user == null) {
