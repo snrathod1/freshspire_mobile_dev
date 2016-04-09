@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.omg.CORBA.TCKind;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -54,7 +55,7 @@ public class StoreControllerTest {
      * @throws Exception
      */
     @Test
-    public void invalidAuthShouldReturnError() throws Exception {
+    public void invalidAuthShouldNotReturnAllStores() throws Exception {
         // Set up
         when(mockUserService.getUserByApiKey("invalid key")).thenReturn(null);
 
@@ -149,6 +150,36 @@ public class StoreControllerTest {
         verify(mockStoreService).getStores();
         verifyZeroInteractions(mockDiscountService);
         assertEquals("HTTP status code should be 200 OK",
+                expected.getStatusCode(), actual.getStatusCode());
+        assertEquals("Response body is incorrect",
+                expected.getBody(), actual.getBody());
+    }
+
+    /**
+     * Tests GET /stores/{storeId}
+     * @throws Exception
+     */
+    @Test
+    public void invalidAuthShouldNotReturnStore() throws Exception {
+        // Set up
+        Store mockStore = mock(Store.class);
+        when(mockUserService.getUserByApiKey(TestConstants.VALID_API_KEY)).thenReturn(null);
+        when(mockStoreService.getStoreById(TestConstants.VALID_STORE_ID)).thenReturn(mockStore);
+
+        // Expected
+        JsonObject body = new JsonObject();
+        body.addProperty("status", "error");
+        body.addProperty("message", "Unauthenticated");
+        ResponseEntity expected = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body.toString());
+
+        // Actual
+        ResponseEntity<String> actual = storeController.getStoreById(TestConstants.VALID_STORE_ID, TestConstants.VALID_API_KEY);
+
+        // Verify user service & store service correctly called, HTTP response is correct
+        verify(mockUserService).getUserByApiKey(TestConstants.VALID_API_KEY);
+        verifyZeroInteractions(mockStoreService);
+        verifyZeroInteractions(mockDiscountService);
+        assertEquals("HTTP status code should be 401 Unauthorized",
                 expected.getStatusCode(), actual.getStatusCode());
         assertEquals("Response body is incorrect",
                 expected.getBody(), actual.getBody());
