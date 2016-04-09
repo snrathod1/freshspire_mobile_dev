@@ -36,7 +36,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public void deleteUser(String userId) {
+    public void deleteUser(int userId) {
         Session session = getCurrentSession();
         User user = (User) session.load(User.class, userId);
         if(null != user){
@@ -65,7 +65,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public User getUserById(String userId) {
+    public User getUserById(int userId) {
         Session session = getCurrentSession();
         Query query = session.createQuery("from User U where U.userId = :userId");
         query.setParameter("userId", userId);

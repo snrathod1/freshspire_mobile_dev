@@ -438,7 +438,7 @@ public class UserControllerTest {
                 PasswordUtil.encryptString("newPassword", TestConstants.VALID_SALT));
         verify(mockUserService).updateUser(mockUserFromDatabase);
         // Verify no other setters called
-        verify(mockUserFromDatabase, never()).setUserId(anyString());
+        verify(mockUserFromDatabase, never()).setUserId(anyInt());
         verify(mockUserFromDatabase, never()).setFirstName(anyString());
         verify(mockUserFromDatabase, never()).setPhoneNumber(anyString());
         verify(mockUserFromDatabase, never()).setApiKey(anyString());
@@ -640,7 +640,7 @@ public class UserControllerTest {
         verify(mockUser, never()).setAdmin(anyBoolean());
         verify(mockUser, never()).setCreated(any(Date.class));
         verify(mockUser, never()).setApiKey(anyString());
-        verify(mockUser, never()).setUserId(anyString());
+        verify(mockUser, never()).setUserId(anyInt());
         verify(mockUser, never()).setFirstName(anyString());
         assertEquals("HTTP status code should be 200 OK",
                 expected.getStatusCode(), actual.getStatusCode());
@@ -657,17 +657,17 @@ public class UserControllerTest {
     public void unknownUserIdShouldDeleteUser() throws Exception{
         // Set up mocks and parameters
         ApiKeyParams params = new ApiKeyParams(TestConstants.VALID_API_KEY);
-        when(mockUserService.getUserById("invalid user ID")).thenReturn(null);
+        when(mockUserService.getUserById(TestConstants.INVALID_USER_ID)).thenReturn(null);
 
         // Expected
         ResponseEntity expected = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseUtil.asJsonString(
                 new ResponseMessage("error", "User ID/API key pair incorrect"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = userController.deleteUser("invalid user ID", params);
+        ResponseEntity actual = userController.deleteUser(TestConstants.INVALID_USER_ID, params);
 
         // Verify mock user service called, HTTP response is correct
-        verify(mockUserService).getUserById("invalid user ID");
+        verify(mockUserService).getUserById(TestConstants.INVALID_USER_ID);
         assertEquals("HTTP response should be 401 Unauthorized",
                 expected.getStatusCode(), actual.getStatusCode());
         assertEquals("Response body is incorrect",
@@ -761,17 +761,17 @@ public class UserControllerTest {
      */
     @Test
     public void invalidUserIdShouldNotReturnEnabledLocation() throws Exception {
-        when(mockUserService.getUserById("invalidUserId")).thenReturn(null);
+        when(mockUserService.getUserById(TestConstants.INVALID_USER_ID)).thenReturn(null);
 
         // Expected
         ResponseEntity expected = ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseUtil.asJsonString(
                 new ResponseMessage("error", "User not found"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = userController.getEnabledLocation("invalidUserId", TestConstants.VALID_API_KEY);
+        ResponseEntity actual = userController.getEnabledLocation(TestConstants.INVALID_USER_ID, TestConstants.VALID_API_KEY);
 
         // Verify user service called, HTTP response correct
-        verify(mockUserService).getUserById("invalidUserId");
+        verify(mockUserService).getUserById(TestConstants.INVALID_USER_ID);
         assertEquals("HTTP status code should be 404 Not Found",
                 expected.getStatusCode(), actual.getStatusCode());
         assertEquals("Response body is incorrect",
@@ -862,17 +862,17 @@ public class UserControllerTest {
     public void invalidUserIdShouldNotUpdateEnabledLocation() throws Exception {
         // Setup
         SetEnabledLocationParams params = new SetEnabledLocationParams(true);
-        when(mockUserService.getUserById("invalid user ID")).thenReturn(null);
+        when(mockUserService.getUserById(TestConstants.INVALID_USER_ID)).thenReturn(null);
 
         // Expected
         ResponseEntity expected = ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseUtil.asJsonString(
                 new ResponseMessage("error", "User not found"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = userController.updateEnabledLocation("invalid user ID", TestConstants.VALID_API_KEY, params);
+        ResponseEntity actual = userController.updateEnabledLocation(TestConstants.INVALID_USER_ID, TestConstants.VALID_API_KEY, params);
 
         // Verify user service called, HTTP response correct
-        verify(mockUserService).getUserById("invalid user ID");
+        verify(mockUserService).getUserById(TestConstants.INVALID_USER_ID);
         assertEquals("HTTP status code should be 404 Not Found",
                 expected.getStatusCode(), actual.getStatusCode());
         assertEquals("Response body is incorrect",
