@@ -88,11 +88,11 @@ public class StoreControllerTest {
         // Set up
         User mockUser = mock(User.class);
         List<Store> storeList = new ArrayList<Store>(5);
-        storeList.add(new Store("Main Street Harris Teeter", 12.3, 45.6, "12345"));
-        storeList.add(new Store("Second Street Harris Teeter", 12.4, 45.2, "12345"));
-        storeList.add(new Store("Capital Square Food Lion", -4.567, 32.123, "55555"));
-        storeList.add(new Store("Abbey Road Corner Store", 45.678, 89.87654, "333666"));
-        storeList.add(new Store("Bay Avenue", -35.5555, 77.88888, "02468"));
+        storeList.add(new Store(1, "Main Street HT", "123 Main St", "Boring", "OR", "33333", 12.3, 45.6));
+        storeList.add(new Store(1, "Second Street HT", "12 Second St", "Boring", "OR", "33334", 12.4, 45.2));
+        storeList.add(new Store(4, "Capital Square Food Lion", "18 Capital Square", "Raleigh", "NC", "55555", -4.567, 32.123));
+        storeList.add(new Store(5, "Abbey Road Corner Store", "225 Abbey Road", "Las Vegas", "NV", "44444", 45.678, 89.87654));
+        storeList.add(new Store(2, "Bay Ave Whole Foods", "007 Bay Avenue", "Miami", "FL", "123123", -35.5555, 77.88888));
 
         when(mockUserService.getUserByApiKey(TestConstants.VALID_API_KEY)).thenReturn(mockUser);
         when(mockStoreService.getStores()).thenReturn(storeList);

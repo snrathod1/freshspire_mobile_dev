@@ -171,7 +171,6 @@ public class UserControllerTest {
     public void duplicatePhoneNumberShouldNotSendNewUserAuthCode() throws Exception {
         // Set up parameters and mock verification
         final String DUPLICATE_PHONE = "duplicate phone number";
-        NewUserParams params = new NewUserParams(TestConstants.VALID_FIRST_NAME, DUPLICATE_PHONE, TestConstants.VALID_PASSWORD, TestConstants.VALID_AUTHENTICATION_CODE);
 
         Verification mockVerification = mock(Verification.class);
         User mockUser = mock(User.class);
