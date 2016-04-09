@@ -3,11 +3,9 @@ HOST: api.getfreshspired.com
 
 # Freshspire API
 
-**TODO: /chains**
+**TODO: add /chains?**
 
-**TODO: David - look over /stores**
-
-The Freshspire API exposes real-time discount information in grocery stores. More 
+The Freshspire API exposes real-time discount information in grocery stores. More
 specifically, it exposes discount information on expiring food categories such as
 fresh produce, meats, and dairy products.
 
@@ -18,7 +16,7 @@ under ```/users```. This doesn't necessarily apply to endpoints under ```/users`
 there are certain endpoints that don't require an API key, require it in a request body, etc.
 
 
-**Backend repository (Github):** [link](https://github.com/reesjones/freshspire)
+**Backend API repository (Github):** [link](https://github.com/reesjones/freshspire)
 
 **Freshspire app repository (Bitbucket):** [link](https://bitbucket.org/bigpixelnc/app)
 
@@ -30,7 +28,7 @@ Each phone number may have only one account associated with it.
 
 ## Users [/users]
 
-This endpoint contains all resources and methods regarding the user account system. 
+This endpoint contains all resources and methods regarding the user account system.
 
 You can create/delete/update users and login/authenticate.
 
@@ -50,7 +48,7 @@ phone number already associated with an account will return unsuccessfully.
 
 ### GET Send verification code to phone number [GET]
 **Unit tested**
-This is the first request to make in the create user process. This accepts the 
+This is the first request to make in the create user process. This accepts the
 user's phone number and sends a verification code to the phone number provided.
 
 + Parameters
@@ -159,8 +157,8 @@ Methods specific to a user registered with Freshspire.
 ### DELETE Delete user [DELETE]
 **Unit tested**
 
-This deletes a user. The request body must include ```apiKey```. Response 
-code ```200 OK``` for successful deletion, otherwise a response code ```4xx``` or ```5xx``` 
+This deletes a user. The request body must include ```apiKey```. Response
+code ```200 OK``` for successful deletion, otherwise a response code ```4xx``` or ```5xx```
 will be returned with an error message.
 
 + Request (application/json)
@@ -228,14 +226,14 @@ Returns ```404 Not Found``` if the ```userId``` is not valid.
 ### PUT Update enabledLocation [PUT]
 **Unit tested**
 
-Updates the enabledLocation property of the user. Include ```apiKey``` and ```enabledLocation``` parameters as 
+Updates the enabledLocation property of the user. Include ```apiKey``` and ```enabledLocation``` parameters as
 json in the request body.
 
 Returns ```404 Not Found``` if the ```userId``` is not valid.
 
 + Request (application/json)
     + Attributes
-        + enabledLocation: false (boolean, required) - True if the user has enabled location 
+        + enabledLocation: false (boolean, required) - True if the user has enabled location
         services for Freshspire on their mobile device.
 
 + Response 200 (application/json)
@@ -272,11 +270,11 @@ This endpoint allows a client to both login and update their password if they've
 ### GET Start verification of phone number [GET]
 **Unit tested**
 
-This is the first request to make in the forgotten password process. This accepts the user phone number and 
+This is the first request to make in the forgotten password process. This accepts the user phone number and
 sends a verification code to the phone number provided.
 
 + Parameters
-    + phoneNumber: 1234567890 (string, required) - Needed only for the GET request, send the phone number to get 
+    + phoneNumber: 1234567890 (string, required) - Needed only for the GET request, send the phone number to get
         SMS with verification code.
 
 + Response 200 (application/json)
@@ -292,7 +290,7 @@ sends a verification code to the phone number provided.
             "status": "error",
             "message": "Bad request"
         }
-        
+
 + Response 500 (application/json)
 
         {
@@ -303,7 +301,7 @@ sends a verification code to the phone number provided.
 ### POST Login and set new password [POST]
 **Unit tested**
 
-Once the client has received a verification code, they ```POST``` to this endpoint with their phone 
+Once the client has received a verification code, they ```POST``` to this endpoint with their phone
 number, code, and new password. If the phone number and code are correct, the user's password is updated in
 the database and the user object is returned, which includes the API key needed for future API requests.
 
@@ -312,7 +310,7 @@ the database and the user object is returned, which includes the API key needed 
         + phoneNumber: 1234567890 (string, required) - The user's phone number
         + verificationCode: 12345 (string, required) - The verification code sent to the user's phone number (from the POST request)
         + newPassword: newPass123 (string, required) - The new password of the user
-        
+
 + Response 200 (application/json)
 
         {
@@ -360,11 +358,11 @@ Otherwise, a ```400 Bad Request``` is sent.
     + Attributes
         + apiKey: YOUR\_API\_KEY (string, required) - The user's API key.
         + newPassword: myNewPassword (string, required) - new password to replace existing password
-        + oldPassword: abc123 (string, required) - If you don't have the old password, you will 
+        + oldPassword: abc123 (string, required) - If you don't have the old password, you will
         have to click on forgot password before sending in a request without the old password.
 
 + Response 200 (application/json)
-    
+
         {
             "status": "success",
             "message": "Successfully updated password"
@@ -391,12 +389,12 @@ This endpoint logs in a user.
 ### POST Login user with phone & password [POST]
 **Unit tested**
 
-This logs in a user. The client sends a ```phoneNumber``` and ```password``` as a parameter in 
+This logs in a user. The client sends a ```phoneNumber``` and ```password``` as a parameter in
 the body, and if they are valid, a ```200 OK``` response is returned with the user object
 in the body, which contains the ```apiKey``` necessary for future requests.
 
 If the supplied phone number or password is invalid, a ```401 Unauthorized``` response code is
-returned. An otherwise unsuccessful request will return a response code ```4xx``` or ```5xx``` 
+returned. An otherwise unsuccessful request will return a response code ```4xx``` or ```5xx```
 will be returned with an error message.
 
 + Request (application/json)
@@ -481,22 +479,35 @@ This endpoint logs in a user given an ```apiKey```, i.e. returns a user object.
         }
 
 # Group Discount Data Resources
-A discount object has the following properties:
+A discount object has the following structure:
 
- * **discountId** (string): The unique ID of the discount. **Example:** *"d01"*
- * **storeId** (string): ID of the store the discount is associated with. **Example:** *"s01"*
- * **chainId** (string): ID of the chain the discount is associated with. **Example:** *"harristeeter"*
- * **productId** (string): ID of the product this is a discount of. **Example:** *"p01"*
- * **thumbnail** (string): URL of the thumbnail image for the product. **Example:** *"api.getfreshspired.com/static/images/products/p01.jpg"*
- * **displayName** (string): String display name. **Example:** *"Pork chops"*
+ * **discountId** (int): **Example:** *1*
  * **quantity**: How many there are of the discount. **Example:** *3*
- * **foodType** (string): the food category the discounted product is classified as. TODO: I'm working on the
- list of acceptable values for this parameter. **Example:** *"meat"*
- * **discountedPrice** (decimal): The discounted price. **Example:** *7.5*
  * **originalPrice** (decimal): The original price. **Example:** *15*
+ * **discountedPrice** (decimal): The discounted price. **Example:** *7.5*
  * **priceUnit** (string): The unit of the price. This could be per pound, per package, per unit, etc. **Example:** *"lb"*
- * **expirationDate** (integer): Expiration date (format described below) of the discount. **Example:** *1457191800*
  * **posted** (string): Timestamp (format described below) when the discount was posted. **Example:** *1456932600*
+ * **expirationDate** (integer): Expiration date (format described below) of the discount. **Example:** *1457191800*
+ * **product**: Product object associated with the discount
+   * **productId** (int): ID of the product this is a discount of. **Example:** *34*
+   * **displayName** (string): String display name of the product. **Example:** *"Pork chops"*
+   * **foodType** (string): the food category the discounted product is classified as. TODO: I'm working on the
+ list of acceptable values for this parameter. **Example:** *"meat"*
+   * **thumbnail** (string): URL of the thumbnail image for the product. **Example:** *"api.getfreshspired.com/static/images/products/34.jpg"*
+ * **store**: Store object this discount belongs to
+   * **storeId** (int): ID of the store the discount is associated with. **Example:** *11*
+   * **displayName** (string): String display name. **Example:** *"Cameron Village"*
+   * **street** (string): Street address of the store. **Example:** *"500 Oberlin Road"*
+   * **city** (string): City the store is in. **Example:** *"Raleigh"*
+   * **state** (string): State abbreviation the store is in. **Example:** *"NC"*
+   * **zipCode** (string): The zip code of the store. **Example:** *27605*
+   * **latitude** (decimal): Latitude of the store's location **Example:** *35.91348*
+   * **longitude** (decimal): Longitude of the store's location **Example:** *-78.43323*
+   * **discounts** (int): Number of discounts in this store. **Example:** *48*
+ * **chain**: Chain object of the store this discount belongs to
+   * **chainId** (int): ID of the chain. **Example:** *8*
+   * **displayName** (string): String display name of the chain. **Example:** *"Harris Teeter"*
+   * **thumbnail** (string): URL of the thumbnail image of the chain logo. **Example:** *"api.getfreshspired.com/static/images/chains/8.jpg"*
 
 All timestamps are in the [UNIX timestamp](https://en.wikipedia.org/wiki/Unix_time) format, which is defined as the number
 of seconds elapsed since 00:00:00 January 1st 1970.
@@ -505,15 +516,15 @@ of seconds elapsed since 00:00:00 January 1st 1970.
 
 Here's a helpful [timestamp converter](http://www.epochconverter.com/).
 
-## Discounts by latitude/longitude [/discounts/{latitude}/{longitude}{?apiKey,q,within,foodType,chain}]
-This endpoint represents the discounts geographically close to the latitude and longitude specified. 
+## Discounts by latitude/longitude [/discounts/{?latitude,longitude,apiKey,q,within,foodType,chain}]
+This endpoint represents the discounts geographically close to the latitude and longitude specified.
 Use the query parameters to filter the results or search by product name.
 
 Each discount object in the response includes a URL to its corresponding thumbnail image.
 
 + Parameters
-    + latitude: 35.7915074 (required, float) - the latitude of the location you want nearby discounts for
-    + longitude: ```-78.661654``` (required, float) - the longitude of the location you want nearby discounts for
+    + latitude: 35.7915074 (float, required) - the latitude of the location you want nearby discounts for
+    + longitude: ```-78.661654``` (float, required) - the longitude of the location you want nearby discounts for
     + apiKey: YOUR\_API\_KEY (string, required) - The user's API key.
 
 ### GET discounts [GET]
@@ -523,110 +534,211 @@ Get discounts geographically close to the latitude and longitude specified. Filt
 The discount objects in the response will include the URL for the thumbnail of the product.
 
 + Parameters
-    + q:        bananas         (string, optional)  - Optional search query which will include only 
+    + q:        bananas         (string, optional)  - Optional search query which will include only
     discounts with the search query in the product name.
     + within:   10              (number, optional)  - Include results within this many miles. Default 10.
-    + foodType: meat            (string, optional) - A food type to include. Default all. Declare this 
+    + foodType: meat            (enum[string], optional) - A food type to include. Default all. Declare this
     parameter multiple times for multiple food types (i.e. ```&foodType=meat&foodType=dairy```
     for both meat and dairy)
-    + chain:    c01             (string, optional)   - ID of a grocery store chain to include. Default all. 
-    Declare this parameter multiple times for multiple chains (i.e. ```&chain=c01&chain=c02``` to 
-    include discounts from chains with IDs ```c01``` and ```c01```)
+        + Members
+            + bakery
+            + dairy
+            + meat
+            + produce
+    + chain:    1               (number, optional)   - ID of a grocery store chain to include. Default all.
+    Declare this parameter multiple times for multiple chains (i.e. ```&chain=1&chain=2``` to
+    include discounts from chains with IDs ```1``` and ```2```)
 
 + Response 200 (application/json)
 
         {
             "count": 6,
-            "discounts:": [
+            "discounts": [
                 {
-                    "discountId": "d01",
-                    "storeId": "s01",
-                    "chainId": "harristeeter",
-                    "productId": "p01",
-                    "thumbnail": "/static/images/products/p01.jpg",
-                    "displayName": "Pork tenderloin",
+                    "discountId": 1,
                     "quantity": 3,
-                    "foodType": "meat",
-                    "discountedPrice": 7.5,
                     "originalPrice": 15,
+                    "discountedPrice": 7.5,
                     "priceUnit": "lb",
+                    "posted": 1456932600,
                     "expirationDate": 1457191800,
-                    "posted": 1456932600
+                    "product": {
+                        "productId": 1,
+                        "displayName": "Pork tenderloin",
+                        "foodType": "meat",
+                        "thumbnail": "/static/images/products/p01.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village Harris Teeter",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816,
+                        "discounts": 24
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
                 },
                 {
-                    "discountId": "d02",
-                    "storeId": "s01",
-                    "chainId": "harristeeter",
-                    "productId": "p02",
-                    "thumbnail": "/static/images/products/p02.jpg",
-                    "displayName": "Lemons",
+                    "discountId": 2,
                     "quantity": 11,
-                    "foodType": "produce",
-                    "discountedPrice": 0.6,
                     "originalPrice": 1,
+                    "discountedPrice": 0.6,
                     "priceUnit": "lb",
+                    "posted": 1456954200,
                     "expirationDate": 1457191800,
-                    "posted": 1456954200
+                    "product": {
+                        "productId": 2,
+                        "displayName": "Lemons",
+                        "foodType": "produce",
+                        "thumbnail": "/static/images/products/2.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village Harris Teeter",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816,
+                        "discounts": 24
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
                 },
                 {
-                    "discountId": "d03",
-                    "storeId": "s01",
-                    "chainId": "harristeeter",
-                    "productId": "p03",
-                    "thumbnail": "/static/images/products/p03.jpg",
-                    "displayName": "1doz Chocolate Doughnuts",
+                    "discountId": 3,
                     "quantity": 4,
-                    "foodType": "bakery",
-                    "discountedPrice": 3.5,
                     "originalPrice": 5.5,
+                    "discountedPrice": 3.5,
                     "priceUnit": "box",
+                    "posted": 1457028000,
                     "expirationDate": 1457352000,
-                    "posted": 1457028000
+                    "product": {
+                        "productId": 3,
+                        "displayName": "1doz Chocolate Doughnuts",
+                        "foodType": "bakery",
+                        "thumbnail": "/static/images/products/3.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village Harris Teeter",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816,
+                        "discounts": 24
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
                 },
                 {
-                    "discountId": "d04",
-                    "storeId": "s01",
-                    "chainId": "harristeeter",
-                    "productId": "p04",
-                    "thumbnail": "/static/images/products/p04.jpg",
-                    "displayName": "Organic pork sausages",
+                    "discountId": 4,
                     "quantity": 1,
-                    "foodType": "meat",
-                    "discountedPrice": 3.14,
                     "originalPrice": 5.25,
+                    "discountedPrice": 3.14,
                     "priceUnit": "package",
+                    "posted": 1457100000,
                     "expirationDate": 1457193600,
-                    "posted": 1457100000
+                    "product": {
+                        "productId": 4,
+                        "displayName": "Organic pork sausages",
+                        "foodType": "meat",
+                        "thumbnail": "/static/images/products/4.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village Harris Teeter",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816,
+                        "discounts": 24
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
                 },
                 {
-                    "discountId": "d05",
-                    "storeId": "s02",
-                    "chainId": "harristeeter",
-                    "productId": "p05",
-                    "thumbnail": "/static/images/products/p05.jpg",
-                    "displayName": "Dinner rolls (6ct)",
+                    "discountId": 5,
                     "quantity": 5,
-                    "foodType": "bakery",
-                    "discountedPrice": 4,
                     "originalPrice": 6,
+                    "discountedPrice": 4,
                     "priceUnit": "bag",
+                    "posted": 1457193600,
                     "expirationDate": 1457355600,
-                    "posted": 1457193600
+                    "product": {
+                        "productId": 5,
+                        "displayName": "Dinner rolls (6ct)",
+                        "foodType": "bakery",
+                        "thumbnail": "/static/images/products/5.jpg"
+                    },
+                    "store": {
+                        "storeId": 2,
+                        "displayName": "Hillsborough Street Harris Teeter",
+                        "street": "5563 Western Blvd",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27606",
+                        "latitude": 35.784214,
+                        "longitude": -78.7206401,
+                        "discounts": 29
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
                 },
                 {
-                    "discountId": "d06",
-                    "storeId": "s02",
-                    "chainId": "harristeeter",
-                    "productId": "p06",
-                    "thumbnail": "/static/images/products/p06.jpg",
-                    "displayName": "Grape tomatoes (8ox box)",
+                    "discountId": 6,
                     "quantity": 8,
-                    "foodType": "produce",
-                    "discountedPrice": 1.9,
                     "originalPrice": 3,
+                    "discountedPrice": 1.9,
                     "priceUnit": "8oz box",
+                    "posted": 1457355600,
                     "expirationDate": 1457528400,
-                    "posted": 1457355600
+                    "product": {
+                        "productId": 6,
+                        "displayName": "Grape tomatoes (8ox box)",
+                        "foodType": "produce",
+                        "thumbnail": "/static/images/products/6.jpg"
+                    },
+                    "store": {
+                        "storeId": 2,
+                        "displayName": "Hillsborough Street Harris Teeter",
+                        "street": "5563 Western Blvd",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27606",
+                        "latitude": 35.784214,
+                        "longitude": -78.7206401,
+                        "discounts": 29
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
                 }
             ]
         }
@@ -658,110 +770,212 @@ Get discounts geographically close to the zip code specified. Filter with parame
 The discount objects in the response will include the URL for the thumbnail of the product.
 
 + Parameters
-    + q:        bananas         (string, optional) - Optional search query which will include only 
+    + q:        bananas         (string, optional) - Optional search query which will include only
     discounts with the search query in the product name.
-    + within:   10              (number, optional) - Include results within this many miles. Default 10.
-    + foodType: meat            (optional, string) - A food type to include. Default all. Declare this 
+    + within:   10              (number, optional) - Include results within this many miles.
+        + Default: 10
+    + foodType: meat            (enum[string], optional) - A food type to include. Default all. Declare this
     parameter multiple times for multiple food types (i.e. *```&foodType=meat&foodType=dairy```*
     for both meat and dairy)
-    + chain:    c01             (array, optional)   - ID of a grocery store chain to include. Default all. 
-    Declare this parameter multiple times for multiple chains (i.e. *```&chain=c01&chain=c02```* to 
-    include discounts from chains with IDs *```c01```* and *```c01```*)
+        + Members
+            + bakery
+            + dairy
+            + meat
+            + produce
+    + chain:    1               (number, optional) - ID of a grocery store chain to include. Default all.
+    Declare this parameter multiple times for multiple chains (i.e. ```&chain=1&chain=2``` to
+    include discounts from chains with IDs ```1``` and ```2```)
 
 + Response 200 (application/json)
 
         {
             "count": 6,
-            "discounts:": [
+            "discounts": [
                 {
-                    "discountId": "d01",
-                    "storeId": "s01",
-                    "chainId": "harristeeter",
-                    "productId": "p01",
-                    "thumbnail": "/static/images/products/p01.jpg",
-                    "displayName": "Pork tenderloin",
+                    "discountId": 1,
                     "quantity": 3,
-                    "foodType": "meat",
-                    "discountedPrice": 7.5,
                     "originalPrice": 15,
+                    "discountedPrice": 7.5,
                     "priceUnit": "lb",
+                    "posted": 1456932600,
                     "expirationDate": 1457191800,
-                    "posted": 1456932600
+                    "product": {
+                        "productId": 1,
+                        "displayName": "Pork tenderloin",
+                        "foodType": "meat",
+                        "thumbnail": "/static/images/products/p01.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village Harris Teeter",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816,
+                        "discounts": 24
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
                 },
                 {
-                    "discountId": "d02",
-                    "storeId": "s01",
-                    "chainId": "harristeeter",
-                    "productId": "p02",
-                    "thumbnail": "/static/images/products/p02.jpg",
-                    "displayName": "Lemons",
+                    "discountId": 2,
                     "quantity": 11,
-                    "foodType": "produce",
-                    "discountedPrice": 0.6,
                     "originalPrice": 1,
+                    "discountedPrice": 0.6,
                     "priceUnit": "lb",
+                    "posted": 1456954200,
                     "expirationDate": 1457191800,
-                    "posted": 1456954200
+                    "product": {
+                        "productId": 2,
+                        "displayName": "Lemons",
+                        "foodType": "produce",
+                        "thumbnail": "/static/images/products/2.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village Harris Teeter",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816,
+                        "discounts": 24
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
                 },
                 {
-                    "discountId": "d03",
-                    "storeId": "s01",
-                    "chainId": "harristeeter",
-                    "productId": "p03",
-                    "thumbnail": "/static/images/products/p03.jpg",
-                    "displayName": "1doz Chocolate Doughnuts",
+                    "discountId": 3,
                     "quantity": 4,
-                    "foodType": "bakery",
-                    "discountedPrice": 3.5,
                     "originalPrice": 5.5,
+                    "discountedPrice": 3.5,
                     "priceUnit": "box",
+                    "posted": 1457028000,
                     "expirationDate": 1457352000,
-                    "posted": 1457028000
+                    "product": {
+                        "productId": 3,
+                        "displayName": "1doz Chocolate Doughnuts",
+                        "foodType": "bakery",
+                        "thumbnail": "/static/images/products/3.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village Harris Teeter",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816,
+                        "discounts": 24
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
                 },
                 {
-                    "discountId": "d04",
-                    "storeId": "s01",
-                    "chainId": "harristeeter",
-                    "productId": "p04",
-                    "thumbnail": "/static/images/products/p04.jpg",
-                    "displayName": "Organic pork sausages",
+                    "discountId": 4,
                     "quantity": 1,
-                    "foodType": "meat",
-                    "discountedPrice": 3.14,
                     "originalPrice": 5.25,
+                    "discountedPrice": 3.14,
                     "priceUnit": "package",
+                    "posted": 1457100000,
                     "expirationDate": 1457193600,
-                    "posted": 1457100000
+                    "product": {
+                        "productId": 4,
+                        "displayName": "Organic pork sausages",
+                        "foodType": "meat",
+                        "thumbnail": "/static/images/products/4.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village Harris Teeter",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816,
+                        "discounts": 24
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
                 },
                 {
-                    "discountId": "d05",
-                    "storeId": "s02",
-                    "chainId": "harristeeter",
-                    "productId": "p05",
-                    "thumbnail": "/static/images/products/p05.jpg",
-                    "displayName": "Dinner rolls (6ct)",
+                    "discountId": 5,
                     "quantity": 5,
-                    "foodType": "bakery",
-                    "discountedPrice": 4,
                     "originalPrice": 6,
+                    "discountedPrice": 4,
                     "priceUnit": "bag",
+                    "posted": 1457193600,
                     "expirationDate": 1457355600,
-                    "posted": 1457193600
+                    "product": {
+                        "productId": 5,
+                        "displayName": "Dinner rolls (6ct)",
+                        "foodType": "bakery",
+                        "thumbnail": "/static/images/products/5.jpg"
+                    },
+                    "store": {
+                        "storeId": 2,
+                        "displayName": "Hillsborough Street Harris Teeter",
+                        "street": "5563 Western Blvd",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27606",
+                        "latitude": 35.784214,
+                        "longitude": -78.7206401,
+                        "discounts": 29
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
                 },
                 {
-                    "discountId": "d06",
-                    "storeId": "s02",
-                    "chainId": "harristeeter",
-                    "productId": "p06",
-                    "thumbnail": "/static/images/products/p06.jpg",
-                    "displayName": "Grape tomatoes (8ox box)",
+                    "discountId": 6,
                     "quantity": 8,
-                    "foodType": "produce",
-                    "discountedPrice": 1.9,
                     "originalPrice": 3,
+                    "discountedPrice": 1.9,
                     "priceUnit": "8oz box",
+                    "posted": 1457355600,
                     "expirationDate": 1457528400,
-                    "posted": 1457355600
+                    "product": {
+                        "productId": 6,
+                        "displayName": "Grape tomatoes (8ox box)",
+                        "foodType": "produce",
+                        "thumbnail": "/static/images/products/6.jpg"
+                    },
+                    "store": {
+                        "storeId": 2,
+                        "displayName": "Hillsborough Street Harris Teeter",
+                        "street": "5563 Western Blvd",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27606",
+                        "latitude": 35.784214,
+                        "longitude": -78.7206401,
+                        "discounts": 29
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
                 }
             ]
         }
@@ -792,12 +1006,16 @@ Use this endpoint to get and post discounts from/to a specific store, and get st
 
 A store object contains the following properties:
 
- * **storeId** (string): The unique ID of the store. **Example:** *"s01"*
- * **name** (string): The display name of the store. **Example:** *"Cameron Village Harris Teeter"*
- * **address** (string): The street address of the store. **Example:** *"500 Oberlin Road, Raleigh, NC 27605"*
- * **lat** (decimal): Latitude of the store. **Example:** *35.7889461*
- * **long** (decimal): Longitude of the store. **Example:** *-78.6623816*
- * **discounts** (integer): Number of discounts in the store. **Example:** *24*
+ * **storeId** (int): ID of the store. **Example:** *11*
+ * **chainId** (int): ID of the chain the store is associated with. **Example:** *11*
+ * **displayName** (string): String display name. **Example:** *"Cameron Village"*
+ * **street** (string): Street address of the store. **Example:** *"500 Oberlin Road"*
+ * **city** (string): City the store is in. **Example:** *"Raleigh"*
+ * **state** (string): State abbreviation the store is in. **Example:** *"NC"*
+ * **zipCode** (string): The zip code of the store. **Example:** *27605*
+ * **latitude** (decimal): Latitude of the store. **Example:** *35.91348*
+ * **longitude** (decimal): Longitude of the store. **Example:** *-78.43323*
+ * **discounts** (int): Number of discounts in this store. **Example:** *48*
 
 ## All Stores [/stores{?apiKey}]
 
@@ -805,7 +1023,7 @@ A store object contains the following properties:
     + apiKey: YOUR\_API\_KEY (string, required) - The user's API key.
 
 ### GET List of stores with Freshspire discounts [GET]
-Returns an array of store objects. Response contains ```count``` (number of stores returned) 
+Returns an array of store objects. Response contains ```count``` (number of stores returned)
 and ```stores``` (array of store objects).
 
 TODO filter and search functionality?
@@ -816,48 +1034,63 @@ TODO filter and search functionality?
             "count": 5,
             "stores": [
                 {
-                    "storeId": "s01",
-                    "chainId": "harristeeter",
-                    "name": "Cameron Village Harris Teeter",
-                    "address": "500 Oberlin Road, Raleigh, NC 27605",
-                    "lat": 35.7889461,
-                    "long": -78.6623816,
+                    "storeId": 1,
+                    "chainId": 1,
+                    "displayName": "Cameron Village Harris Teeter",
+                    "street": "500 Oberlin Road",
+                    "city": "Raleigh",
+                    "state": "NC",
+                    "zipCode": "27605",
+                    "latitude": 35.7889461,
+                    "longitude": -78.6623816,
                     "discounts": 24
                 },
                 {
-                    "storeId": "s02",
-                    "chainId": "harristeeter",
-                    "name": "Hillsborough Street Harris Teeter",
-                    "address": "5563 Western Blvd, Raleigh, NC 27606",
-                    "lat": 35.784214,
-                    "long": -78.7206401
+                    "storeId": 2,
+                    "chainId": 1,
+                    "displayName": "Hillsborough Street Harris Teeter",
+                    "street": "5563 Western Blvd",
+                    "city": "Raleigh",
+                    "state": "NC",
+                    "zipCode": "27606",
+                    "latitude": 35.784214,
+                    "longitude": -78.7206401,
                     "discounts": 29
                 },
                 {
-                    "storeId": "s03",
-                    "chainId": "patelbros",
-                    "name": "Cary Patel Brothers",
-                    "address": "802 E Chatham St, Cary, NC 27511",
-                    "lat": 35.7909357,
-                    "long": -78.7633049
+                    "storeId": 3,
+                    "chainId": 3,
+                    "displayName": "Cary Patel Brothers",
+                    "street": "802 E Chatham St",
+                    "city": "Cary",
+                    "state": "NC",
+                    "zipCode": "27511",
+                    "latitude": 35.7909357,
+                    "longitude": -78.7633049,
                     "discounts": 6
                 },
                 {
-                    "storeId": "s04",
-                    "chainId": "wholefoods",
-                    "name": "Raleigh Whole Foods",
-                    "address": "3540 Wade Avenue, Raleigh, NC 27607",
-                    "lat": 35.8024691,
-                    "long": -78.6864058
+                    "storeId": 4,
+                    "chainId": 2,
+                    "displayName": "Raleigh Whole Foods",
+                    "street": "3540 Wade Avenue",
+                    "city": "Raleigh",
+                    "state": "NC",
+                    "zipCode": "27607",
+                    "latitude": 35.8024691,
+                    "longitude": -78.6864058,
                     "discounts": 18
                 },
                 {
-                    "storeId": "s05",
-                    "chainId": "foodlion",
-                    "name": "Raleigh Boulevard Food Lion",
-                    "address": "1100 Raleigh Blvd #122, Raleigh, NC 27610",
-                    "lat": 35.7943748,
-                    "long": -78.6114524
+                    "storeId": 5,
+                    "chainId": 4,
+                    "displayName": "Raleigh Boulevard Food Lion",
+                    "street": "1100 Raleigh Blvd #122",
+                    "city": "Raleigh",
+                    "state": "NC",
+                    "zipCode": "27610",
+                    "latitude": 35.7943748,
+                    "longitude": -78.6114524,
                     "discounts": 34
                 }
             ]
@@ -883,17 +1116,21 @@ TODO filter and search functionality?
 Returns the store object associated with given store ID.
 
 + Parameters
-    + storeId: s01 (string, required)           - The unique ID of the store
+    + storeId: 1             (number, required) - The unique ID of the store
     + apiKey: YOUR\_API\_KEY (string, required) - The user's API key.
 
 + Response 200 (application/json)
 
         {
-            "storeId": "s01",
-            "name": "Cameron Village Harris Teeter",
-            "address": "500 Oberlin Road, Raleigh, NC 27605",
-            "lat": 35.7889461,
-            "long": -78.6623816,
+            "storeId": 1,
+            "chainId": 1,
+            "displayName": "Cameron Village Harris Teeter",
+            "street": "500 Oberlin Road",
+            "city": "Raleigh",
+            "state": "NC",
+            "zipCode": "27605",
+            "latitude": 35.7889461,
+            "longitude": -78.6623816,
             "discounts": 24
         }
 
@@ -926,84 +1163,149 @@ results, post new discounts to, and delete existing discounts from the store.
     + apiKey:   YOUR\_API\_KEY  (string, required) - The user's API key.
 
 ### GET Discounts at a specific store [GET]
-Returns array of discount objects. Filter the results with ```foodType``` and search by product name with query 
+Returns array of discount objects. Filter the results with ```foodType``` and search by product name with query
 parameter ```q```.
 
 + Parameters
-    + q:        Pork            (string, optional) - Optional search query which will include only 
+    + q:        Pork            (string, optional) - Optional search query which will include only
         discounts with the search query in the product name.
-    + foodType: meat            (optional, string) - A food type to include. Default all. Declare this 
-        parameter multiple times for multiple food types (i.e. ```&foodType=meat&foodType=dairy``` 
+    + foodType: meat            (enum[string], optional) - A food type to include. Default all. Declare this
+        parameter multiple times for multiple food types (i.e. ```&foodType=meat&foodType=dairy```
         for both meat and dairy)
+        + Members
+            + bakery
+            + dairy
+            + meat
+            + produce
 
 + Response 200 (application/json)
 
         {
-            "count": 2,
+            "count": 4,
             "discounts": [
                 {
-                    "discountId": "d01",
-                    "storeId": "s01",
-                    "chainId": "harristeeter",
-                    "productId": "p01",
-                    "thumbnail": "/static/images/products/p01.jpg",
-                    "displayName": "Pork tenderloin",
+                    "discountId": 1,
                     "quantity": 3,
-                    "foodType": "meat",
-                    "discountedPrice": 7.5,
                     "originalPrice": 15,
+                    "discountedPrice": 7.5,
                     "priceUnit": "lb",
-                    "currency": "$",
+                    "posted": 1456932600,
                     "expirationDate": 1457191800,
-                    "posted": 1456932600
+                    "product": {
+                        "productId": 1,
+                        "displayName": "Pork tenderloin",
+                        "foodType": "meat",
+                        "thumbnail": "/static/images/products/p01.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village Harris Teeter",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816,
+                        "discounts": 24
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
                 },
                 {
-                    "discountId": "d02",
-                    "storeId": "s01",
-                    "chainId": "harristeeter",
-                    "productId": "p02",
-                    "thumbnail": "/static/images/products/p02.jpg",
-                    "displayName": "Lemons",
+                    "discountId": 2,
                     "quantity": 11,
-                    "foodType": "produce",
-                    "discountedPrice": 0.6,
                     "originalPrice": 1,
+                    "discountedPrice": 0.6,
                     "priceUnit": "lb",
-                    "currency": "$",
+                    "posted": 1456954200,
                     "expirationDate": 1457191800,
-                    "posted": 1456954200
+                    "product": {
+                        "productId": 2,
+                        "displayName": "Lemons",
+                        "foodType": "produce",
+                        "thumbnail": "/static/images/products/2.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village Harris Teeter",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816,
+                        "discounts": 24
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
                 },
                 {
-                    "discountId": "d03",
-                    "storeId": "s01",
-                    "chainId": "harristeeter",
-                    "productId": "p03",
-                    "thumbnail": "/static/images/products/p03.jpg",
-                    "displayName": "1doz Chocolate Doughnuts",
+                    "discountId": 3,
                     "quantity": 4,
-                    "foodType": "bakery",
-                    "discountedPrice": 3.5,
                     "originalPrice": 5.5,
+                    "discountedPrice": 3.5,
                     "priceUnit": "box",
-                    "currency": "$",
+                    "posted": 1457028000,
                     "expirationDate": 1457352000,
-                    "posted": 1457028000
+                    "product": {
+                        "productId": 3,
+                        "displayName": "1doz Chocolate Doughnuts",
+                        "foodType": "bakery",
+                        "thumbnail": "/static/images/products/3.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village Harris Teeter",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816,
+                        "discounts": 24
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
                 },
                 {
-                    "discountId": "d04",
-                    "storeId": "s01",
-                    "chainId": "harristeeter",
-                    "productId": "p04",
-                    "thumbnail": "/static/images/products/p04.jpg",
-                    "displayName": "Organic pork sausages",
+                    "discountId": 4,
                     "quantity": 1,
-                    "foodType": "meat",
-                    "discountedPrice": 3.14,
                     "originalPrice": 5.25,
+                    "discountedPrice": 3.14,
                     "priceUnit": "package",
-                    "currency": "$",
+                    "posted": 1457100000,
                     "expirationDate": 1457193600,
-                    "posted": 1457100000
+                    "product": {
+                        "productId": 4,
+                        "displayName": "Organic pork sausages",
+                        "foodType": "meat",
+                        "thumbnail": "/static/images/products/4.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village Harris Teeter",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816,
+                        "discounts": 24
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
                 }
             ]
         }
@@ -1035,7 +1337,7 @@ Posts a new discount to the store with ID ```storeId```. ```productId```, ```ori
 
 + Request
     + Attributes
-        + productId:        p01         (string, required) - The ID of the product being discounted.
+        + productId:        1           (number, required)    - The ID of the product being discounted.
         + originalPrice:    15          (number, required) - The original price of the product
         + discountedPrice:  7.5         (number, required) - The discounted price of the product
         + expirationDate:   1457191800  (number, required) - The UNIX timestamp of the expiration date.
@@ -1070,10 +1372,10 @@ Posts a new discount to the store with ID ```storeId```. ```productId```, ```ori
 
 # Group Static Content
 
-## Discount thumbnails [/static/images/products/{productId}{?apiKey}]
+## Product thumbnails [/static/images/products/{productId}{?apiKey}]
 
 + Parameters
-    + productId:    p01             (string, required) - The unique ID of the product
+    + productId:    p01             (int, required)    - The unique ID of the product
     + apiKey:       YOUR\_API\_KEY  (string, required) - The user's API key.
 
 ### GET Thumbnail for a particular product [GET]
@@ -1100,6 +1402,38 @@ Returns the JPG thumbnail for a particular product, specified in the URL by the 
         {
             "status": "error",
             "message": "Product with ID <productId> not found"
+        }
+
+## Chain thumbnails [/static/images/chains/{chainId}{?apiKey}]
+
++ Parameters
+    + chainId:      45              (int, required)    - The unique ID of the product
+    + apiKey:       YOUR\_API\_KEY  (string, required) - The user's API key.
+
+### GET Thumbnail for a particular chain [GET]
+Returns the JPG thumbnail for a particular chain, specified in the URL by the chain ID.
+
++ Response 200 (image/jpg)
+
++ Response 400 (application/json)
+
+        {
+            "status": "error",
+            "message": "Bad request - are the parameters formatted correctly?"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "status": "error",
+            "message": "Unauthenticated"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "status": "error",
+            "message": "Chain with ID <chainId> not found"
         }
 
 # Group System Status
@@ -1143,10 +1477,3 @@ Returns ```503 Service Unavailable``` with status ```unavailable``` if it's *not
         {
             "status": "unavailable"
         }
-
-
-
-
-
-
-
