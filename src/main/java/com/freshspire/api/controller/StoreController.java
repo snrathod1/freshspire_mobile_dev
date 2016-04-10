@@ -76,8 +76,6 @@ public class StoreController {
     /**
      * GET /stores/{storeId}
      *
-     * TODO: ensure this complies with API specification
-     *
      * @param storeId
      * @param apiKey
      * @return
@@ -113,6 +111,10 @@ public class StoreController {
         // Authenticate first
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
+        }
+
+        if(storeService.getStoreById(storeId) == null) {
+            return ResponseUtil.notFound("Store with ID " + storeId + " not found");
         }
 
         List<Discount> discounts = storeService.getDiscounts(storeId, query, foodType);
