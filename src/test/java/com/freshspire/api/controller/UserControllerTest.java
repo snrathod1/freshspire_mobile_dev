@@ -516,7 +516,7 @@ public class UserControllerTest {
      */
     @Test
     public void incorrectApiKeyShouldNotResetPassword() throws Exception {
-        ResetPasswordParams params = new ResetPasswordParams("invalid API key", TestConstants.VALID_PASSWORD, "newPassword");
+        ResetPasswordParams params = new ResetPasswordParams(TestConstants.VALID_PASSWORD, "newPassword");
         when(mockUserService.getUserByApiKey("invalid API key")).thenReturn(null);
         when(mockUserService.getUserByApiKey("invalid API key")).thenReturn(null);
 
@@ -524,7 +524,7 @@ public class UserControllerTest {
         ResponseEntity expected = ResponseUtil.unauthorized("Invalid authentication credentials");
 
         // Actual
-        ResponseEntity actual = userController.resetPassword(params);
+        ResponseEntity actual = userController.resetPassword(params, "invalid API key");
 
         // Verify authy not called, user service called correctly, HTTP response is correct
         verifyZeroInteractions(mockAuthyClient);
@@ -543,7 +543,7 @@ public class UserControllerTest {
      */
     @Test
     public void incorrectOldPasswordShouldNotResetPassword() throws Exception {
-        ResetPasswordParams params = new ResetPasswordParams(TestConstants.VALID_API_KEY, "differentPassword", "newPassword");
+        ResetPasswordParams params = new ResetPasswordParams("differentPassword", "newPassword");
         User mockUserFromDatabase = mock(User.class);
         when(mockUserService.getUserByApiKey(TestConstants.VALID_API_KEY)).thenReturn(mockUserFromDatabase);
 
@@ -564,7 +564,7 @@ public class UserControllerTest {
         ResponseEntity expected = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(gson.toJson(expectedBody));
 
         // Actual
-        ResponseEntity actual = userController.resetPassword(params);
+        ResponseEntity actual = userController.resetPassword(params, TestConstants.VALID_API_KEY);
 
         // Verify authy not called, user service called correctly, HTTP response is correct
         verifyZeroInteractions(mockAuthyClient);
@@ -583,14 +583,14 @@ public class UserControllerTest {
      */
     @Test
     public void emptyNewPasswordShouldNotResetPassword() throws Exception {
-        ResetPasswordParams params = new ResetPasswordParams(TestConstants.VALID_API_KEY, TestConstants.VALID_PASSWORD, "");
+        ResetPasswordParams params = new ResetPasswordParams(TestConstants.VALID_PASSWORD, "");
 
         // Expected
         ResponseEntity expected = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 gson.toJson(new ResponseMessage("error", "New password cannot be empty")));
 
         // Actual
-        ResponseEntity actual = userController.resetPassword(params);
+        ResponseEntity actual = userController.resetPassword(params, TestConstants.VALID_API_KEY);
 
         // Verify authy and user service untouched, HTTP response is correct
         verifyZeroInteractions(mockAuthyClient, mockUserService);
@@ -608,7 +608,7 @@ public class UserControllerTest {
     @Test
     public void validAuthAndNewPasswordShouldResetPassword() throws Exception {
         // Request parameters
-        ResetPasswordParams params = new ResetPasswordParams(TestConstants.VALID_API_KEY, TestConstants.VALID_PASSWORD, "newPassword");
+        ResetPasswordParams params = new ResetPasswordParams(TestConstants.VALID_PASSWORD, "newPassword");
         // Mock user to be updated
         User mockUser = mock(User.class);
         when(mockUser.getUserId()).thenReturn(TestConstants.VALID_USER_ID);
@@ -627,7 +627,7 @@ public class UserControllerTest {
         ResponseEntity expected = ResponseUtil.ok("Successfully updated password");
 
         // Actual
-        ResponseEntity actual = userController.resetPassword(params);
+        ResponseEntity actual = userController.resetPassword(params, TestConstants.VALID_API_KEY);
 
         // Verify authy not touched, user service correctly called, and HTTP response is correct
         verifyZeroInteractions(mockAuthyClient);
