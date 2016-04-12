@@ -205,14 +205,14 @@ public class UserController {
      * @return status of password reset
      */
     @RequestMapping(value = "/reset-password", method = RequestMethod.PUT, produces = "application/json")
-    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordParams params) {
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordParams params, @RequestHeader("Authorization") String apiKey) {
         // New password can't be empty
         if(params.getNewPassword().length() == 0) {
             return ResponseUtil.badRequest("New password cannot be empty");
         }
 
         // If the API key doesn't match any user, so return 401 Unauthorized
-        User user = userService.getUserByApiKey(params.getApiKey());
+        User user = userService.getUserByApiKey(apiKey);
         if(user == null) return ResponseUtil.unauthorized("Invalid authentication credentials");
 
         // If the supplied password matches the user's password, then update it

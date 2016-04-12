@@ -9,11 +9,11 @@ The Freshspire API exposes real-time discount information in grocery stores. Mor
 specifically, it exposes discount information on expiring food categories such as
 fresh produce, meats, and dairy products.
 
-All ```POST``` request parameters should be encoded in json in the request body.
+All ```POST``` request parameters should be encoded in JSON in the request body.
 
-API key should be included as a *request parameter* (```?apiKey=...```) in all endpoints not
+API key should be included in the ```Authorization``` header (format: ```Authorization: <your API key>```) in all endpoints not
 under ```/users```. This doesn't necessarily apply to endpoints under ```/users``` since
-there are certain endpoints that don't require an API key, require it in a request body, etc.
+there are certain endpoints that don't require an API key (for example, send code for creating user).
 
 
 **Backend API repository (Github):** [link](https://github.com/reesjones/freshspire)
@@ -38,7 +38,7 @@ This endpoint allows a client to create a user. This is done in two requests:
  1. The client sends a ```GET``` request to ```/users/create``` with ```phoneNumber``` as
  a URL parameter. This will send a confirmation code to the number provided.
  2. Once the client has gotten their code, they ```POST``` to ```/users/create``` with
- ```firstName```, ```phoneNumber```, ```password```, and ```confirmationCode``` as json
+ ```firstName```, ```phoneNumber```, ```password```, and ```confirmationCode``` as JSON
  parameters in the request body. If the phone number and code are correct, the user is created
  and added to the database and the user object in JSON format is returned, which includes
  the API key needed for future requests.
@@ -85,7 +85,7 @@ user's phone number and sends a verification code to the phone number provided.
 ### POST Use confirmation code to create user [POST]
 **Unit tested**
 Once the client has received their verification code, they ```POST``` to ```/users/create```
-with their first name, phone number, new password, and code as json parameters in the body.
+with their first name, phone number, new password, and code as JSON parameters in the body.
 If the phone number and code are correct, the user is created and the user object is returned.
 
 + Request (application/json)
@@ -157,13 +157,14 @@ Methods specific to a user registered with Freshspire.
 ### DELETE Delete user [DELETE]
 **Unit tested**
 
-This deletes a user. The request body must include ```apiKey```. Response
+This deletes a user. The Authorization header must include the API key of the user. Response
 code ```200 OK``` for successful deletion, otherwise a response code ```4xx``` or ```5xx```
-will be returned with an error message.
+is returned with an error message.
 
-+ Request (application/json)
-    + Attributes
-        + apiKey: YOUR\_API\_KEY (string, required) - The user's API key.
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
 
 + Response 200 (application/json)
 
@@ -180,14 +181,13 @@ will be returned with an error message.
 
 + Response 500 (application/json)
 
-## User's enabledLocation [/users/{userId}/enabledLocation{?apiKey}]
+## User's enabledLocation [/users/{userId}/enabledLocation]
 This is a boolean value which indicates if the user has enabled location services on their mobile device.
 
 Returns ```404 Not Found``` if the ```userId``` is not valid.
 
 + Parameters
     + userId: 1111111111 (string, required) - the ID of the user
-    + apiKey: YOUR\_API\_KEY (string, required) - The user's API key.
 
 ### GET Get enabledLocation [GET]
 **Unit tested**
@@ -195,6 +195,11 @@ Returns ```404 Not Found``` if the ```userId``` is not valid.
 Gets the enabledLocation boolean property of the user.
 
 Returns ```404 Not Found``` if the ```userId``` is not valid.
+
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
 
 + Response 200 (application/json)
 
@@ -226,8 +231,8 @@ Returns ```404 Not Found``` if the ```userId``` is not valid.
 ### PUT Update enabledLocation [PUT]
 **Unit tested**
 
-Updates the enabledLocation property of the user. Include ```apiKey``` and ```enabledLocation``` parameters as
-json in the request body.
+Updates the enabledLocation property of the user. Include ```enabledLocation``` as a
+JSON parameter in the request body.
 
 Returns ```404 Not Found``` if the ```userId``` is not valid.
 
@@ -235,6 +240,9 @@ Returns ```404 Not Found``` if the ```userId``` is not valid.
     + Attributes
         + enabledLocation: false (boolean, required) - True if the user has enabled location
         services for Freshspire on their mobile device.
+    + Headers
+
+            Authorization: YOUR_API_KEY
 
 + Response 200 (application/json)
 
@@ -264,7 +272,7 @@ This endpoint allows a client to both login and update their password if they've
  1. The client sends a ```GET``` request to ```/users/forgot-password``` with ```phoneNumber``` as a URL parameter. This
  will send a confirmation code to the phone number provided.
  2. Once the client has gotten their code, they ```POST``` to the same URL with ```phoneNumber```, ```verificationCode```,
- and ```newPassword``` as json parameters in the body. If the phone number and code are correct, the user's password is updated
+ and ```newPassword``` as JSON parameters in the body. If the phone number and code are correct, the user's password is updated
  in the database and the user object is returned, which includes the API key needed for future API requests.
 
 ### GET Start verification of phone number [GET]
@@ -350,16 +358,18 @@ and just want to change the password. If not, use ```/users/forgot-password```.
 ### PUT Reset account password [PUT]
 **Unit tested**
 
-To update a user's password, ```PUT``` to this endpoint with an API key, old password, and new password as json
+To update a user's password, ```PUT``` to this endpoint with an API key, old password, and new password as JSON
 parameters in the body. If the API key and old password are correct, a ```200 OK``` is returned with a status and a message.
 Otherwise, a ```400 Bad Request``` is sent.
 
 + Request (application/json)
     + Attributes
-        + apiKey: YOUR\_API\_KEY (string, required) - The user's API key.
         + newPassword: myNewPassword (string, required) - new password to replace existing password
-        + oldPassword: abc123 (string, required) - If you don't have the old password, you will
+        + oldPassword: abc123        (string, required) - If you don't have the old password, you will
         have to click on forgot password before sending in a request without the old password.
+    + Headers
+
+            Authorization: YOUR_API_KEY
 
 + Response 200 (application/json)
 
@@ -435,17 +445,15 @@ will be returned with an error message.
 
 ## User Login with API Key [/users/key-login]
 
-This endpoint logs in a user given an ```apiKey```, i.e. returns a user object.
-
- * ```400 Bad Request``` is returned for a bad API key.
- * ```500 Internal Server Error``` is returned when something is broken in the backend.
+This endpoint logs in a user given an API key in the ```Authorization``` header, i.e. returns a user object.
 
 ### POST Login user with API key [POST]
 **Unit tested**
 
-+ Request (application/json)
-    + Attributes
-        + apiKey:  YOUR\_API\_KEY  (string, required) - The API key of the user.
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
 
 + Response 200 (application/json)
 
@@ -491,8 +499,8 @@ A discount object has the following structure:
  * **product**: Product object associated with the discount
    * **productId** (int): ID of the product this is a discount of. **Example:** *34*
    * **displayName** (string): String display name of the product. **Example:** *"Pork chops"*
-   * **foodType** (string): the food category the discounted product is classified as. TODO: I'm working on the
- list of acceptable values for this parameter. **Example:** *"meat"*
+   * **foodType** (string): the food category the discounted product is classified as. The list of acceptable values
+   for this is below. **Example:** *"meat"*
    * **thumbnail** (string): URL of the thumbnail image for the product. **Example:** *"api.getfreshspired.com/static/images/products/34.jpg"*
  * **store**: Store object this discount belongs to
    * **storeId** (int): ID of the store the discount is associated with. **Example:** *11*
@@ -509,6 +517,8 @@ A discount object has the following structure:
    * **displayName** (string): String display name of the chain. **Example:** *"Harris Teeter"*
    * **thumbnail** (string): URL of the thumbnail image of the chain logo. **Example:** *"api.getfreshspired.com/static/images/chains/8.jpg"*
 
+Acceptable values for ```foodType```: TODO
+
 All timestamps are in the [UNIX timestamp](https://en.wikipedia.org/wiki/Unix_time) format, which is defined as the number
 of seconds elapsed since 00:00:00 January 1st 1970.
 
@@ -516,7 +526,7 @@ of seconds elapsed since 00:00:00 January 1st 1970.
 
 Here's a helpful [timestamp converter](http://www.epochconverter.com/).
 
-## Discounts by latitude/longitude [/discounts/{?latitude,longitude,apiKey,q,within,foodType,chain}]
+## Discounts by latitude/longitude [/discounts/{?latitude,longitude,q,within,foodType,chain}]
 This endpoint represents the discounts geographically close to the latitude and longitude specified.
 Use the query parameters to filter the results or search by product name.
 
@@ -525,7 +535,6 @@ Each discount object in the response includes a URL to its corresponding thumbna
 + Parameters
     + latitude: 35.7915074 (float, required) - the latitude of the location you want nearby discounts for
     + longitude: ```-78.661654``` (float, required) - the longitude of the location you want nearby discounts for
-    + apiKey: YOUR\_API\_KEY (string, required) - The user's API key.
 
 ### GET discounts [GET]
 Get discounts geographically close to the latitude and longitude specified. Filter with parameters ```within```,
@@ -549,6 +558,11 @@ The discount objects in the response will include the URL for the thumbnail of t
     Declare this parameter multiple times for multiple chains (i.e. ```&chain=1&chain=2``` to
     include discounts from chains with IDs ```1``` and ```2```)
 
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
+
 + Response 200 (application/json)
 
         {
@@ -557,7 +571,7 @@ The discount objects in the response will include the URL for the thumbnail of t
                 {
                     "discountId": 1,
                     "quantity": 3,
-                    "originalPrice": 15,
+                    "originalPrice": 16,
                     "discountedPrice": 7.5,
                     "priceUnit": "lb",
                     "posted": 1456932600,
@@ -570,14 +584,13 @@ The discount objects in the response will include the URL for the thumbnail of t
                     },
                     "store": {
                         "storeId": 1,
-                        "displayName": "Cameron Village Harris Teeter",
+                        "displayName": "Cameron Village",
                         "street": "500 Oberlin Road",
                         "city": "Raleigh",
                         "state": "NC",
                         "zipCode": "27605",
                         "latitude": 35.7889461,
-                        "longitude": -78.6623816,
-                        "discounts": 24
+                        "longitude": -78.6623816
                     },
                     "chain": {
                         "chainId": 1,
@@ -589,7 +602,7 @@ The discount objects in the response will include the URL for the thumbnail of t
                     "discountId": 2,
                     "quantity": 11,
                     "originalPrice": 1,
-                    "discountedPrice": 0.6,
+                    "discountedPrice": 0.9,
                     "priceUnit": "lb",
                     "posted": 1456954200,
                     "expirationDate": 1457191800,
@@ -601,14 +614,13 @@ The discount objects in the response will include the URL for the thumbnail of t
                     },
                     "store": {
                         "storeId": 1,
-                        "displayName": "Cameron Village Harris Teeter",
+                        "displayName": "Cameron Village",
                         "street": "500 Oberlin Road",
                         "city": "Raleigh",
                         "state": "NC",
                         "zipCode": "27605",
                         "latitude": 35.7889461,
-                        "longitude": -78.6623816,
-                        "discounts": 24
+                        "longitude": -78.6623816
                     },
                     "chain": {
                         "chainId": 1,
@@ -632,14 +644,13 @@ The discount objects in the response will include the URL for the thumbnail of t
                     },
                     "store": {
                         "storeId": 1,
-                        "displayName": "Cameron Village Harris Teeter",
+                        "displayName": "Cameron Village",
                         "street": "500 Oberlin Road",
                         "city": "Raleigh",
                         "state": "NC",
                         "zipCode": "27605",
                         "latitude": 35.7889461,
-                        "longitude": -78.6623816,
-                        "discounts": 24
+                        "longitude": -78.6623816
                     },
                     "chain": {
                         "chainId": 1,
@@ -652,7 +663,7 @@ The discount objects in the response will include the URL for the thumbnail of t
                     "quantity": 1,
                     "originalPrice": 5.25,
                     "discountedPrice": 3.14,
-                    "priceUnit": "package",
+                    "priceUnit": "pkg",
                     "posted": 1457100000,
                     "expirationDate": 1457193600,
                     "product": {
@@ -663,14 +674,13 @@ The discount objects in the response will include the URL for the thumbnail of t
                     },
                     "store": {
                         "storeId": 1,
-                        "displayName": "Cameron Village Harris Teeter",
+                        "displayName": "Cameron Village",
                         "street": "500 Oberlin Road",
                         "city": "Raleigh",
                         "state": "NC",
                         "zipCode": "27605",
                         "latitude": 35.7889461,
-                        "longitude": -78.6623816,
-                        "discounts": 24
+                        "longitude": -78.6623816
                     },
                     "chain": {
                         "chainId": 1,
@@ -694,14 +704,13 @@ The discount objects in the response will include the URL for the thumbnail of t
                     },
                     "store": {
                         "storeId": 2,
-                        "displayName": "Hillsborough Street Harris Teeter",
+                        "displayName": "Hillsborough Street",
                         "street": "5563 Western Blvd",
                         "city": "Raleigh",
                         "state": "NC",
                         "zipCode": "27606",
                         "latitude": 35.784214,
-                        "longitude": -78.7206401,
-                        "discounts": 29
+                        "longitude": -78.7206401
                     },
                     "chain": {
                         "chainId": 1,
@@ -714,7 +723,7 @@ The discount objects in the response will include the URL for the thumbnail of t
                     "quantity": 8,
                     "originalPrice": 3,
                     "discountedPrice": 1.9,
-                    "priceUnit": "8oz box",
+                    "priceUnit": "box",
                     "posted": 1457355600,
                     "expirationDate": 1457528400,
                     "product": {
@@ -725,14 +734,13 @@ The discount objects in the response will include the URL for the thumbnail of t
                     },
                     "store": {
                         "storeId": 2,
-                        "displayName": "Hillsborough Street Harris Teeter",
+                        "displayName": "Hillsborough Street",
                         "street": "5563 Western Blvd",
                         "city": "Raleigh",
                         "state": "NC",
                         "zipCode": "27606",
                         "latitude": 35.784214,
-                        "longitude": -78.7206401,
-                        "discounts": 29
+                        "longitude": -78.7206401
                     },
                     "chain": {
                         "chainId": 1,
@@ -757,11 +765,10 @@ The discount objects in the response will include the URL for the thumbnail of t
             "message": "Unauthenticated"
         }
 
-## Discounts by street address/zip code [/discounts/place/{zipCode}{?apiKey,q,within,foodType,chain}]
+## Discounts by street address/zip code [/discounts/place/{zipCode}{?q,within,foodType,chain}]
 
 + Parameters
     + zipCode: 27607 (required, string) - The zip code of the location to search from
-    + apiKey: YOUR\_API\_KEY (string, required) - The user's API key.
 
 ### GET Discounts [GET]
 Get discounts geographically close to the zip code specified. Filter with parameters ```within```,
@@ -786,6 +793,11 @@ The discount objects in the response will include the URL for the thumbnail of t
     Declare this parameter multiple times for multiple chains (i.e. ```&chain=1&chain=2``` to
     include discounts from chains with IDs ```1``` and ```2```)
 
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
+
 + Response 200 (application/json)
 
         {
@@ -807,14 +819,13 @@ The discount objects in the response will include the URL for the thumbnail of t
                     },
                     "store": {
                         "storeId": 1,
-                        "displayName": "Cameron Village Harris Teeter",
+                        "displayName": "Cameron Village",
                         "street": "500 Oberlin Road",
                         "city": "Raleigh",
                         "state": "NC",
                         "zipCode": "27605",
                         "latitude": 35.7889461,
-                        "longitude": -78.6623816,
-                        "discounts": 24
+                        "longitude": -78.6623816
                     },
                     "chain": {
                         "chainId": 1,
@@ -838,14 +849,13 @@ The discount objects in the response will include the URL for the thumbnail of t
                     },
                     "store": {
                         "storeId": 1,
-                        "displayName": "Cameron Village Harris Teeter",
+                        "displayName": "Cameron Village",
                         "street": "500 Oberlin Road",
                         "city": "Raleigh",
                         "state": "NC",
                         "zipCode": "27605",
                         "latitude": 35.7889461,
-                        "longitude": -78.6623816,
-                        "discounts": 24
+                        "longitude": -78.6623816
                     },
                     "chain": {
                         "chainId": 1,
@@ -869,14 +879,13 @@ The discount objects in the response will include the URL for the thumbnail of t
                     },
                     "store": {
                         "storeId": 1,
-                        "displayName": "Cameron Village Harris Teeter",
+                        "displayName": "Cameron Village",
                         "street": "500 Oberlin Road",
                         "city": "Raleigh",
                         "state": "NC",
                         "zipCode": "27605",
                         "latitude": 35.7889461,
-                        "longitude": -78.6623816,
-                        "discounts": 24
+                        "longitude": -78.6623816
                     },
                     "chain": {
                         "chainId": 1,
@@ -889,7 +898,7 @@ The discount objects in the response will include the URL for the thumbnail of t
                     "quantity": 1,
                     "originalPrice": 5.25,
                     "discountedPrice": 3.14,
-                    "priceUnit": "package",
+                    "priceUnit": "pkg",
                     "posted": 1457100000,
                     "expirationDate": 1457193600,
                     "product": {
@@ -900,14 +909,13 @@ The discount objects in the response will include the URL for the thumbnail of t
                     },
                     "store": {
                         "storeId": 1,
-                        "displayName": "Cameron Village Harris Teeter",
+                        "displayName": "Cameron Village",
                         "street": "500 Oberlin Road",
                         "city": "Raleigh",
                         "state": "NC",
                         "zipCode": "27605",
                         "latitude": 35.7889461,
-                        "longitude": -78.6623816,
-                        "discounts": 24
+                        "longitude": -78.6623816
                     },
                     "chain": {
                         "chainId": 1,
@@ -931,14 +939,13 @@ The discount objects in the response will include the URL for the thumbnail of t
                     },
                     "store": {
                         "storeId": 2,
-                        "displayName": "Hillsborough Street Harris Teeter",
+                        "displayName": "Hillsborough Street",
                         "street": "5563 Western Blvd",
                         "city": "Raleigh",
                         "state": "NC",
                         "zipCode": "27606",
                         "latitude": 35.784214,
-                        "longitude": -78.7206401,
-                        "discounts": 29
+                        "longitude": -78.7206401
                     },
                     "chain": {
                         "chainId": 1,
@@ -951,7 +958,7 @@ The discount objects in the response will include the URL for the thumbnail of t
                     "quantity": 8,
                     "originalPrice": 3,
                     "discountedPrice": 1.9,
-                    "priceUnit": "8oz box",
+                    "priceUnit": "box",
                     "posted": 1457355600,
                     "expirationDate": 1457528400,
                     "product": {
@@ -962,14 +969,13 @@ The discount objects in the response will include the URL for the thumbnail of t
                     },
                     "store": {
                         "storeId": 2,
-                        "displayName": "Hillsborough Street Harris Teeter",
+                        "displayName": "Hillsborough Street",
                         "street": "5563 Western Blvd",
                         "city": "Raleigh",
                         "state": "NC",
                         "zipCode": "27606",
                         "latitude": 35.784214,
-                        "longitude": -78.7206401,
-                        "discounts": 29
+                        "longitude": -78.7206401
                     },
                     "chain": {
                         "chainId": 1,
@@ -1015,18 +1021,19 @@ A store object contains the following properties:
  * **zipCode** (string): The zip code of the store. **Example:** *27605*
  * **latitude** (decimal): Latitude of the store. **Example:** *35.91348*
  * **longitude** (decimal): Longitude of the store. **Example:** *-78.43323*
- * **discounts** (int): Number of discounts in this store. **Example:** *48*
 
-## All Stores [/stores{?apiKey}]
-
-+ Parameters
-    + apiKey: YOUR\_API\_KEY (string, required) - The user's API key.
+## All Stores [/stores]
 
 ### GET List of stores with Freshspire discounts [GET]
 Returns an array of store objects. Response contains ```count``` (number of stores returned)
 and ```stores``` (array of store objects).
 
 TODO filter and search functionality?
+
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
 
 + Response 200 (application/json)
 
@@ -1042,8 +1049,7 @@ TODO filter and search functionality?
                     "state": "NC",
                     "zipCode": "27605",
                     "latitude": 35.7889461,
-                    "longitude": -78.6623816,
-                    "discounts": 24
+                    "longitude": -78.6623816
                 },
                 {
                     "storeId": 2,
@@ -1054,8 +1060,7 @@ TODO filter and search functionality?
                     "state": "NC",
                     "zipCode": "27606",
                     "latitude": 35.784214,
-                    "longitude": -78.7206401,
-                    "discounts": 29
+                    "longitude": -78.7206401
                 },
                 {
                     "storeId": 3,
@@ -1066,8 +1071,7 @@ TODO filter and search functionality?
                     "state": "NC",
                     "zipCode": "27511",
                     "latitude": 35.7909357,
-                    "longitude": -78.7633049,
-                    "discounts": 6
+                    "longitude": -78.7633049
                 },
                 {
                     "storeId": 4,
@@ -1078,8 +1082,7 @@ TODO filter and search functionality?
                     "state": "NC",
                     "zipCode": "27607",
                     "latitude": 35.8024691,
-                    "longitude": -78.6864058,
-                    "discounts": 18
+                    "longitude": -78.6864058
                 },
                 {
                     "storeId": 5,
@@ -1090,8 +1093,7 @@ TODO filter and search functionality?
                     "state": "NC",
                     "zipCode": "27610",
                     "latitude": 35.7943748,
-                    "longitude": -78.6114524,
-                    "discounts": 34
+                    "longitude": -78.6114524
                 }
             ]
         }
@@ -1110,14 +1112,18 @@ TODO filter and search functionality?
             "message": "Unauthenticated"
         }
 
-## Specific Store [/stores/{storeId}{?apiKey}]
+## Specific Store [/stores/{storeId}]
 
 ### GET Specific store information [GET]
 Returns the store object associated with given store ID.
 
 + Parameters
-    + storeId: 1             (number, required) - The unique ID of the store
-    + apiKey: YOUR\_API\_KEY (string, required) - The user's API key.
+    + storeId: 1 (number, required) - The unique ID of the store
+
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
 
 + Response 200 (application/json)
 
@@ -1130,8 +1136,7 @@ Returns the store object associated with given store ID.
             "state": "NC",
             "zipCode": "27605",
             "latitude": 35.7889461,
-            "longitude": -78.6623816,
-            "discounts": 24
+            "longitude": -78.6623816
         }
 
 + Response 400 (application/json)
@@ -1155,12 +1160,9 @@ Returns the store object associated with given store ID.
             "message": "Store with ID <storeId> not found"
         }
 
-## Discounts in Specific Store [/stores/{storeId}/discounts{?apiKey,q,foodType}]
+## Discounts in Specific Store [/stores/{storeId}/discounts{?q,foodType}]
 Contains all discount objects posted in the store with ID ```storeId```. Get and search for discounts, filter the
 results, post new discounts to, and delete existing discounts from the store.
-
-+ Parameters
-    + apiKey:   YOUR\_API\_KEY  (string, required) - The user's API key.
 
 ### GET Discounts at a specific store [GET]
 Returns array of discount objects. Filter the results with ```foodType``` and search by product name with query
@@ -1177,6 +1179,11 @@ parameter ```q```.
             + dairy
             + meat
             + produce
+
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
 
 + Response 200 (application/json)
 
@@ -1199,14 +1206,13 @@ parameter ```q```.
                     },
                     "store": {
                         "storeId": 1,
-                        "displayName": "Cameron Village Harris Teeter",
+                        "displayName": "Cameron Village",
                         "street": "500 Oberlin Road",
                         "city": "Raleigh",
                         "state": "NC",
                         "zipCode": "27605",
                         "latitude": 35.7889461,
-                        "longitude": -78.6623816,
-                        "discounts": 24
+                        "longitude": -78.6623816
                     },
                     "chain": {
                         "chainId": 1,
@@ -1230,13 +1236,13 @@ parameter ```q```.
                     },
                     "store": {
                         "storeId": 1,
-                        "displayName": "Cameron Village Harris Teeter",
+                        "displayName": "Cameron Village",
                         "street": "500 Oberlin Road",
                         "city": "Raleigh",
                         "state": "NC",
                         "zipCode": "27605",
                         "latitude": 35.7889461,
-                        "longitude": -78.6623816,
+                        "longitude": -78.6623816
                         "discounts": 24
                     },
                     "chain": {
@@ -1261,14 +1267,13 @@ parameter ```q```.
                     },
                     "store": {
                         "storeId": 1,
-                        "displayName": "Cameron Village Harris Teeter",
+                        "displayName": "Cameron Village",
                         "street": "500 Oberlin Road",
                         "city": "Raleigh",
                         "state": "NC",
                         "zipCode": "27605",
                         "latitude": 35.7889461,
-                        "longitude": -78.6623816,
-                        "discounts": 24
+                        "longitude": -78.6623816
                     },
                     "chain": {
                         "chainId": 1,
@@ -1281,7 +1286,7 @@ parameter ```q```.
                     "quantity": 1,
                     "originalPrice": 5.25,
                     "discountedPrice": 3.14,
-                    "priceUnit": "package",
+                    "priceUnit": "pkg",
                     "posted": 1457100000,
                     "expirationDate": 1457193600,
                     "product": {
@@ -1292,14 +1297,13 @@ parameter ```q```.
                     },
                     "store": {
                         "storeId": 1,
-                        "displayName": "Cameron Village Harris Teeter",
+                        "displayName": "Cameron Village",
                         "street": "500 Oberlin Road",
                         "city": "Raleigh",
                         "state": "NC",
                         "zipCode": "27605",
                         "latitude": 35.7889461,
-                        "longitude": -78.6623816,
-                        "discounts": 24
+                        "longitude": -78.6623816
                     },
                     "chain": {
                         "chainId": 1,
@@ -1341,6 +1345,9 @@ Posts a new discount to the store with ID ```storeId```. ```productId```, ```ori
         + originalPrice:    15          (number, required) - The original price of the product
         + discountedPrice:  7.5         (number, required) - The discounted price of the product
         + expirationDate:   1457191800  (number, required) - The UNIX timestamp of the expiration date.
+    + Headers
+
+            Authorization: YOUR_API_KEY
 
 + Response 200 (application/json)
 
@@ -1372,14 +1379,18 @@ Posts a new discount to the store with ID ```storeId```. ```productId```, ```ori
 
 # Group Static Content
 
-## Product thumbnails [/static/images/products/{productId}{?apiKey}]
+## Product thumbnails [/static/images/products/{productId}]
 
 + Parameters
-    + productId:    p01             (int, required)    - The unique ID of the product
-    + apiKey:       YOUR\_API\_KEY  (string, required) - The user's API key.
+    + productId: 1 (number, required) - The unique ID of the product
 
 ### GET Thumbnail for a particular product [GET]
 Returns the JPG thumbnail for a particular product, specified in the URL by the product ID.
+
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
 
 + Response 200 (image/jpg)
 
@@ -1407,11 +1418,16 @@ Returns the JPG thumbnail for a particular product, specified in the URL by the 
 ## Chain thumbnails [/static/images/chains/{chainId}{?apiKey}]
 
 + Parameters
-    + chainId:      45              (int, required)    - The unique ID of the product
+    + chainId:      45              (number, required) - The unique ID of the product
     + apiKey:       YOUR\_API\_KEY  (string, required) - The user's API key.
 
 ### GET Thumbnail for a particular chain [GET]
 Returns the JPG thumbnail for a particular chain, specified in the URL by the chain ID.
+
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
 
 + Response 200 (image/jpg)
 
@@ -1447,6 +1463,11 @@ Returns ```200 OK```  with status ```ok``` if system is running properly.
 
 Returns ```503 Service Unavailable``` with status ```unavailable``` if it's *not* running properly.
 
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
+
 + Response 200 (application/json)
 
         {
@@ -1466,6 +1487,11 @@ Returns ```200 OK```  with status ```ok``` if database is running properly.
 
 Returns ```503 Service Unavailable``` with status ```unavailable``` if it's *not* running properly.
 
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
+
 + Response 200 (application/json)
 
         {
@@ -1477,3 +1503,9 @@ Returns ```503 Service Unavailable``` with status ```unavailable``` if it's *not
         {
             "status": "unavailable"
         }
+
+
+
+
+
+

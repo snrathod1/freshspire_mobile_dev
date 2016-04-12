@@ -315,13 +315,13 @@ public class StoreControllerTest {
     @Test
     public void defaultParamsShouldReturnAllStoreDiscounts() throws Exception {
         // Set up
-//        User mockUser = mock(User.class);
-//        List<Discount> discounts = new ArrayList<>();
-//        discounts.add(new Discount(1, 1, 1456932600, 1457191800));
-//        when(mockUserService.getUserByApiKey(TestConstants.VALID_API_KEY)).thenReturn(mockUser);
-//        when(mockStoreService.getDiscounts(1)).thenReturn(discounts);
+        User mockUser = mock(User.class);
+        List<Discount> discounts = new ArrayList<>();
+        discounts.add(new Discount(1, 1, 1456932600, 1457191800));
+        when(mockUserService.getUserByApiKey(TestConstants.VALID_API_KEY)).thenReturn(mockUser);
+        when(mockStoreService.getDiscounts(1)).thenReturn(discounts);
 
-        fail("This test not implemented");
+
     }
 
     /**
@@ -352,5 +352,15 @@ public class StoreControllerTest {
     @Test
     public void avocadoQueryShouldReturnAvocadoDiscounts() throws Exception {
         fail("This test not implemented");
+    }
+
+    /**
+     * Tests GET /stores/{storeId}/discounts
+     * with query of "avocado" and foodType=produce
+     * @throws Exception
+     */
+    @Test
+    public void avocadoAndProduceShouldReturnAvocadoDiscounts() throws Exception {
+
     }
 }

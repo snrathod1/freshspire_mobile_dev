@@ -97,9 +97,9 @@ public class StoreController {
     /**
      * GET /stores/{storeId}/discounts
      *
-     * @param storeId
-     * @param foodType
-     * @param apiKey
+     * @param storeId Unique ID of the store
+     * @param foodType Food type(s) to include in response. More than one food type is comma-separated.
+     * @param apiKey The API key of a user
      * @return
      */
     @RequestMapping(value = "/{storeId}/discounts", method = RequestMethod.GET, produces = "application/json")
@@ -118,6 +118,8 @@ public class StoreController {
         }
 
         List<Discount> discounts = storeService.getDiscounts(storeId, query, foodType);
+        System.out.println("discounts.size()=" + discounts.size());
+        //for(Discount d : discounts) System.out.println(d);
         return ResponseUtil.ok(gson.toJson(discounts));
     }
 

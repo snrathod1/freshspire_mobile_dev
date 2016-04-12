@@ -103,7 +103,7 @@
       <artifactId>gson</artifactId>
       <version>2.6.1</version>
     </dependency>
-    <!-- Twilio -->
+    <!-- Authy -->
     <dependency>
       <groupId>com.authy</groupId>
       <artifactId>authy-java</artifactId>
