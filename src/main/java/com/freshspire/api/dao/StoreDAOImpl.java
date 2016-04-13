@@ -51,7 +51,7 @@ public class StoreDAOImpl implements StoreDAO {
         return store;
     }
 
-    //TODO: get lat long from zipcode and then call getStoreByLocation
+    //TODO: get lat long from zipcode and then call getStoreByLocation (update: now stores has a zipCode column)
     @Override
     public List<Store> getStoreByZip(int zipcode) {
         return null;

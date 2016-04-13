@@ -4,10 +4,8 @@ public class ResetPasswordParams {
 
     private String oldPassword;
     private String newPassword;
-    private String apiKey;
 
-    public ResetPasswordParams(String apiKey, String oldPassword, String newPassword) {
-        this.apiKey = apiKey;
+    public ResetPasswordParams(String oldPassword, String newPassword) {
         this.oldPassword = oldPassword;
         this.newPassword = newPassword;
     }
@@ -26,13 +24,5 @@ public class ResetPasswordParams {
 
     public void setNewPassword(String newPassword) {
         this.newPassword = newPassword;
-    }
-
-    public String getApiKey() {
-        return apiKey;
-    }
-
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
     }
 }

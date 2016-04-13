@@ -13,14 +13,42 @@ public class Store {
     @GeneratedValue
     private int storeId;
 
-    @Column(name = "address")
-    private String address;
+    @Column(name = "chainId")
+    private int chainId; // TODO specify this as a foreign key?
+
+    @Column(name = "displayName")
+    private String displayName;
+
+    @Column(name = "street")
+    private String street;
+
+    @Column(name = "city")
+    private String city;
+
+    @Column(name = "state")
+    private String state;
+
+    @Column(name = "zipCode")
+    private String zipCode;
 
     @Column(name = "latitude")
     private double latitude;
 
     @Column(name = "longitude")
     private double longitude;
+
+    public Store() {}
+
+    public Store(int chainId, String displayName, String street, String city, String state, String zipCode, double latitude, double longitude) {
+        this.chainId = chainId;
+        this.displayName = displayName;
+        this.street = street;
+        this.city = city;
+        this.state = state;
+        this.zipCode = zipCode;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
 
     public int getStoreId() {
         return storeId;
@@ -30,12 +58,52 @@ public class Store {
         this.storeId = storeId;
     }
 
-    public String getAddress() {
-        return address;
+    public int getChainId() {
+        return chainId;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setChainId(int chainId) {
+        this.chainId = chainId;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getStreet() {
+        return street;
+    }
+
+    public void setStreet(String street) {
+        this.street = street;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getZipCode() {
+        return zipCode;
+    }
+
+    public void setZipCode(String zipCode) {
+        this.zipCode = zipCode;
     }
 
     public double getLatitude() {
@@ -56,6 +124,6 @@ public class Store {
 
     @Override
     public String toString() {
-        return this.storeId + " " + this.address + " " + this.latitude + " : " + this.longitude;
+        return this.storeId + " " + this.street + " " + this.latitude + " : " + this.longitude;
     }
 }

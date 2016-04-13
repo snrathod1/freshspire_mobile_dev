@@ -60,7 +60,6 @@ public class KeyLoginControllerTest {
     @Test
     public void validApiKeyShouldLoginUser() {
         // Setup
-        ApiKeyParams params = new ApiKeyParams(VALID_API_KEY);
         User user = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY,
                 VALID_PASSWORD, VALID_SALT, VALID_DATE, VALID_ADMIN, VALID_BANNED, VALID_ENABLED_LOCATION);
         when(mockUserService.getUserByApiKey(VALID_API_KEY)).thenReturn(user);
@@ -69,7 +68,7 @@ public class KeyLoginControllerTest {
         ResponseEntity expected = ResponseUtil.makeUserObjectResponse(user, HttpStatus.OK); // TODO lose the ResponseUtil dependency
 
         // Actual
-        ResponseEntity actual = keyLoginController.loginWithApiKey(params);
+        ResponseEntity actual = keyLoginController.loginWithApiKey(VALID_API_KEY);
 
         // Verify that user service was called, HTTP response is correct
         verify(mockUserService).getUserByApiKey(VALID_API_KEY);
@@ -87,14 +86,13 @@ public class KeyLoginControllerTest {
     @Test
     public void emptyApiKeyShouldNotLoginUser() {
         // Setup
-        ApiKeyParams params = new ApiKeyParams("");
 
         // Expected
         ResponseEntity expected = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseUtil.asJsonString(
                 new ResponseMessage("error", "API key cannot be empty"), ResponseMessage.class));
 
         // Actual
-        ResponseEntity actual = keyLoginController.loginWithApiKey(params);
+        ResponseEntity actual = keyLoginController.loginWithApiKey("");
 
         // Verify user service not called, HTTP response correct
         verifyZeroInteractions(mockUserService);
@@ -111,14 +109,13 @@ public class KeyLoginControllerTest {
     @Test
     public void invalidApiKeyShouldNotLoginUser() {
         // Setup
-        ApiKeyParams params = new ApiKeyParams("invalid API key");
         when(mockUserService.getUserByApiKey("invalid API key")).thenReturn(null);
 
         // Expected
         ResponseEntity expected = ResponseUtil.unauthorized("Invalid API key"); // TODO lose the ResponseUtil dependency
 
         // Actual
-        ResponseEntity actual = keyLoginController.loginWithApiKey(params);
+        ResponseEntity actual = keyLoginController.loginWithApiKey("invalid API key");
 
         // Verify user service called, HTTP response is correct
         verify(mockUserService).getUserByApiKey("invalid API key");

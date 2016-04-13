@@ -1,8 +1,6 @@
 package com.freshspire.api.model;
 
 import javax.persistence.*;
-import java.util.Calendar;
-import java.util.Date;
 
 @Entity
 @Table(name="discount")
@@ -19,21 +17,19 @@ public class Discount {
     @Column(name = "productId")
     private int productId;
 
-    @Column(name = "posted", columnDefinition="DATETIME")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date posted;
+    @Column(name = "posted")
+    private int posted;
 
-    @Column(name = "expires", columnDefinition="DATETIME")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date expires;
+    @Column(name = "expirationDate")
+    private int expirationDate;
 
     public Discount() {}
 
-    public Discount(int storeId, int productId, Date posted, Date expires) {
+    public Discount(int storeId, int productId, int posted, int expirationDate) {
         this.storeId = storeId;
         this.productId = productId;
         this.posted = posted;
-        this.expires = expires;
+        this.expirationDate = expirationDate;
     }
 
     public int getDiscountId() {
@@ -60,19 +56,19 @@ public class Discount {
         this.productId = productId;
     }
 
-    public Date getPosted() {
+    public int getPosted() {
         return posted;
     }
 
-    public void setPosted(Date posted) {
+    public void setPosted(int posted) {
         this.posted = posted;
     }
 
-    public Date getExpires() {
-        return expires;
+    public int getExpirationDate() {
+        return expirationDate;
     }
 
-    public void setExpires(Date expires) {
-        this.expires = expires;
+    public void setExpirationDate(int expirationDate) {
+        this.expirationDate = expirationDate;
     }
 }

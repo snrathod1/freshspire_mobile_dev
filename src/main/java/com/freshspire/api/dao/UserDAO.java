@@ -18,8 +18,8 @@ public interface UserDAO {
      * @param user
      */
     void updateUser(User user);
-    User getUserById(String userId);
-    void deleteUser(String userId);
+    User getUserById(int userId);
+    void deleteUser(int userId);
     User getUserByPhoneNumber(String phoneNumber);
     User getUserByApiKey(String apiKey);
     List<User> getAdmins();

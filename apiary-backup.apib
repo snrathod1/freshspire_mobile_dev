@@ -1,0 +1,1511 @@
+FORMAT: 1A
+HOST: api.getfreshspired.com
+
+# Freshspire API
+
+**TODO: add /chains?**
+
+The Freshspire API exposes real-time discount information in grocery stores. More
+specifically, it exposes discount information on expiring food categories such as
+fresh produce, meats, and dairy products.
+
+All ```POST``` request parameters should be encoded in JSON in the request body.
+
+API key should be included in the ```Authorization``` header (format: ```Authorization: <your API key>```) in all endpoints not
+under ```/users```. This doesn't necessarily apply to endpoints under ```/users``` since
+there are certain endpoints that don't require an API key (for example, send code for creating user).
+
+
+**Backend API repository (Github):** [link](https://github.com/reesjones/freshspire)
+
+**Freshspire app repository (Bitbucket):** [link](https://bitbucket.org/bigpixelnc/app)
+
+# Group User Resources
+
+All use account stuffs. Here, you can create users, deal with forgotten passwords, etc.
+
+Each phone number may have only one account associated with it.
+
+## Users [/users]
+
+This endpoint contains all resources and methods regarding the user account system.
+
+You can create/delete/update users and login/authenticate.
+
+## Create a user [/users/create{?phoneNumber}]
+This endpoint allows a client to create a user. This is done in two requests:
+
+ 1. The client sends a ```GET``` request to ```/users/create``` with ```phoneNumber``` as
+ a URL parameter. This will send a confirmation code to the number provided.
+ 2. Once the client has gotten their code, they ```POST``` to ```/users/create``` with
+ ```firstName```, ```phoneNumber```, ```password```, and ```confirmationCode``` as JSON
+ parameters in the request body. If the phone number and code are correct, the user is created
+ and added to the database and the user object in JSON format is returned, which includes
+ the API key needed for future requests.
+
+Only one account can be created per phone number. API calls to create an account with a
+phone number already associated with an account will return unsuccessfully.
+
+### GET Send verification code to phone number [GET]
+**Unit tested**
+This is the first request to make in the create user process. This accepts the
+user's phone number and sends a verification code to the phone number provided.
+
++ Parameters
+    + phoneNumber: 1234567890 (string, required) - The user's phone number
+
++ Response 200 (application/json)
+
+        {
+            "status": "ok",
+            "message": "Verification code sent to <phone number>."
+        }
+
++ Response 400 (application/json)
+
+        {
+            "status": "error",
+            "message": "Could not send verification code. Is phone number formatted correctly?"
+        }
+
++ Response 400 (application/json)
+
+        {
+            "status": "error",
+            "message": "User already exists for phone number <phoneNumber>"
+        }
+
++ Response 503 (application/json)
+
+        {
+            "status": "error",
+            "message": "Internal server error"
+        }
+
+### POST Use confirmation code to create user [POST]
+**Unit tested**
+Once the client has received their verification code, they ```POST``` to ```/users/create```
+with their first name, phone number, new password, and code as JSON parameters in the body.
+If the phone number and code are correct, the user is created and the user object is returned.
+
++ Request (application/json)
+    + Attributes
+        + firstName: test         (string, required) - The user's first name
+        + phoneNumber: 1234567890 (string, required) - The user's phone number
+        + verificationCode: 12345 (string, required) - The verification code sent to the user's phone number (from the POST request)
+        + newPassword: newPass123 (string, required) - The new password of the user
+
+
++ Response 201 (application/json)
+
+        {
+            "apiKey": "YOUR_API_KEY",
+            "enabledLocation": true,
+            "firstName": "test",
+            "phoneNumber": "1234567890",
+            "userId": "1111111111"
+        }
+
++ Response 400 (application/json)
+
+        {
+            "status": "error",
+            "message": "Password parameter cannot be empty"
+        }
+
++ Response 400 (application/json)
+
+        {
+            "status": "error",
+            "message": "First name parameter cannot be empty"
+        }
+
++ Response 400 (application/json)
+
+        {
+            "status": "error",
+            "message": "Invalid request parameters"
+        }
+
++ Response 400 (application/json)
+
+        {
+            "status": "error",
+            "message": "Account already exists with phone number"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "status": "error",
+            "message": "Invalid phone number/authentication code pair"
+        }
+
++ Response 500 (application/json)
+
+        {
+            "status": "error",
+            "message": "Internal server error"
+        }
+
+## Resources for a specific user [/users/{userId}]
+Methods specific to a user registered with Freshspire.
+
++ Parameters
+    + userId: 1111111111 (string, required) - The unique ID of the user. Specified in the URL.
+
+### DELETE Delete user [DELETE]
+**Unit tested**
+
+This deletes a user. The Authorization header must include the API key of the user. Response
+code ```200 OK``` for successful deletion, otherwise a response code ```4xx``` or ```5xx```
+is returned with an error message.
+
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
+
++ Response 200 (application/json)
+
+        {
+            "message": "Successfully deleted user"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "status": "error",
+            "message": "User ID/API key pair incorrect"
+        }
+
++ Response 500 (application/json)
+
+## User's enabledLocation [/users/{userId}/enabledLocation]
+This is a boolean value which indicates if the user has enabled location services on their mobile device.
+
+Returns ```404 Not Found``` if the ```userId``` is not valid.
+
++ Parameters
+    + userId: 1111111111 (string, required) - the ID of the user
+
+### GET Get enabledLocation [GET]
+**Unit tested**
+
+Gets the enabledLocation boolean property of the user.
+
+Returns ```404 Not Found``` if the ```userId``` is not valid.
+
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
+
++ Response 200 (application/json)
+
+        {
+            "enabledLocation": false
+        }
+
++ Response 400 (application/json)
+
+        {
+            "status": "error",
+            "message": "API key cannot be empty"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "status": "error",
+            "message": "User ID/API key pair incorrect"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "status": "error",
+            "messsage": "User not found"
+        }
+
+### PUT Update enabledLocation [PUT]
+**Unit tested**
+
+Updates the enabledLocation property of the user. Include ```enabledLocation``` as a
+JSON parameter in the request body.
+
+Returns ```404 Not Found``` if the ```userId``` is not valid.
+
++ Request (application/json)
+    + Attributes
+        + enabledLocation: false (boolean, required) - True if the user has enabled location
+        services for Freshspire on their mobile device.
+    + Headers
+
+            Authorization: YOUR_API_KEY
+
++ Response 200 (application/json)
+
+        {
+            "status": "ok",
+            "message": "Successfully updated enabledLocation"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "status": "error",
+            "message": "User ID/API key pair incorrect"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "status": "error",
+            "messsage": "User not found"
+        }
+
+## Forgot Password [/users/forgot-password{?phoneNumber}]
+
+This endpoint allows a client to both login and update their password if they've forgotten it. This is done in two requests:
+
+ 1. The client sends a ```GET``` request to ```/users/forgot-password``` with ```phoneNumber``` as a URL parameter. This
+ will send a confirmation code to the phone number provided.
+ 2. Once the client has gotten their code, they ```POST``` to the same URL with ```phoneNumber```, ```verificationCode```,
+ and ```newPassword``` as JSON parameters in the body. If the phone number and code are correct, the user's password is updated
+ in the database and the user object is returned, which includes the API key needed for future API requests.
+
+### GET Start verification of phone number [GET]
+**Unit tested**
+
+This is the first request to make in the forgotten password process. This accepts the user phone number and
+sends a verification code to the phone number provided.
+
++ Parameters
+    + phoneNumber: 1234567890 (string, required) - Needed only for the GET request, send the phone number to get
+        SMS with verification code.
+
++ Response 200 (application/json)
+
+        {
+            "status": "ok",
+            "message": "SMS has been sent to the number"
+        }
+
++ Response 400 (application/json)
+
+        {
+            "status": "error",
+            "message": "Bad request"
+        }
+
++ Response 500 (application/json)
+
+        {
+            "status": "error",
+            "message": "verification code not sent due to error"
+        }
+
+### POST Login and set new password [POST]
+**Unit tested**
+
+Once the client has received a verification code, they ```POST``` to this endpoint with their phone
+number, code, and new password. If the phone number and code are correct, the user's password is updated in
+the database and the user object is returned, which includes the API key needed for future API requests.
+
++ Request (application/json)
+    + Attributes
+        + phoneNumber: 1234567890 (string, required) - The user's phone number
+        + verificationCode: 12345 (string, required) - The verification code sent to the user's phone number (from the POST request)
+        + newPassword: newPass123 (string, required) - The new password of the user
+
++ Response 200 (application/json)
+
+        {
+            "apiKey": "YOUR_API_KEY",
+            "enabledLocation": true,
+            "firstName": "test",
+            "phoneNumber": "1234567890",
+            "userId": "1111111111"
+        }
+
++ Response 400 (application/json)
+
+        {
+            "status": "error",
+            "message": "Password cannot be empty"
+        }
+
++ Response 400 (application/json)
+
+        {
+            "status": "error",
+            "message": "Phone number is empty"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "status": "error",
+            "message": "Verification code is invalid"
+        }
+
+## Reset Password [/users/reset-password]
+
+Resets a user's password. It is assumed that if you're calling this endpoint, you have the credentials of the user
+and just want to change the password. If not, use ```/users/forgot-password```.
+
+### PUT Reset account password [PUT]
+**Unit tested**
+
+To update a user's password, ```PUT``` to this endpoint with an API key, old password, and new password as JSON
+parameters in the body. If the API key and old password are correct, a ```200 OK``` is returned with a status and a message.
+Otherwise, a ```400 Bad Request``` is sent.
+
++ Request (application/json)
+    + Attributes
+        + newPassword: myNewPassword (string, required) - new password to replace existing password
+        + oldPassword: abc123        (string, required) - If you don't have the old password, you will
+        have to click on forgot password before sending in a request without the old password.
+    + Headers
+
+            Authorization: YOUR_API_KEY
+
++ Response 200 (application/json)
+
+        {
+            "status": "success",
+            "message": "Successfully updated password"
+        }
+
++ Response 400 (application/json)
+
+        {
+            "status": "error",
+            "message": "Bad request - oldPassword is probably incorrect"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "status": "error",
+            "message": "Invalid authentication credentials"
+        }
+
+## User Login with Phone & Password [/users/login]
+
+This endpoint logs in a user.
+
+### POST Login user with phone & password [POST]
+**Unit tested**
+
+This logs in a user. The client sends a ```phoneNumber``` and ```password``` as a parameter in
+the body, and if they are valid, a ```200 OK``` response is returned with the user object
+in the body, which contains the ```apiKey``` necessary for future requests.
+
+If the supplied phone number or password is invalid, a ```401 Unauthorized``` response code is
+returned. An otherwise unsuccessful request will return a response code ```4xx``` or ```5xx```
+will be returned with an error message.
+
++ Request (application/json)
+    + Attributes
+        + phoneNumber:  1234567890  (string, required) - The phone number of the user.
+        + password:     abc123      (string, required) - The user's password.
+
++ Response 200 (application/json)
+
+        {
+            "apiKey": "YOUR_API_KEY",
+            "enabledLocation": true,
+            "firstName": "test",
+            "phoneNumber": "1234567890",
+            "userId": "1111111111"
+        }
+
++ Response 400 (application/json)
+
+        {
+            "status": "error",
+            "message": "Phone number cannot be empty"
+        }
+
++ Response 400 (application/json)
+
+        {
+            "status": "error",
+            "message": "Password cannot be empty"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "status": "error",
+            "message": "Phone number/password pair is invalid"
+        }
+
+## User Login with API Key [/users/key-login]
+
+This endpoint logs in a user given an API key in the ```Authorization``` header, i.e. returns a user object.
+
+### POST Login user with API key [POST]
+**Unit tested**
+
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
+
++ Response 200 (application/json)
+
+        {
+            "apiKey": "YOUR_API_KEY",
+            "enabledLocation": true,
+            "firstName": "test",
+            "phoneNumber": "1234567890",
+            "userId": "1111111111"
+        }
+
++ Response 400 (application/json)
+
+        {
+            "status": "error",
+            "message": "API key cannot be empty"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "status": "error",
+            "message": "Unauthenticated"
+        }
+
++ Response 500 (application/json)
+
+        {
+            "status": "error",
+            "message": "Internal server error"
+        }
+
+# Group Discount Data Resources
+A discount object has the following structure:
+
+ * **discountId** (int): **Example:** *1*
+ * **quantity**: How many there are of the discount. **Example:** *3*
+ * **originalPrice** (decimal): The original price. **Example:** *15*
+ * **discountedPrice** (decimal): The discounted price. **Example:** *7.5*
+ * **priceUnit** (string): The unit of the price. This could be per pound, per package, per unit, etc. **Example:** *"lb"*
+ * **posted** (string): Timestamp (format described below) when the discount was posted. **Example:** *1456932600*
+ * **expirationDate** (integer): Expiration date (format described below) of the discount. **Example:** *1457191800*
+ * **product**: Product object associated with the discount
+   * **productId** (int): ID of the product this is a discount of. **Example:** *34*
+   * **displayName** (string): String display name of the product. **Example:** *"Pork chops"*
+   * **foodType** (string): the food category the discounted product is classified as. The list of acceptable values
+   for this is below. **Example:** *"meat"*
+   * **thumbnail** (string): URL of the thumbnail image for the product. **Example:** *"api.getfreshspired.com/static/images/products/34.jpg"*
+ * **store**: Store object this discount belongs to
+   * **storeId** (int): ID of the store the discount is associated with. **Example:** *11*
+   * **displayName** (string): String display name. **Example:** *"Cameron Village"*
+   * **street** (string): Street address of the store. **Example:** *"500 Oberlin Road"*
+   * **city** (string): City the store is in. **Example:** *"Raleigh"*
+   * **state** (string): State abbreviation the store is in. **Example:** *"NC"*
+   * **zipCode** (string): The zip code of the store. **Example:** *27605*
+   * **latitude** (decimal): Latitude of the store's location **Example:** *35.91348*
+   * **longitude** (decimal): Longitude of the store's location **Example:** *-78.43323*
+   * **discounts** (int): Number of discounts in this store. **Example:** *48*
+ * **chain**: Chain object of the store this discount belongs to
+   * **chainId** (int): ID of the chain. **Example:** *8*
+   * **displayName** (string): String display name of the chain. **Example:** *"Harris Teeter"*
+   * **thumbnail** (string): URL of the thumbnail image of the chain logo. **Example:** *"api.getfreshspired.com/static/images/chains/8.jpg"*
+
+Acceptable values for ```foodType```: TODO
+
+All timestamps are in the [UNIX timestamp](https://en.wikipedia.org/wiki/Unix_time) format, which is defined as the number
+of seconds elapsed since 00:00:00 January 1st 1970.
+
+**Example:** March 2nd, 2016 at 10:30AM EST converts to a UNIX timestamp of ```1456932600```.
+
+Here's a helpful [timestamp converter](http://www.epochconverter.com/).
+
+## Discounts by latitude/longitude [/discounts/{?latitude,longitude,q,within,foodType,chain}]
+This endpoint represents the discounts geographically close to the latitude and longitude specified.
+Use the query parameters to filter the results or search by product name.
+
+Each discount object in the response includes a URL to its corresponding thumbnail image.
+
++ Parameters
+    + latitude: 35.7915074 (float, required) - the latitude of the location you want nearby discounts for
+    + longitude: ```-78.661654``` (float, required) - the longitude of the location you want nearby discounts for
+
+### GET discounts [GET]
+Get discounts geographically close to the latitude and longitude specified. Filter with parameters ```within```,
+```foodType```, and ```chain```. Search by product name with the ```q``` parameter.
+
+The discount objects in the response will include the URL for the thumbnail of the product.
+
++ Parameters
+    + q:        bananas         (string, optional)  - Optional search query which will include only
+    discounts with the search query in the product name.
+    + within:   10              (number, optional)  - Include results within this many miles. Default 10.
+    + foodType: meat            (enum[string], optional) - A food type to include. Default all. Declare this
+    parameter multiple times for multiple food types (i.e. ```&foodType=meat&foodType=dairy```
+    for both meat and dairy)
+        + Members
+            + bakery
+            + dairy
+            + meat
+            + produce
+    + chain:    1               (number, optional)   - ID of a grocery store chain to include. Default all.
+    Declare this parameter multiple times for multiple chains (i.e. ```&chain=1&chain=2``` to
+    include discounts from chains with IDs ```1``` and ```2```)
+
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
+
++ Response 200 (application/json)
+
+        {
+            "count": 6,
+            "discounts": [
+                {
+                    "discountId": 1,
+                    "quantity": 3,
+                    "originalPrice": 16,
+                    "discountedPrice": 7.5,
+                    "priceUnit": "lb",
+                    "posted": 1456932600,
+                    "expirationDate": 1457191800,
+                    "product": {
+                        "productId": 1,
+                        "displayName": "Pork tenderloin",
+                        "foodType": "meat",
+                        "thumbnail": "/static/images/products/p01.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
+                },
+                {
+                    "discountId": 2,
+                    "quantity": 11,
+                    "originalPrice": 1,
+                    "discountedPrice": 0.9,
+                    "priceUnit": "lb",
+                    "posted": 1456954200,
+                    "expirationDate": 1457191800,
+                    "product": {
+                        "productId": 2,
+                        "displayName": "Lemons",
+                        "foodType": "produce",
+                        "thumbnail": "/static/images/products/2.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
+                },
+                {
+                    "discountId": 3,
+                    "quantity": 4,
+                    "originalPrice": 5.5,
+                    "discountedPrice": 3.5,
+                    "priceUnit": "box",
+                    "posted": 1457028000,
+                    "expirationDate": 1457352000,
+                    "product": {
+                        "productId": 3,
+                        "displayName": "1doz Chocolate Doughnuts",
+                        "foodType": "bakery",
+                        "thumbnail": "/static/images/products/3.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
+                },
+                {
+                    "discountId": 4,
+                    "quantity": 1,
+                    "originalPrice": 5.25,
+                    "discountedPrice": 3.14,
+                    "priceUnit": "pkg",
+                    "posted": 1457100000,
+                    "expirationDate": 1457193600,
+                    "product": {
+                        "productId": 4,
+                        "displayName": "Organic pork sausages",
+                        "foodType": "meat",
+                        "thumbnail": "/static/images/products/4.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
+                },
+                {
+                    "discountId": 5,
+                    "quantity": 5,
+                    "originalPrice": 6,
+                    "discountedPrice": 4,
+                    "priceUnit": "bag",
+                    "posted": 1457193600,
+                    "expirationDate": 1457355600,
+                    "product": {
+                        "productId": 5,
+                        "displayName": "Dinner rolls (6ct)",
+                        "foodType": "bakery",
+                        "thumbnail": "/static/images/products/5.jpg"
+                    },
+                    "store": {
+                        "storeId": 2,
+                        "displayName": "Hillsborough Street",
+                        "street": "5563 Western Blvd",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27606",
+                        "latitude": 35.784214,
+                        "longitude": -78.7206401
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
+                },
+                {
+                    "discountId": 6,
+                    "quantity": 8,
+                    "originalPrice": 3,
+                    "discountedPrice": 1.9,
+                    "priceUnit": "box",
+                    "posted": 1457355600,
+                    "expirationDate": 1457528400,
+                    "product": {
+                        "productId": 6,
+                        "displayName": "Grape tomatoes (8ox box)",
+                        "foodType": "produce",
+                        "thumbnail": "/static/images/products/6.jpg"
+                    },
+                    "store": {
+                        "storeId": 2,
+                        "displayName": "Hillsborough Street",
+                        "street": "5563 Western Blvd",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27606",
+                        "latitude": 35.784214,
+                        "longitude": -78.7206401
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
+                }
+            ]
+        }
+
++ Response 400
+
+        {
+            "status": "error",
+            "message": "Bad request - are the parameters formatted correctly?"
+        }
+
++ Response 401
+
+        {
+            "status": "error",
+            "message": "Unauthenticated"
+        }
+
+## Discounts by street address/zip code [/discounts/place/{zipCode}{?q,within,foodType,chain}]
+
++ Parameters
+    + zipCode: 27607 (required, string) - The zip code of the location to search from
+
+### GET Discounts [GET]
+Get discounts geographically close to the zip code specified. Filter with parameters ```within```,
+```foodType```, and ```chain```. Search by product name with the ```q``` parameter.
+
+The discount objects in the response will include the URL for the thumbnail of the product.
+
++ Parameters
+    + q:        bananas         (string, optional) - Optional search query which will include only
+    discounts with the search query in the product name.
+    + within:   10              (number, optional) - Include results within this many miles.
+        + Default: 10
+    + foodType: meat            (enum[string], optional) - A food type to include. Default all. Declare this
+    parameter multiple times for multiple food types (i.e. *```&foodType=meat&foodType=dairy```*
+    for both meat and dairy)
+        + Members
+            + bakery
+            + dairy
+            + meat
+            + produce
+    + chain:    1               (number, optional) - ID of a grocery store chain to include. Default all.
+    Declare this parameter multiple times for multiple chains (i.e. ```&chain=1&chain=2``` to
+    include discounts from chains with IDs ```1``` and ```2```)
+
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
+
++ Response 200 (application/json)
+
+        {
+            "count": 6,
+            "discounts": [
+                {
+                    "discountId": 1,
+                    "quantity": 3,
+                    "originalPrice": 15,
+                    "discountedPrice": 7.5,
+                    "priceUnit": "lb",
+                    "posted": 1456932600,
+                    "expirationDate": 1457191800,
+                    "product": {
+                        "productId": 1,
+                        "displayName": "Pork tenderloin",
+                        "foodType": "meat",
+                        "thumbnail": "/static/images/products/p01.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
+                },
+                {
+                    "discountId": 2,
+                    "quantity": 11,
+                    "originalPrice": 1,
+                    "discountedPrice": 0.6,
+                    "priceUnit": "lb",
+                    "posted": 1456954200,
+                    "expirationDate": 1457191800,
+                    "product": {
+                        "productId": 2,
+                        "displayName": "Lemons",
+                        "foodType": "produce",
+                        "thumbnail": "/static/images/products/2.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
+                },
+                {
+                    "discountId": 3,
+                    "quantity": 4,
+                    "originalPrice": 5.5,
+                    "discountedPrice": 3.5,
+                    "priceUnit": "box",
+                    "posted": 1457028000,
+                    "expirationDate": 1457352000,
+                    "product": {
+                        "productId": 3,
+                        "displayName": "1doz Chocolate Doughnuts",
+                        "foodType": "bakery",
+                        "thumbnail": "/static/images/products/3.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
+                },
+                {
+                    "discountId": 4,
+                    "quantity": 1,
+                    "originalPrice": 5.25,
+                    "discountedPrice": 3.14,
+                    "priceUnit": "pkg",
+                    "posted": 1457100000,
+                    "expirationDate": 1457193600,
+                    "product": {
+                        "productId": 4,
+                        "displayName": "Organic pork sausages",
+                        "foodType": "meat",
+                        "thumbnail": "/static/images/products/4.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
+                },
+                {
+                    "discountId": 5,
+                    "quantity": 5,
+                    "originalPrice": 6,
+                    "discountedPrice": 4,
+                    "priceUnit": "bag",
+                    "posted": 1457193600,
+                    "expirationDate": 1457355600,
+                    "product": {
+                        "productId": 5,
+                        "displayName": "Dinner rolls (6ct)",
+                        "foodType": "bakery",
+                        "thumbnail": "/static/images/products/5.jpg"
+                    },
+                    "store": {
+                        "storeId": 2,
+                        "displayName": "Hillsborough Street",
+                        "street": "5563 Western Blvd",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27606",
+                        "latitude": 35.784214,
+                        "longitude": -78.7206401
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
+                },
+                {
+                    "discountId": 6,
+                    "quantity": 8,
+                    "originalPrice": 3,
+                    "discountedPrice": 1.9,
+                    "priceUnit": "box",
+                    "posted": 1457355600,
+                    "expirationDate": 1457528400,
+                    "product": {
+                        "productId": 6,
+                        "displayName": "Grape tomatoes (8ox box)",
+                        "foodType": "produce",
+                        "thumbnail": "/static/images/products/6.jpg"
+                    },
+                    "store": {
+                        "storeId": 2,
+                        "displayName": "Hillsborough Street",
+                        "street": "5563 Western Blvd",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27606",
+                        "latitude": 35.784214,
+                        "longitude": -78.7206401
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
+                }
+            ]
+        }
+
++ Response 400
+
+        {
+            "status": "error",
+            "message": "Bad request - are the parameters formatted correctly?"
+        }
+
++ Response 401
+
+        {
+            "status": "error",
+            "message": "Unauthenticated"
+        }
+
++ Response 404
+
+        {
+            "status": "error",
+            "message": "Zip code not found or incorrectly formatted."
+        }
+
+# Group Store Data Resources
+Use this endpoint to get and post discounts from/to a specific store, and get store information.
+
+A store object contains the following properties:
+
+ * **storeId** (int): ID of the store. **Example:** *11*
+ * **chainId** (int): ID of the chain the store is associated with. **Example:** *11*
+ * **displayName** (string): String display name. **Example:** *"Cameron Village"*
+ * **street** (string): Street address of the store. **Example:** *"500 Oberlin Road"*
+ * **city** (string): City the store is in. **Example:** *"Raleigh"*
+ * **state** (string): State abbreviation the store is in. **Example:** *"NC"*
+ * **zipCode** (string): The zip code of the store. **Example:** *27605*
+ * **latitude** (decimal): Latitude of the store. **Example:** *35.91348*
+ * **longitude** (decimal): Longitude of the store. **Example:** *-78.43323*
+
+## All Stores [/stores]
+
+### GET List of stores with Freshspire discounts [GET]
+Returns an array of store objects. Response contains ```count``` (number of stores returned)
+and ```stores``` (array of store objects).
+
+TODO filter and search functionality?
+
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
+
++ Response 200 (application/json)
+
+        {
+            "count": 5,
+            "stores": [
+                {
+                    "storeId": 1,
+                    "chainId": 1,
+                    "displayName": "Cameron Village Harris Teeter",
+                    "street": "500 Oberlin Road",
+                    "city": "Raleigh",
+                    "state": "NC",
+                    "zipCode": "27605",
+                    "latitude": 35.7889461,
+                    "longitude": -78.6623816
+                },
+                {
+                    "storeId": 2,
+                    "chainId": 1,
+                    "displayName": "Hillsborough Street Harris Teeter",
+                    "street": "5563 Western Blvd",
+                    "city": "Raleigh",
+                    "state": "NC",
+                    "zipCode": "27606",
+                    "latitude": 35.784214,
+                    "longitude": -78.7206401
+                },
+                {
+                    "storeId": 3,
+                    "chainId": 3,
+                    "displayName": "Cary Patel Brothers",
+                    "street": "802 E Chatham St",
+                    "city": "Cary",
+                    "state": "NC",
+                    "zipCode": "27511",
+                    "latitude": 35.7909357,
+                    "longitude": -78.7633049
+                },
+                {
+                    "storeId": 4,
+                    "chainId": 2,
+                    "displayName": "Raleigh Whole Foods",
+                    "street": "3540 Wade Avenue",
+                    "city": "Raleigh",
+                    "state": "NC",
+                    "zipCode": "27607",
+                    "latitude": 35.8024691,
+                    "longitude": -78.6864058
+                },
+                {
+                    "storeId": 5,
+                    "chainId": 4,
+                    "displayName": "Raleigh Boulevard Food Lion",
+                    "street": "1100 Raleigh Blvd #122",
+                    "city": "Raleigh",
+                    "state": "NC",
+                    "zipCode": "27610",
+                    "latitude": 35.7943748,
+                    "longitude": -78.6114524
+                }
+            ]
+        }
+
++ Response 400
+
+        {
+            "status": "error",
+            "message": "Bad request - are the parameters formatted correctly?"
+        }
+
++ Response 401
+
+        {
+            "status": "error",
+            "message": "Unauthenticated"
+        }
+
+## Specific Store [/stores/{storeId}]
+
+### GET Specific store information [GET]
+Returns the store object associated with given store ID.
+
++ Parameters
+    + storeId: 1 (number, required) - The unique ID of the store
+
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
+
++ Response 200 (application/json)
+
+        {
+            "storeId": 1,
+            "chainId": 1,
+            "displayName": "Cameron Village Harris Teeter",
+            "street": "500 Oberlin Road",
+            "city": "Raleigh",
+            "state": "NC",
+            "zipCode": "27605",
+            "latitude": 35.7889461,
+            "longitude": -78.6623816
+        }
+
++ Response 400 (application/json)
+
+        {
+            "status": "error",
+            "message": "Bad request - are the parameters formatted correctly?"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "status": "error",
+            "message": "Unauthenticated"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "status": "error",
+            "message": "Store with ID <storeId> not found"
+        }
+
+## Discounts in Specific Store [/stores/{storeId}/discounts{?q,foodType}]
+Contains all discount objects posted in the store with ID ```storeId```. Get and search for discounts, filter the
+results, post new discounts to, and delete existing discounts from the store.
+
+### GET Discounts at a specific store [GET]
+Returns array of discount objects. Filter the results with ```foodType``` and search by product name with query
+parameter ```q```.
+
++ Parameters
+    + q:        Pork            (string, optional) - Optional search query which will include only
+        discounts with the search query in the product name.
+    + foodType: meat            (enum[string], optional) - A food type to include. Default all. Declare this
+        parameter multiple times for multiple food types (i.e. ```&foodType=meat&foodType=dairy```
+        for both meat and dairy)
+        + Members
+            + bakery
+            + dairy
+            + meat
+            + produce
+
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
+
++ Response 200 (application/json)
+
+        {
+            "count": 4,
+            "discounts": [
+                {
+                    "discountId": 1,
+                    "quantity": 3,
+                    "originalPrice": 15,
+                    "discountedPrice": 7.5,
+                    "priceUnit": "lb",
+                    "posted": 1456932600,
+                    "expirationDate": 1457191800,
+                    "product": {
+                        "productId": 1,
+                        "displayName": "Pork tenderloin",
+                        "foodType": "meat",
+                        "thumbnail": "/static/images/products/p01.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
+                },
+                {
+                    "discountId": 2,
+                    "quantity": 11,
+                    "originalPrice": 1,
+                    "discountedPrice": 0.6,
+                    "priceUnit": "lb",
+                    "posted": 1456954200,
+                    "expirationDate": 1457191800,
+                    "product": {
+                        "productId": 2,
+                        "displayName": "Lemons",
+                        "foodType": "produce",
+                        "thumbnail": "/static/images/products/2.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816
+                        "discounts": 24
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
+                },
+                {
+                    "discountId": 3,
+                    "quantity": 4,
+                    "originalPrice": 5.5,
+                    "discountedPrice": 3.5,
+                    "priceUnit": "box",
+                    "posted": 1457028000,
+                    "expirationDate": 1457352000,
+                    "product": {
+                        "productId": 3,
+                        "displayName": "1doz Chocolate Doughnuts",
+                        "foodType": "bakery",
+                        "thumbnail": "/static/images/products/3.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
+                },
+                {
+                    "discountId": 4,
+                    "quantity": 1,
+                    "originalPrice": 5.25,
+                    "discountedPrice": 3.14,
+                    "priceUnit": "pkg",
+                    "posted": 1457100000,
+                    "expirationDate": 1457193600,
+                    "product": {
+                        "productId": 4,
+                        "displayName": "Organic pork sausages",
+                        "foodType": "meat",
+                        "thumbnail": "/static/images/products/4.jpg"
+                    },
+                    "store": {
+                        "storeId": 1,
+                        "displayName": "Cameron Village",
+                        "street": "500 Oberlin Road",
+                        "city": "Raleigh",
+                        "state": "NC",
+                        "zipCode": "27605",
+                        "latitude": 35.7889461,
+                        "longitude": -78.6623816
+                    },
+                    "chain": {
+                        "chainId": 1,
+                        "displayName": "Harris Teeter",
+                        "thumbnail": "/static/images/chains/1.jpg"
+                    }
+                }
+            ]
+        }
+
++ Response 400 (application/json)
+
+        {
+            "status": "error",
+            "message": "Bad request - are the parameters formatted correctly?"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "status": "error",
+            "message": "Unauthenticated"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "status": "error",
+            "message": "Store with ID <storeId> not found"
+        }
+
+### POST Add single discount to specific store [POST]
+Posts a new discount to the store with ID ```storeId```. ```productId```, ```originalPrice```,
+```discountedPrice```, and ```expirationDate``` must be included as JSON parameters in the request body.
+
++ Request
+    + Attributes
+        + productId:        1           (number, required)    - The ID of the product being discounted.
+        + originalPrice:    15          (number, required) - The original price of the product
+        + discountedPrice:  7.5         (number, required) - The discounted price of the product
+        + expirationDate:   1457191800  (number, required) - The UNIX timestamp of the expiration date.
+    + Headers
+
+            Authorization: YOUR_API_KEY
+
++ Response 200 (application/json)
+
+        {
+            "status": "ok",
+            "message": "New discount posted"
+        }
+
++ Response 400 (application/json)
+
+        {
+            "status": "error",
+            "message": "Bad request - are the parameters formatted correctly?"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "status": "error",
+            "message": "Unauthenticated"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "status": "error",
+            "message": "Store with ID <storeId> not found"
+        }
+
+# Group Static Content
+
+## Product thumbnails [/static/images/products/{productId}]
+
++ Parameters
+    + productId: 1 (number, required) - The unique ID of the product
+
+### GET Thumbnail for a particular product [GET]
+Returns the JPG thumbnail for a particular product, specified in the URL by the product ID.
+
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
+
++ Response 200 (image/jpg)
+
++ Response 400 (application/json)
+
+        {
+            "status": "error",
+            "message": "Bad request - are the parameters formatted correctly?"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "status": "error",
+            "message": "Unauthenticated"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "status": "error",
+            "message": "Product with ID <productId> not found"
+        }
+
+## Chain thumbnails [/static/images/chains/{chainId}{?apiKey}]
+
++ Parameters
+    + chainId:      45              (number, required) - The unique ID of the product
+    + apiKey:       YOUR\_API\_KEY  (string, required) - The user's API key.
+
+### GET Thumbnail for a particular chain [GET]
+Returns the JPG thumbnail for a particular chain, specified in the URL by the chain ID.
+
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
+
++ Response 200 (image/jpg)
+
++ Response 400 (application/json)
+
+        {
+            "status": "error",
+            "message": "Bad request - are the parameters formatted correctly?"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "status": "error",
+            "message": "Unauthenticated"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "status": "error",
+            "message": "Chain with ID <chainId> not found"
+        }
+
+# Group System Status
+
+## System status [/status]
+
+### Is System Up [GET]
+This returns a ```status: ok``` only if all status endpoints under ```/status``` are ```ok```.
+
+Returns ```200 OK```  with status ```ok``` if system is running properly.
+
+Returns ```503 Service Unavailable``` with status ```unavailable``` if it's *not* running properly.
+
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
+
++ Response 200 (application/json)
+
+        {
+            "status": "ok"
+        }
+
++ Response 503 (application/json)
+
+        {
+            "status": "unavailable"
+        }
+
+## Database status [/status/database]
+
+### Is Database Up [GET]
+Returns ```200 OK```  with status ```ok``` if database is running properly.
+
+Returns ```503 Service Unavailable``` with status ```unavailable``` if it's *not* running properly.
+
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
+
++ Response 200 (application/json)
+
+        {
+            "status": "ok"
+        }
+
++ Response 503 (application/json)
+
+        {
+            "status": "unavailable"
+        }
+
+
+
+
+
+

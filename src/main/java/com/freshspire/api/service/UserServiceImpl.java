@@ -28,18 +28,18 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public User getUserById(String userId) {
+    public User getUserById(int userId) {
         return this.userDAO.getUserById(userId);
     }
 
     @Transactional
     @Override
-    public void deleteUser(String userId) {
+    public void deleteUser(int userId) {
         this.userDAO.deleteUser(userId);
     }
 
     @Override
-    public boolean authenticateUser(String userId, String apiKey) {
+    public boolean authenticateUser(int userId, String apiKey) {
         User user = this.userDAO.getUserById(userId);
         if(user == null) {
             return false;

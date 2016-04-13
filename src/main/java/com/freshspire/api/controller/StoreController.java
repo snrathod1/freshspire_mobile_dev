@@ -8,10 +8,13 @@ import com.freshspire.api.service.StoreService;
 import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.ResponseUtil;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,37 +52,36 @@ public class StoreController {
     /**
      * GET /stores
      *
-     * @return list of stores with discounts
+     * @return list of all stores with discounts
      */
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity<String> getStores(@RequestParam String apiKey) {
+    public ResponseEntity<String> getStores(@RequestHeader("Authorization") String apiKey) {
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
         }
+        List<Store> stores = storeService.getStores();
+        JsonArray storesJson = new JsonArray();
 
-        return ResponseUtil.ok(gson.toJson(storeService.getStores()));
-    }
+        for(Store store : stores) {
+            storesJson.add(gson.toJsonTree(store));
+        }
 
-    @RequestMapping(value = "/location", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity<String> getStoreByLatLong(@RequestParam long latitude, @RequestParam long longitude) {
-//        if (userService.getUserByApiKey(apiKey) == null) {
-//            return ResponseUtil.unauthorized("Unauthenticated");
-//        }
+        JsonObject body = new JsonObject();
+        body.addProperty("count", stores.size());
+        body.add("stores", storesJson);
 
-        return ResponseUtil.ok(gson.toJson(storeService.getStoresByLatLong(latitude, longitude)));
+        return ResponseEntity.status(HttpStatus.OK).body(body.toString());
     }
 
     /**
      * GET /stores/{storeId}
      *
-     * TODO: ensure this complies with API specification
-     *
      * @param storeId
      * @param apiKey
      * @return
      */
-    @RequestMapping(value = "/{storeId}", method = RequestMethod.GET)
-    public ResponseEntity<String> getStoreById(@PathVariable int storeId, @RequestParam String apiKey) {
+    @RequestMapping(value = "/{storeId}", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<String> getStoreById(@PathVariable int storeId, @RequestHeader("Authorization") String apiKey) {
         // Authenticate user first
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
@@ -95,22 +97,29 @@ public class StoreController {
     /**
      * GET /stores/{storeId}/discounts
      *
-     * @param storeId
-     * @param foodType
-     * @param apiKey
+     * @param storeId Unique ID of the store
+     * @param foodType Food type(s) to include in response. More than one food type is comma-separated.
+     * @param apiKey The API key of a user
      * @return
      */
-    @RequestMapping(value = "/{storeId}/discounts", method = RequestMethod.GET)
+    @RequestMapping(value = "/{storeId}/discounts", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<String> getDiscountsForStore(
             @PathVariable int storeId,
+            @RequestHeader("Authorization") String apiKey,
             @RequestParam(required = false) String query,
-            @RequestParam(required = false) String foodType,
-            @RequestParam String apiKey) {
+            @RequestParam(required = false) String foodType) {
+        // Authenticate first
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
         }
 
+        if(storeService.getStoreById(storeId) == null) {
+            return ResponseUtil.notFound("Store with ID " + storeId + " not found");
+        }
+
         List<Discount> discounts = storeService.getDiscounts(storeId, query, foodType);
+        System.out.println("discounts.size()=" + discounts.size());
+        //for(Discount d : discounts) System.out.println(d);
         return ResponseUtil.ok(gson.toJson(discounts));
     }
 
@@ -122,8 +131,8 @@ public class StoreController {
      * @param apiKey
      * @return
      */
-    @RequestMapping(value = "/{storeId}/discounts", method = RequestMethod.POST)
-    public ResponseEntity<String> addNewDiscountToStore(@PathVariable int storeId, @RequestBody NewDiscountParams params, @RequestParam String apiKey) {
+    @RequestMapping(value = "/{storeId}/discounts", method = RequestMethod.POST, produces = "application/json")
+    public ResponseEntity<String> addNewDiscountToStore(@PathVariable int storeId, @RequestBody NewDiscountParams params, @RequestHeader("Authorization") String apiKey) {
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
         }

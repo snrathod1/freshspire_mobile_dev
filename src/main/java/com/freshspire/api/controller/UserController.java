@@ -24,7 +24,7 @@ import java.util.Date;
  */
 @RestController
 @RequestMapping("/users")
-public class UsersController {
+public class UserController {
 
     /** Service layer for Users in database */
     private UserService userService;
@@ -34,7 +34,7 @@ public class UsersController {
 
     private static Gson gson = new Gson();
 
-    private static final Logger logger = LoggerFactory.getLogger(UsersController.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     public void setUserService(UserService userService) {
@@ -205,14 +205,14 @@ public class UsersController {
      * @return status of password reset
      */
     @RequestMapping(value = "/reset-password", method = RequestMethod.PUT, produces = "application/json")
-    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordParams params) {
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordParams params, @RequestHeader("Authorization") String apiKey) {
         // New password can't be empty
         if(params.getNewPassword().length() == 0) {
             return ResponseUtil.badRequest("New password cannot be empty");
         }
 
         // If the API key doesn't match any user, so return 401 Unauthorized
-        User user = userService.getUserByApiKey(params.getApiKey());
+        User user = userService.getUserByApiKey(apiKey);
         if(user == null) return ResponseUtil.unauthorized("Invalid authentication credentials");
 
         // If the supplied password matches the user's password, then update it
@@ -232,13 +232,13 @@ public class UsersController {
      *
      * Deletes user with user ID "userId". Body must contain API key of the user.
      * @param userId User's unique ID
-     * @param params Request body containing user's API key
+     * @param apiKey The user's API key
      * @return Success or error message for bad or unauthenticated request
      */
     @RequestMapping(value = "/{userId}", method = RequestMethod.DELETE, produces = "application/json")
-    public ResponseEntity<String> deleteUser(@PathVariable("userId") String userId, @RequestBody ApiKeyParams params) {
+    public ResponseEntity<String> deleteUser(@PathVariable("userId") int userId, @RequestHeader("Authorization") String apiKey) {
         // If API key is empty, return error
-        if(params.getApiKey().length() == 0)
+        if(apiKey.length() == 0)
             return ResponseUtil.unauthorized("User ID/API key pair incorrect");
 
         User user = userService.getUserById(userId);
@@ -246,7 +246,7 @@ public class UsersController {
         if(user == null) return ResponseUtil.unauthorized("User ID/API key pair incorrect");
 
         // If API key is valid, delete user
-        if(user.getApiKey().equals(params.getApiKey())) {
+        if(user.getApiKey().equals(apiKey)) {
             userService.deleteUser(userId);
             return ResponseUtil.ok("Successfully deleted user");
 
@@ -265,7 +265,7 @@ public class UsersController {
      * @return The user's enabledLocation value, or an error message for bad or unauthenticated request
      */
     @RequestMapping(value = "/{userId}/enabledLocation", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity<String> getEnabledLocation(@PathVariable("userId") String userId, @RequestParam String apiKey) {
+    public ResponseEntity<String> getEnabledLocation(@PathVariable("userId") int userId, @RequestHeader("Authorization") String apiKey) {
         // If API key is empty, return error
         if(apiKey.length() == 0)
             return ResponseUtil.badRequest("API key cannot be empty");
@@ -296,8 +296,8 @@ public class UsersController {
      * @return Status and message indicating if enabledLocation was successfully updated
      */
     @RequestMapping(value = "/{userId}/enabledLocation", method = RequestMethod.PUT, produces = "application/json")
-    public ResponseEntity<String> updateEnabledLocation(@PathVariable("userId") String userId,
-                                                        @RequestParam String apiKey,
+    public ResponseEntity<String> updateEnabledLocation(@PathVariable("userId") int userId,
+                                                        @RequestHeader("Authorization") String apiKey,
                                                         @RequestBody SetEnabledLocationParams params) {
         // If API key is empty, return error
         if(apiKey.length() == 0)

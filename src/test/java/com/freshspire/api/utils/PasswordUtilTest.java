@@ -17,9 +17,9 @@ public class PasswordUtilTest {
 
     @Test
     public void testPasswordUtil() {
-        System.out.println("generateSalt(): " + PasswordUtil.generateSalt());
-        System.out.println("generateSaltString(): " + PasswordUtil.generateSaltString());
-        System.out.println("generateApiKey(): " + PasswordUtil.generateApiKey());
+//        System.out.println("generateSalt(): " + PasswordUtil.generateSalt());
+//        System.out.println("generateSaltString(): " + PasswordUtil.generateSaltString());
+//        System.out.println("generateApiKey(): " + PasswordUtil.generateApiKey());
 
     }
 }

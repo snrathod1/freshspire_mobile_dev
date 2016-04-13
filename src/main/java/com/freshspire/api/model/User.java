@@ -14,7 +14,7 @@ public class User {
     @Id
     @Column(name="userId")
     @GeneratedValue
-    private String userId;
+    private int userId;
 
     @Column(name="firstName")
     private String firstName;
@@ -62,11 +62,11 @@ public class User {
         this.enabledLocation = enabledLocation;
     }
 
-    public String getUserId() {
+    public int getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(int userId) {
         this.userId = userId;
     }
 

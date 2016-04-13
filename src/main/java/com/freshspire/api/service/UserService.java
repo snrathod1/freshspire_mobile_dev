@@ -22,13 +22,13 @@ public interface UserService {
      * @param userId The ID of the user
      * @return The User object associated with the given ID, or null if no user for given ID
      */
-    User getUserById(String userId);
+    User getUserById(int userId);
 
     /**
      * Deletes a user with given user ID.
      * @param userId
      */
-    void deleteUser(String userId);
+    void deleteUser(int userId);
 
     /**
      * Returns whether or not the given API key matches the API key of the user with
@@ -39,7 +39,7 @@ public interface UserService {
      * @return True if the API key matches the API key of the given user, or false if
      * no user exists for the given user ID
      */
-    boolean authenticateUser(String userId, String apiKey);
+    boolean authenticateUser(int userId, String apiKey);
 
     /**
      * Returns the user with given phone number, or null if the user doesn't

@@ -105,10 +105,15 @@ public class ResponseUtil {
     public static ResponseEntity<String> makeStoreObjectResponse(Store store, HttpStatus status) {
         JsonObject storeJson = new JsonObject();
 
-        storeJson.addProperty("address", store.getAddress());
-        storeJson.addProperty("lat", store.getLatitude());
-        storeJson.addProperty("long", store.getLongitude());
         storeJson.addProperty("storeId", store.getStoreId());
+        storeJson.addProperty("chainId", store.getChainId());
+        storeJson.addProperty("displayName", store.getDisplayName());
+        storeJson.addProperty("street", store.getStreet());
+        storeJson.addProperty("city", store.getCity());
+        storeJson.addProperty("state", store.getState());
+        storeJson.addProperty("zipCode", store.getZipCode());
+        storeJson.addProperty("latitude", store.getLatitude());
+        storeJson.addProperty("longitude", store.getLongitude());
 
         return ResponseEntity.status(status).body(storeJson.toString());
     }
