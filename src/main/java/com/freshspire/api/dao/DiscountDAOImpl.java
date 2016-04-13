@@ -37,8 +37,14 @@ public class DiscountDAOImpl implements DiscountDAO {
             String chain) {
         Session session = getCurrentSession();
         StringBuilder queryString = new StringBuilder();
-        queryString.append("From Discount D, Store S, Product P where D.storeId = S.storeId and D.productId = P.productId");
-        Query query = session.createQuery(queryString.toString());
+        queryString.append("SELECT *, ( 3959 * acos( cos( radians( " + latitude + ") ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(" + longitude + ") ) + sin( radians( " + latitude + ") ) * sin( radians( latitude ) ) ) ) AS distance FROM");
+        queryString.append(" discount");
+        queryString.append(" INNER JOIN stores ON stores.storeId = discount.storeId INNER JOIN product on product.productId = discount.productId WHERE");
+        queryString.append(" product.name like '%" + queryParam + "%'");
+        queryString.append(" and product.foodType like '%" + foodType + "%'");
+        queryString.append(" HAVING distance < " + within  + " ORDER BY distance;");
+
+        Query query = session.createSQLQuery(queryString.toString());
 
         return query.list();
     }
