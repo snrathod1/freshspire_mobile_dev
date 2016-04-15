@@ -526,19 +526,20 @@ of seconds elapsed since 00:00:00 January 1st 1970.
 
 Here's a helpful [timestamp converter](http://www.epochconverter.com/).
 
-## Discounts by latitude/longitude [/discounts/{?latitude,longitude,q,within,foodType,chain}]
-This endpoint represents the discounts geographically close to the latitude and longitude specified.
+## Discounts by latitude/longitude [/discounts/{?latitude,longitude,q,within,foodType,chain,page}]
+This endpoint represents the discounts geographically close to the *latitude* and *longitude* specified.
 Use the query parameters to filter the results or search by product name.
-
-Each discount object in the response includes a URL to its corresponding thumbnail image.
 
 + Parameters
     + latitude: 35.7915074 (float, required) - the latitude of the location you want nearby discounts for
     + longitude: ```-78.661654``` (float, required) - the longitude of the location you want nearby discounts for
+    + page: 1 (number, optional) - the page of discounts to return, starting at page 1
+        + Default: `1`
 
 ### GET discounts [GET]
 Get discounts geographically close to the latitude and longitude specified. Filter with parameters ```within```,
-```foodType```, and ```chain```. Search by product name with the ```q``` parameter.
+```foodType```, and ```chain```. Search by product name with the ```q``` parameter. Paginate with the ```page```
+parameter.
 
 The discount objects in the response will include the URL for the thumbnail of the product.
 
@@ -765,16 +766,19 @@ The discount objects in the response will include the URL for the thumbnail of t
             "message": "Unauthenticated"
         }
 
-## Discounts by street address/zip code [/discounts/place/{zipCode}{?q,within,foodType,chain}]
+## Discounts by street address/zip code [/discounts/place/{zipCode}{?q,within,foodType,chain,page}]
+This endpoint represents the discounts geographically close to the *zip code* specified.
+Use the query parameters to filter the results or search by product name.
 
 + Parameters
     + zipCode: 27607 (required, string) - The zip code of the location to search from
+    + page: 1 (number, optional) - the page of discounts to return, starting at page 1
+        + Default: `1`
 
 ### GET Discounts [GET]
 Get discounts geographically close to the zip code specified. Filter with parameters ```within```,
-```foodType```, and ```chain```. Search by product name with the ```q``` parameter.
-
-The discount objects in the response will include the URL for the thumbnail of the product.
+```foodType```, and ```chain```. Search by product name with the ```q``` parameter. Paginate with the ```page```
+parameter.
 
 + Parameters
     + q:        bananas         (string, optional) - Optional search query which will include only
@@ -1022,11 +1026,15 @@ A store object contains the following properties:
  * **latitude** (decimal): Latitude of the store. **Example:** *35.91348*
  * **longitude** (decimal): Longitude of the store. **Example:** *-78.43323*
 
-## All Stores [/stores]
+## All Stores [/stores{?page}]
+
++ Parameters
+    + page: 1 (number, optional) - the page of stores to return, starting at page 1
+        + Default: `1`
 
 ### GET List of stores with Freshspire discounts [GET]
 Returns an array of store objects. Response contains ```count``` (number of stores returned)
-and ```stores``` (array of store objects).
+and ```stores``` (array of store objects). Paginate results with the ```page``` parameter.
 
 TODO filter and search functionality?
 
@@ -1160,13 +1168,13 @@ Returns the store object associated with given store ID.
             "message": "Store with ID <storeId> not found"
         }
 
-## Discounts in Specific Store [/stores/{storeId}/discounts{?q,foodType}]
+## Discounts in Specific Store [/stores/{storeId}/discounts{?q,foodType,page}]
 Contains all discount objects posted in the store with ID ```storeId```. Get and search for discounts, filter the
 results, post new discounts to, and delete existing discounts from the store.
 
 ### GET Discounts at a specific store [GET]
 Returns array of discount objects. Filter the results with ```foodType``` and search by product name with query
-parameter ```q```.
+parameter ```q```. Paginate with the ```page``` parameter.
 
 + Parameters
     + q:        Pork            (string, optional) - Optional search query which will include only
@@ -1179,6 +1187,8 @@ parameter ```q```.
             + dairy
             + meat
             + produce
+    + page: 1 (number, optional) - the page of discounts to return, starting at page 1
+        + Default: `1`
 
 + Request
     + Headers
