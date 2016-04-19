@@ -59,7 +59,8 @@ public class StoreDAOImpl implements StoreDAO {
 
     public List<Store> getStoreByLocation(double latitude, double longitude) {
         Session session = getCurrentSession();
-        Query query = session.createSQLQuery("SELECT *, ( 3959 * acos( cos( radians( " + latitude + ") ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(" + longitude + ") ) + sin( radians( " + latitude + ") ) * sin( radians( latitude ) ) ) ) AS distance FROM stores HAVING distance < 1000000 ORDER BY distance LIMIT 0 , 20;");
+        Query query = session.createSQLQuery("SELECT *, ( 3959 * acos( cos( radians( " + latitude + ") ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(" + longitude + ") ) + sin( radians( " + latitude + ") ) * sin( radians( latitude ) ) ) ) AS distance FROM stores HAVING distance < 10 ORDER BY distance LIMIT 0 , 20;")
+                .addEntity(Store.class);
         return query.list();
     }
 

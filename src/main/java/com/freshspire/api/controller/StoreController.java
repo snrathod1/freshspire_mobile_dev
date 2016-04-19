@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -129,7 +128,7 @@ public class StoreController {
      * @param storeId
      * @param params
      * @param apiKey
-     * @return
+     * @return store data
      */
     @RequestMapping(value = "/{storeId}/discounts", method = RequestMethod.POST, produces = "application/json")
     public ResponseEntity<String> addNewDiscountToStore(@PathVariable int storeId, @RequestBody NewDiscountParams params, @RequestHeader("Authorization") String apiKey) {
@@ -138,5 +137,10 @@ public class StoreController {
         }
 
         return ResponseUtil.ok("This will add a discount to the store");
+    }
+
+    @RequestMapping(value = "/location", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<List<Store>> getStoresByLocation(@RequestParam(required = false) float latitude, @RequestParam(required = false) float longitude) {
+        return ResponseEntity.ok(storeService.getStoresByLatLong(latitude, longitude));
     }
 }

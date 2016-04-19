@@ -23,13 +23,21 @@ public class Discount {
     @Column(name = "expirationDate")
     private int expirationDate;
 
+    @Column(name = "originalPrice")
+    private float originalPrice;
+
+    @Column(name = "discountedPrice")
+    private float discountedPrice;
+
     public Discount() {}
 
-    public Discount(int storeId, int productId, int posted, int expirationDate) {
+    public Discount(int storeId, int productId, int posted, int expirationDate, float originalPrice, float discountedPrice) {
         this.storeId = storeId;
         this.productId = productId;
         this.posted = posted;
         this.expirationDate = expirationDate;
+        this.originalPrice = originalPrice;
+        this.discountedPrice = discountedPrice;
     }
 
     public int getDiscountId() {
@@ -70,5 +78,21 @@ public class Discount {
 
     public void setExpirationDate(int expirationDate) {
         this.expirationDate = expirationDate;
+    }
+
+    public float getOriginalPrice() {
+        return originalPrice;
+    }
+
+    public void setOriginalPrice(float originalPrice) {
+        this.originalPrice = originalPrice;
+    }
+
+    public float getDiscountedPrice() {
+        return discountedPrice;
+    }
+
+    public void setDiscountedPrice(float discountedPrice) {
+        this.discountedPrice = discountedPrice;
     }
 }

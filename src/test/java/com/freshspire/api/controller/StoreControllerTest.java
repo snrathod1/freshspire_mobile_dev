@@ -7,19 +7,15 @@ import com.freshspire.api.model.User;
 import com.freshspire.api.service.DiscountService;
 import com.freshspire.api.service.StoreService;
 import com.freshspire.api.service.UserService;
-import com.freshspire.api.utils.ResponseUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.omg.CORBA.TCKind;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
@@ -317,7 +313,7 @@ public class StoreControllerTest {
         // Set up
         User mockUser = mock(User.class);
         List<Discount> discounts = new ArrayList<>();
-        discounts.add(new Discount(1, 1, 1456932600, 1457191800));
+        discounts.add(new Discount(1, 1, 1456932600, 1457191800, originalPrice, discountedPrice));
         when(mockUserService.getUserByApiKey(TestConstants.VALID_API_KEY)).thenReturn(mockUser);
         when(mockStoreService.getDiscounts(1)).thenReturn(discounts);
 

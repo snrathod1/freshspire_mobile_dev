@@ -1,6 +1,8 @@
 package com.freshspire.api.dao;
 
 import com.freshspire.api.model.Discount;
+import com.freshspire.api.model.Product;
+import com.freshspire.api.model.Store;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -28,7 +30,7 @@ public class DiscountDAOImpl implements DiscountDAO {
         return (Discount) query.uniqueResult();
     }
 
-    public List<Discount> getDiscountByLatLong(
+    public List getDiscountByLatLong(
             float latitude,
             float longitude,
             String queryParam,
@@ -40,12 +42,15 @@ public class DiscountDAOImpl implements DiscountDAO {
         queryString.append("SELECT *, ( 3959 * acos( cos( radians( " + latitude + ") ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(" + longitude + ") ) + sin( radians( " + latitude + ") ) * sin( radians( latitude ) ) ) ) AS distance FROM");
         queryString.append(" discount");
         queryString.append(" INNER JOIN stores ON stores.storeId = discount.storeId INNER JOIN product on product.productId = discount.productId WHERE");
-        queryString.append(" product.name like '%" + queryParam + "%'");
+        queryString.append(" product.displayName like '%" + queryParam + "%'");
         queryString.append(" and product.foodType like '%" + foodType + "%'");
         queryString.append(" HAVING distance < " + within  + " ORDER BY distance;");
 
-        Query query = session.createSQLQuery(queryString.toString());
-
+        Query query = session.createSQLQuery(queryString.toString())
+                .addEntity(Discount.class)
+                .addEntity(Store.class)
+                .addEntity(Product.class)
+                .addScalar("distance");
         return query.list();
     }
 
