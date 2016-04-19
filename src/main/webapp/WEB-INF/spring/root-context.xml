@@ -61,6 +61,7 @@
     <beans:bean id="loginController" class="com.freshspire.api.controller.LoginController"></beans:bean>
     <beans:bean id="storeController" class="com.freshspire.api.controller.StoreController"></beans:bean>
     <beans:bean id="discountController" class="com.freshspire.api.controller.DiscountController"></beans:bean>
+    <beans:bean id="productController" class="com.freshspire.api.controller.ProductController"></beans:bean>
 
     <!-- Services -->
     <beans:bean id="discountService" class="com.freshspire.api.service.DiscountServiceImpl">
