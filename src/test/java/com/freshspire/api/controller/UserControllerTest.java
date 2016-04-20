@@ -3,9 +3,9 @@ package com.freshspire.api.controller;
 import com.authy.api.Verification;
 import com.freshspire.api.TestConstants;
 import com.freshspire.api.client.AuthyClient;
-import com.freshspire.api.model.ResponseMessage;
+import com.freshspire.api.model.response.ResponseMessage;
 import com.freshspire.api.model.User;
-import com.freshspire.api.model.params.*;
+import com.freshspire.api.model.param.*;
 import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.PasswordUtil;
 import com.freshspire.api.utils.ResponseUtil;
@@ -67,7 +67,7 @@ public class UserControllerTest {
         ResponseEntity<String> expected = ResponseEntity.status(HttpStatus.OK)
                 .body(expectedBody);
 
-        // Set up mock responses for authy client
+        // Set up mock response for authy client
         Verification mockVerification = mock(Verification.class);
         // startAuthentication returns mockVerification
         when(mockAuthyClient.startAuthentication(TestConstants.VALID_PHONE_NUMBER)).thenReturn(mockVerification);
@@ -140,7 +140,7 @@ public class UserControllerTest {
                 ResponseMessage.class);
         ResponseEntity<String> expected = ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(expectedBody);
-        // Set up mock authy responses
+        // Set up mock authy response
         Verification mockVerification = mock(Verification.class);
         when(mockAuthyClient.startAuthentication(INVALID_PHONE_NUMBER)).thenReturn(mockVerification);
         when(mockVerification.isOk()).thenReturn(false);
@@ -202,7 +202,7 @@ public class UserControllerTest {
      */
     @Test
     public void emptyParametersShouldNotCreateNewUser() throws Exception {
-        // Set up empty params to send to method
+        // Set up empty param to send to method
         NewUserParams emptyFirstNameParams = new NewUserParams(
                 "", // This is invalid
                 TestConstants.VALID_PHONE_NUMBER,
@@ -214,13 +214,13 @@ public class UserControllerTest {
                 "", // This is invalid (empty password)
                 TestConstants.VALID_AUTHENTICATION_CODE);
 
-        // Set up mock authy client behavior (should never be called since there are empty params)
+        // Set up mock authy client behavior (should never be called since there are empty param)
         Verification mockAuthentication = mock(Verification.class);
         when(mockAuthyClient.checkAuthentication(TestConstants.VALID_PHONE_NUMBER, TestConstants.VALID_AUTHENTICATION_CODE))
                 .thenReturn(mockAuthentication);
         when(mockAuthentication.isOk()).thenReturn(true);
 
-        // Expected responses
+        // Expected response
         String emptyFirstNameBody = ResponseUtil.asJsonString(
                 new ResponseMessage("error", "First name parameter cannot be empty"),
                 ResponseMessage.class);
@@ -237,7 +237,7 @@ public class UserControllerTest {
         ResponseEntity emptyFirstNameActual = userController.createUser(emptyFirstNameParams);
         ResponseEntity emptyPasswordActual = userController.createUser(emptyPasswordParams);
 
-        // Verify authy was not called (should avoid calling authy until all params are good)
+        // Verify authy was not called (should avoid calling authy until all param are good)
         verifyZeroInteractions(mockAuthyClient);
         assertEquals("HTTP response status should be 400",
                 emptyFirstNameExpected.getStatusCode(), emptyFirstNameActual.getStatusCode());
@@ -256,7 +256,7 @@ public class UserControllerTest {
      */
     @Test
     public void invalidAuthShouldNotCreateNewUser() throws Exception {
-        // Set up test params and mock authy/user service objects
+        // Set up test param and mock authy/user service objects
         NewUserParams params = new NewUserParams(TestConstants.VALID_FIRST_NAME, TestConstants.VALID_PHONE_NUMBER, TestConstants.VALID_PASSWORD, "invalid code");
         Verification mockVerification = mock(Verification.class);
         when(mockAuthyClient.checkAuthentication(TestConstants.VALID_PHONE_NUMBER, "invalid code")).thenReturn(mockVerification);
@@ -290,7 +290,7 @@ public class UserControllerTest {
     @Ignore
     public void validParametersShouldCreateNewUser() throws Exception {
         // TODO this test doesn't pass because generated user has random API key and null userId
-        // Set up test params and mock authy/user service objects
+        // Set up test param and mock authy/user service objects
         NewUserParams params = new NewUserParams(TestConstants.VALID_FIRST_NAME, TestConstants.VALID_PHONE_NUMBER, TestConstants.VALID_PASSWORD, TestConstants.VALID_AUTHENTICATION_CODE);
         Verification mockVerification = mock(Verification.class);
         when(mockAuthyClient.checkAuthentication(TestConstants.VALID_PHONE_NUMBER, TestConstants.VALID_AUTHENTICATION_CODE)).thenReturn(mockVerification);
@@ -397,7 +397,7 @@ public class UserControllerTest {
                 TestConstants.VALID_AUTHENTICATION_CODE,
                 "newPassword"
         );
-        // Set up mock responses
+        // Set up mock response
         Verification mockVerification = mock(Verification.class);
         User mockUserFromDatabase = mock(User.class);
 
@@ -405,7 +405,7 @@ public class UserControllerTest {
         when(mockAuthyClient.checkAuthentication(TestConstants.VALID_PHONE_NUMBER, TestConstants.VALID_AUTHENTICATION_CODE))
                 .thenReturn(mockVerification);
         when(mockVerification.isOk()).thenReturn(true);
-        // Mock user responses
+        // Mock user response
         when(mockUserFromDatabase.getUserId()).thenReturn(TestConstants.VALID_USER_ID);
         when(mockUserFromDatabase.getFirstName()).thenReturn(TestConstants.VALID_FIRST_NAME);
         when(mockUserFromDatabase.getPhoneNumber()).thenReturn(TestConstants.VALID_PHONE_NUMBER);

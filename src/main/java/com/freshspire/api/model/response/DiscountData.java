@@ -1,4 +1,4 @@
-package com.freshspire.api.model.responses;
+package com.freshspire.api.model.response;
 
 import com.freshspire.api.model.Discount;
 import com.freshspire.api.model.Product;

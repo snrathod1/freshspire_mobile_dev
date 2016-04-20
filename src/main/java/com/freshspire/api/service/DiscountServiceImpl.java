@@ -2,7 +2,7 @@ package com.freshspire.api.service;
 
 import com.freshspire.api.dao.DiscountDAO;
 import com.freshspire.api.model.Discount;
-import com.freshspire.api.model.responses.DiscountData;
+import com.freshspire.api.model.response.DiscountData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

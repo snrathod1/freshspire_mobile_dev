@@ -2,7 +2,7 @@ package com.freshspire.api.controller;
 
 import com.freshspire.api.model.Discount;
 import com.freshspire.api.model.Store;
-import com.freshspire.api.model.params.NewDiscountParams;
+import com.freshspire.api.model.param.NewDiscountParams;
 import com.freshspire.api.service.DiscountService;
 import com.freshspire.api.service.StoreService;
 import com.freshspire.api.service.UserService;

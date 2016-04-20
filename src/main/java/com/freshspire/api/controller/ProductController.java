@@ -1,7 +1,7 @@
 package com.freshspire.api.controller;
 
 import com.freshspire.api.model.Product;
-import com.freshspire.api.model.params.NewProductParams;
+import com.freshspire.api.model.param.NewProductParams;
 import com.freshspire.api.service.ProductService;
 import com.freshspire.api.utils.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;

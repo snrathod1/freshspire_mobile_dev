@@ -1,4 +1,4 @@
-package com.freshspire.api.model.params;
+package com.freshspire.api.model.param;
 
 /**
  * Request parameters for /users/login

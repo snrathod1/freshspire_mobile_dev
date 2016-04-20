@@ -1,6 +1,4 @@
-package com.freshspire.api.model.params;
-
-import org.springframework.beans.factory.annotation.Autowired;
+package com.freshspire.api.model.param;
 
 /**
  * com.freshspire.api.model

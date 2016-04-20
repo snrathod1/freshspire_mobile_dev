@@ -1,14 +1,13 @@
 package com.freshspire.api.controller;
 
 import com.freshspire.api.TestConstants;
-import com.freshspire.api.model.ResponseMessage;
+import com.freshspire.api.model.response.ResponseMessage;
 import com.freshspire.api.model.User;
-import com.freshspire.api.model.params.LoginParams;
+import com.freshspire.api.model.param.LoginParams;
 import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.PasswordUtil;
 import com.freshspire.api.utils.ResponseUtil;
 import com.google.gson.JsonObject;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,8 +15,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import java.util.Date;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -119,7 +116,7 @@ public class LoginControllerTest {
         ResponseEntity emptyPasswordActual = loginController.loginWithPhoneAndPassword(emptyPassword);
         ResponseEntity emptyPhoneActual = loginController.loginWithPhoneAndPassword(emptyPhone);
 
-        // Verify user service never called, HTTP responses correct
+        // Verify user service never called, HTTP response correct
         verifyZeroInteractions(mockUserService);
         assertEquals("HTTP status code should be 401 Unauthorized",
                 emptyPasswordExpected.getStatusCode(), emptyPasswordActual.getStatusCode());

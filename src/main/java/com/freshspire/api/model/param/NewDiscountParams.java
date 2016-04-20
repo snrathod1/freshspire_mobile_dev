@@ -1,4 +1,4 @@
-package com.freshspire.api.model.params;
+package com.freshspire.api.model.param;
 
 /**
  * Parameters for a new discount to be added to the DB layer.

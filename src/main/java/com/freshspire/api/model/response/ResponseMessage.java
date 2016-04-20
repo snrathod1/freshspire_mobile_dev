@@ -1,4 +1,4 @@
-package com.freshspire.api.model;
+package com.freshspire.api.model.response;
 
 /**
  * A Response Message is an object with a status field and message field, used as a response

@@ -2,9 +2,9 @@ package com.freshspire.api.controller;
 
 import com.authy.api.Verification;
 import com.freshspire.api.client.AuthyClient;
-import com.freshspire.api.model.ResponseMessage;
+import com.freshspire.api.model.response.ResponseMessage;
 import com.freshspire.api.model.User;
-import com.freshspire.api.model.params.*;
+import com.freshspire.api.model.param.*;
 import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.PasswordUtil;
 import com.freshspire.api.utils.ResponseUtil;
@@ -118,14 +118,14 @@ public class UserController {
         if(!verification.isOk())
             return ResponseUtil.unauthorized("Invalid phone number/authentication code pair");
 
-        // Verification was good, so now validate new user params and then create the user
+        // Verification was good, so now validate new user param and then create the user
         if(params.getPassword() == null
                 || params.getFirstName() == null
                 || params.getPhoneNumber() == null) {
             return ResponseUtil.badRequest("Invalid request parameters");
         }
 
-        // New user params were valid, so now create user object, insert into DB, and return it.
+        // New user param were valid, so now create user object, insert into DB, and return it.
         String password = params.getPassword();
 
         String salt = PasswordUtil.generateSaltString();

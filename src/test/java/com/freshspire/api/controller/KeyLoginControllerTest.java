@@ -1,8 +1,7 @@
 package com.freshspire.api.controller;
 
-import com.freshspire.api.model.ResponseMessage;
+import com.freshspire.api.model.response.ResponseMessage;
 import com.freshspire.api.model.User;
-import com.freshspire.api.model.params.ApiKeyParams;
 import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.ResponseUtil;
 import com.google.gson.Gson;
