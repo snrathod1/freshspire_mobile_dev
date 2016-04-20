@@ -20,9 +20,7 @@ public class Product {
     @Column(name = "foodType")
     private String foodType;
 
-    public Product() {
-
-    }
+    public Product() {}
 
     public Product(String displayName, int chainId, String foodType) {
         this.displayName = displayName;

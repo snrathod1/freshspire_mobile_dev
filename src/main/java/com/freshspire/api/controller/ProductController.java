@@ -33,6 +33,8 @@ public class ProductController {
             return ResponseUtil.badRequest("Invalid food type: " + params.getFoodType());
         }
 
+        productService.addProduct(newProduct);
+
         return ResponseUtil.ok("Created product " + params.getDisplayName());
     }
 
