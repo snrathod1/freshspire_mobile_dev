@@ -41,8 +41,8 @@ public class UserDAOImpl implements UserDAO {
         User user = (User) session.load(User.class, userId);
         if(null != user){
             session.delete(user);
+            logger.info("User deleted : " + user);
         }
-        logger.info("User deleted : " + user);
     }
 
     @Override

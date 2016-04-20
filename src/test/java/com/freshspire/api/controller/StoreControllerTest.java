@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.omg.CORBA.TCKind;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -313,7 +314,7 @@ public class StoreControllerTest {
         // Set up
         User mockUser = mock(User.class);
         List<Discount> discounts = new ArrayList<>();
-        discounts.add(new Discount(1, 1, 1456932600, 1457191800, originalPrice, discountedPrice));
+        discounts.add(new Discount(1, 1, 1456932600, 1457191800, TestConstants.VALID_ORIGINAL_PRICE, TestConstants.VALID_DISCOUNTED_PRICE));
         when(mockUserService.getUserByApiKey(TestConstants.VALID_API_KEY)).thenReturn(mockUser);
         when(mockStoreService.getDiscounts(1)).thenReturn(discounts);
 

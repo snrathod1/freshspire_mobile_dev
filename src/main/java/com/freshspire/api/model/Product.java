@@ -12,10 +12,10 @@ public class Product {
     private int productId;
 
     @Column(name = "displayName")
-    private String name;
+    private String displayName;
 
     @Column(name = "chainId")
-    private String chainId;
+    private int chainId;
 
     @Column(name = "foodType")
     private String foodType;
@@ -24,8 +24,8 @@ public class Product {
 
     }
 
-    public Product(String name, String chainId, String foodType) {
-        this.name = name;
+    public Product(String displayName, int chainId, String foodType) {
+        this.displayName = displayName;
         this.chainId = chainId;
         this.foodType = foodType;
     }
@@ -38,19 +38,19 @@ public class Product {
         this.productId = productId;
     }
 
-    public String getName() {
-        return name;
+    public String getDisplayName() {
+        return displayName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
-    public String getChainId() {
+    public int getChainId() {
         return chainId;
     }
 
-    public void setChainId(String chainId) {
+    public void setChainId(int chainId) {
         this.chainId = chainId;
     }
 

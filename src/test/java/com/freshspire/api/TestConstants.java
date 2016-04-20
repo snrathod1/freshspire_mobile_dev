@@ -63,4 +63,10 @@ public final class TestConstants {
 
     public static final double VALID_LONGITUDE              = -78.6623816;
     public static final double INVALID_LONGITUDE            = 888.88;
+
+    public static final float VALID_ORIGINAL_PRICE          = 5.99f;
+    public static final float INVALID_ORIGINAL_PRICE        = 0.01f;
+
+    public static final float VALID_DISCOUNTED_PRICE        = 2.99f;
+    public static final float INVALID_DISCOUNTED_PRICE      = 0f;
 }

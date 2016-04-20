@@ -1,15 +1,13 @@
 package com.freshspire.api.utils;
 
-import com.freshspire.api.model.ResponseMessage;
+import com.freshspire.api.model.Product;
 import com.freshspire.api.model.Store;
 import com.freshspire.api.model.User;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.sun.org.apache.regexp.internal.RE;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import sun.misc.REException;
 
 /**
  * Created by aadisriram on 2/20/16.
@@ -128,5 +126,22 @@ public class ResponseUtil {
         json.addProperty(STATUS, ERROR);
         json.addProperty(MESSAGE, message);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(gson.toJson(json));
+    }
+    /**
+     * Returns HTTP response with a product object in the response body formatted as JSON according
+     * to the API specification.
+     * @param product The product object to put in the response
+     * @param status The desired HTTP status of the response
+     * @return The HTTP response with the product JSON object in the response body
+     */
+    public static ResponseEntity<String> makeProductObjectResponse(Product product, HttpStatus status) {
+        JsonObject json = new JsonObject();
+        json.addProperty("productId", product.getProductId());
+        json.addProperty("chainId", product.getChainId());
+        json.addProperty("displayName", product.getDisplayName());
+        json.addProperty("foodType", product.getFoodType());
+        json.addProperty("thumbnail", "/static/images/products/" + product.getProductId() + ".jpg");
+
+        return ResponseEntity.status(status).body(json.toString());
     }
 }
