@@ -137,6 +137,12 @@ public class StoreController {
             return ResponseUtil.unauthorized("Unauthenticated");
         }
 
+        long currentTime = System.currentTimeMillis()/1000;
+        Discount newDiscount = new Discount(params.getStoreId(), params.getProductId(), currentTime,
+                params.getExpirationDate(), params.getOriginalPrice(), params.getDiscountedPrice());
+
+        discountService.addDiscount(newDiscount);
+
         return ResponseUtil.ok("This will add a discount to the store");
     }
 

@@ -54,6 +54,15 @@ public class DiscountDAOImpl implements DiscountDAO {
         return query.list();
     }
 
+    @Override
+    public void addDiscount(Discount discount) {
+        Session session = getCurrentSession();
+
+        session.persist(discount);
+
+        logger.info("Added discount: " + discount);
+    }
+
     private Session getCurrentSession() {
         return this.sessionFactory.getCurrentSession();
     }

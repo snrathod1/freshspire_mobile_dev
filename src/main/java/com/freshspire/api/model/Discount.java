@@ -18,10 +18,10 @@ public class Discount {
     private int productId;
 
     @Column(name = "posted")
-    private int posted;
+    private long posted;
 
     @Column(name = "expirationDate")
-    private int expirationDate;
+    private long expirationDate;
 
     @Column(name = "originalPrice")
     private float originalPrice;
@@ -31,7 +31,7 @@ public class Discount {
 
     public Discount() {}
 
-    public Discount(int storeId, int productId, int posted, int expirationDate, float originalPrice, float discountedPrice) {
+    public Discount(int storeId, int productId, long posted, long expirationDate, float originalPrice, float discountedPrice) {
         this.storeId = storeId;
         this.productId = productId;
         this.posted = posted;
@@ -64,19 +64,19 @@ public class Discount {
         this.productId = productId;
     }
 
-    public int getPosted() {
+    public long getPosted() {
         return posted;
     }
 
-    public void setPosted(int posted) {
+    public void setPosted(long posted) {
         this.posted = posted;
     }
 
-    public int getExpirationDate() {
+    public long getExpirationDate() {
         return expirationDate;
     }
 
-    public void setExpirationDate(int expirationDate) {
+    public void setExpirationDate(long expirationDate) {
         this.expirationDate = expirationDate;
     }
 

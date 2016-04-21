@@ -5,61 +5,61 @@ package com.freshspire.api.model.param;
  */
 public class NewDiscountParams {
 
-    private String storeId;
+    private int storeId;
 
-    private String productId;
+    private int productId;
 
-    private double originalPrice;
+    private float originalPrice;
 
-    private double discountedPrice;
+    private float discountedPrice;
 
-    private String expires; // TODO what data type? How does the REST controller handle dates?
+    private long expirationDate;
 
-    public NewDiscountParams(String storeId, String productId, double originalPrice, double discountedPrice, String expires) {
+    public NewDiscountParams(int storeId, int productId, float originalPrice, float discountedPrice, long expirationDate) {
         this.storeId = storeId;
         this.productId = productId;
         this.originalPrice = originalPrice;
         this.discountedPrice = discountedPrice;
-        this.expires = expires;
+        this.expirationDate = expirationDate;
     }
 
-    public String getStoreId() {
+    public int getStoreId() {
         return storeId;
     }
 
-    public void setStoreId(String storeId) {
+    public void setStoreId(int storeId) {
         this.storeId = storeId;
     }
 
-    public String getProductId() {
+    public int getProductId() {
         return productId;
     }
 
-    public void setProductId(String productId) {
+    public void setProductId(int productId) {
         this.productId = productId;
     }
 
-    public double getOriginalPrice() {
+    public float getOriginalPrice() {
         return originalPrice;
     }
 
-    public void setOriginalPrice(double originalPrice) {
+    public void setOriginalPrice(float originalPrice) {
         this.originalPrice = originalPrice;
     }
 
-    public double getDiscountedPrice() {
+    public float getDiscountedPrice() {
         return discountedPrice;
     }
 
-    public void setDiscountedPrice(double discountedPrice) {
+    public void setDiscountedPrice(float discountedPrice) {
         this.discountedPrice = discountedPrice;
     }
 
-    public String getExpires() {
-        return expires;
+    public long getExpirationDate() {
+        return expirationDate;
     }
 
-    public void setExpires(String expires) {
-        this.expires = expires;
+    public void setExpirationDate(long expirationDate) {
+        this.expirationDate = expirationDate;
     }
 }

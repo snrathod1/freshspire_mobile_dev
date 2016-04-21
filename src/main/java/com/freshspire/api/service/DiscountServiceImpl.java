@@ -25,6 +25,7 @@ public class DiscountServiceImpl implements DiscountService {
     }
 
     @Transactional
+    @Override
     public List getDiscountsByLatLong(float latitude, float longitude, String queryParam, float within, String foodType, String chain) {
 
         List<DiscountData> discountData = new ArrayList<>();
@@ -34,5 +35,11 @@ public class DiscountServiceImpl implements DiscountService {
         }
 
         return discountData;
+    }
+
+    @Transactional
+    @Override
+    public void addDiscount(Discount discount) {
+        discountDAO.addDiscount(discount);
     }
 }
