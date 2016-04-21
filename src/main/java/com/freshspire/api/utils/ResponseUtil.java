@@ -127,6 +127,7 @@ public class ResponseUtil {
         json.addProperty(MESSAGE, message);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(gson.toJson(json));
     }
+
     /**
      * Returns HTTP response with a product object in the response body formatted as JSON according
      * to the API specification.

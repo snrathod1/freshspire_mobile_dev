@@ -143,7 +143,7 @@ public class StoreController {
 
         discountService.addDiscount(newDiscount);
 
-        return ResponseUtil.ok("This will add a discount to the store");
+        return ResponseUtil.ok("Discount has been added to the store");
     }
 
     @RequestMapping(value = "/location", method = RequestMethod.GET, produces = "application/json")
