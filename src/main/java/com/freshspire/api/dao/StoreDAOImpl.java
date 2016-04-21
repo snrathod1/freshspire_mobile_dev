@@ -24,16 +24,18 @@ public class StoreDAOImpl implements StoreDAO {
         this.sessionFactory = sessionFactory;
     }
 
-    //TODO : Add implementation to add a new store to database
     @Override
     public void addStore(Store store) {
-
+        Session session = getCurrentSession();
+        session.persist(store);
+        logger.info("Store saved : " + store);
     }
 
-    //TODO : Add implementation to update an existing store
     @Override
     public void updateStore(Store store) {
-
+        Session session = getCurrentSession();
+        session.update(store);
+        logger.info("Store updated : " + store);
     }
 
     /**

@@ -3,6 +3,7 @@ package com.freshspire.api.controller;
 import com.freshspire.api.model.Discount;
 import com.freshspire.api.model.Store;
 import com.freshspire.api.model.param.NewDiscountParams;
+import com.freshspire.api.model.param.NewStoreParams;
 import com.freshspire.api.service.DiscountService;
 import com.freshspire.api.service.StoreService;
 import com.freshspire.api.service.UserService;
@@ -142,5 +143,15 @@ public class StoreController {
     @RequestMapping(value = "/location", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<List<Store>> getStoresByLocation(@RequestParam(required = false) float latitude, @RequestParam(required = false) float longitude) {
         return ResponseEntity.ok(storeService.getStoresByLatLong(latitude, longitude));
+    }
+
+    @RequestMapping(value = "/create", method = RequestMethod.POST, produces = "application/json")
+    public ResponseEntity<String> addStore(@RequestBody NewStoreParams params) {
+        Store newStore = new Store(params.getChainId(), params.getDisplayName(), params.getStreet(), params.getCity(), params.getState(),
+                params.getZipCode(), params.getLatitude(), params.getLongitude());
+
+        storeService.addStore(newStore);
+
+        return ResponseUtil.makeStoreObjectResponse(newStore, HttpStatus.CREATED);
     }
 }

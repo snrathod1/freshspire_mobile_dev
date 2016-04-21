@@ -13,4 +13,6 @@ public interface StoreService {
     List<Store> getStoresByLatLong(float latitude, float longitude);
     List<Discount> getDiscounts(int storeId);
     List<Discount> getDiscounts(int storeId, String query, String foodType);
+
+    void addStore(Store store);
 }

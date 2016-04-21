@@ -48,7 +48,14 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Transactional
+    @Override
     public List<Discount> getDiscounts(int storeId, String query, String foodType) {
         return storeDAO.getDiscountsByStoreId(storeId, query, foodType);
+    }
+
+    @Transactional
+    @Override
+    public void addStore(Store store) {
+        storeDAO.addStore(store);
     }
 }
