@@ -1,16 +1,23 @@
 package com.freshspire.api.controller;
 
+import com.freshspire.api.model.Discount;
 import com.freshspire.api.service.DiscountService;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/discounts")
 public class DiscountController {
+
+    /** The default value for the within parameter in discount requests */
+    private static final Float DEFAULT_WITHIN = 10f;
 
     private DiscountService discountService;
 
@@ -43,15 +50,22 @@ public class DiscountController {
      * @param chain
      * @return list of discounts
      */
-    @RequestMapping(value = "/{latitude}/{longitude}", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<String> getDiscountByLatLong(
-            @PathVariable float latitude,
-            @PathVariable float longitude,
+            @RequestParam float latitude,
+            @RequestParam float longitude,
             @RequestParam String apiKey,
             @RequestParam(required = false) String q,
-            @RequestParam(required = false) float within,
+            @RequestParam(required = false) Float within,
             @RequestParam(required = false) String foodType,
             @RequestParam(required = false) String chain) {
-        return ResponseEntity.ok(gson.toJson(discountService.getDiscountsByLatLong(latitude, longitude, q, within, foodType, chain)));
+
+        if(within == null) within = DEFAULT_WITHIN;
+        List<Discount> discountList = discountService.getDiscountsByLatLong(latitude, longitude, q, within, foodType, chain);
+        JsonObject body = new JsonObject();
+        body.addProperty("count", discountList.size());
+        body.add("discounts", gson.toJsonTree(discountList));
+
+        return ResponseEntity.ok(gson.toJson(body));
     }
 }

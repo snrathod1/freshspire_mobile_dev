@@ -57,28 +57,28 @@ user's phone number and sends a verification code to the phone number provided.
 + Response 200 (application/json)
 
         {
-            "status": "ok",
+            "status": "200",
             "message": "Verification code sent to <phone number>."
         }
 
 + Response 400 (application/json)
 
         {
-            "status": "error",
+            "status": "400",
             "message": "Could not send verification code. Is phone number formatted correctly?"
         }
 
 + Response 400 (application/json)
 
         {
-            "status": "error",
+            "status": "400",
             "message": "User already exists for phone number <phoneNumber>"
         }
 
 + Response 503 (application/json)
 
         {
-            "status": "error",
+            "status": "503",
             "message": "Internal server error"
         }
 
@@ -109,42 +109,42 @@ If the phone number and code are correct, the user is created and the user objec
 + Response 400 (application/json)
 
         {
-            "status": "error",
+            "status": "400",
             "message": "Password parameter cannot be empty"
         }
 
 + Response 400 (application/json)
 
         {
-            "status": "error",
+            "status": "400",
             "message": "First name parameter cannot be empty"
         }
 
 + Response 400 (application/json)
 
         {
-            "status": "error",
+            "status": "400",
             "message": "Invalid request parameters"
         }
 
 + Response 400 (application/json)
 
         {
-            "status": "error",
+            "status": "400",
             "message": "Account already exists with phone number"
         }
 
 + Response 401 (application/json)
 
         {
-            "status": "error",
+            "status": "401",
             "message": "Invalid phone number/authentication code pair"
         }
 
 + Response 500 (application/json)
 
         {
-            "status": "error",
+            "status": "500",
             "message": "Internal server error"
         }
 
@@ -175,7 +175,7 @@ is returned with an error message.
 + Response 401 (application/json)
 
         {
-            "status": "error",
+            "status": "401",
             "message": "User ID/API key pair incorrect"
         }
 
@@ -210,21 +210,21 @@ Returns ```404 Not Found``` if the ```userId``` is not valid.
 + Response 400 (application/json)
 
         {
-            "status": "error",
+            "status": "400",
             "message": "API key cannot be empty"
         }
 
 + Response 401 (application/json)
 
         {
-            "status": "error",
+            "status": "401",
             "message": "User ID/API key pair incorrect"
         }
 
 + Response 404 (application/json)
 
         {
-            "status": "error",
+            "status": "404",
             "messsage": "User not found"
         }
 
@@ -247,21 +247,21 @@ Returns ```404 Not Found``` if the ```userId``` is not valid.
 + Response 200 (application/json)
 
         {
-            "status": "ok",
+            "status": "200",
             "message": "Successfully updated enabledLocation"
         }
 
 + Response 401 (application/json)
 
         {
-            "status": "error",
+            "status": "401",
             "message": "User ID/API key pair incorrect"
         }
 
 + Response 404 (application/json)
 
         {
-            "status": "error",
+            "status": "404",
             "messsage": "User not found"
         }
 
@@ -288,21 +288,21 @@ sends a verification code to the phone number provided.
 + Response 200 (application/json)
 
         {
-            "status": "ok",
+            "status": "200",
             "message": "SMS has been sent to the number"
         }
 
 + Response 400 (application/json)
 
         {
-            "status": "error",
+            "status": "400",
             "message": "Bad request"
         }
 
 + Response 500 (application/json)
 
         {
-            "status": "error",
+            "status": "500",
             "message": "verification code not sent due to error"
         }
 
@@ -332,21 +332,21 @@ the database and the user object is returned, which includes the API key needed 
 + Response 400 (application/json)
 
         {
-            "status": "error",
+            "status": "400",
             "message": "Password cannot be empty"
         }
 
 + Response 400 (application/json)
 
         {
-            "status": "error",
+            "status": "400",
             "message": "Phone number is empty"
         }
 
 + Response 401 (application/json)
 
         {
-            "status": "error",
+            "status": "401",
             "message": "Verification code is invalid"
         }
 
@@ -374,21 +374,21 @@ Otherwise, a ```400 Bad Request``` is sent.
 + Response 200 (application/json)
 
         {
-            "status": "success",
+            "status": "200",
             "message": "Successfully updated password"
         }
 
 + Response 400 (application/json)
 
         {
-            "status": "error",
+            "status": "400",
             "message": "Bad request - oldPassword is probably incorrect"
         }
 
 + Response 401 (application/json)
 
         {
-            "status": "error",
+            "status": "401",
             "message": "Invalid authentication credentials"
         }
 
@@ -425,21 +425,21 @@ will be returned with an error message.
 + Response 400 (application/json)
 
         {
-            "status": "error",
+            "status": "400",
             "message": "Phone number cannot be empty"
         }
 
 + Response 400 (application/json)
 
         {
-            "status": "error",
+            "status": "400",
             "message": "Password cannot be empty"
         }
 
 + Response 401 (application/json)
 
         {
-            "status": "error",
+            "status": "401",
             "message": "Phone number/password pair is invalid"
         }
 
@@ -468,34 +468,35 @@ This endpoint logs in a user given an API key in the ```Authorization``` header,
 + Response 400 (application/json)
 
         {
-            "status": "error",
+            "status": "400",
             "message": "API key cannot be empty"
         }
 
 + Response 401 (application/json)
 
         {
-            "status": "error",
+            "status": "401",
             "message": "Unauthenticated"
         }
 
 + Response 500 (application/json)
 
         {
-            "status": "error",
+            "status": "500",
             "message": "Internal server error"
         }
 
 # Group Discount Data Resources
 A discount object has the following structure:
 
- * **discountId** (int): **Example:** *1*
- * **quantity**: How many there are of the discount. **Example:** *3*
- * **originalPrice** (decimal): The original price. **Example:** *15*
- * **discountedPrice** (decimal): The discounted price. **Example:** *7.5*
- * **priceUnit** (string): The unit of the price. This could be per pound, per package, per unit, etc. **Example:** *"lb"*
- * **posted** (string): Timestamp (format described below) when the discount was posted. **Example:** *1456932600*
- * **expirationDate** (integer): Expiration date (format described below) of the discount. **Example:** *1457191800*
+ * **discount**: The discount object
+   * **discountId** (int): **Example:** *1*
+   * **quantity** (int): How many there are of the discount. **Example:** *3*
+   * **originalPrice** (decimal): The original price. **Example:** *15*
+   * **discountedPrice** (decimal): The discounted price. **Example:** *7.5*
+   * **priceUnit** (string): The unit of the price. This could be per pound, per package, per unit, etc. **Example:** *"lb"*
+   * **posted** (string): Timestamp (format described below) when the discount was posted. **Example:** *1456932600*
+   * **expirationDate** (integer): Expiration date (format described below) of the discount. **Example:** *1457191800*
  * **product**: Product object associated with the discount
    * **productId** (int): ID of the product this is a discount of. **Example:** *34*
    * **displayName** (string): String display name of the product. **Example:** *"Pork chops"*
@@ -517,7 +518,12 @@ A discount object has the following structure:
    * **displayName** (string): String display name of the chain. **Example:** *"Harris Teeter"*
    * **thumbnail** (string): URL of the thumbnail image of the chain logo. **Example:** *"api.getfreshspired.com/static/images/chains/8.jpg"*
 
-Acceptable values for ```foodType```: TODO
+Acceptable values for ```foodType```:
+
+ * produce
+ * meat
+ * dairy
+ * bakery
 
 All timestamps are in the [UNIX timestamp](https://en.wikipedia.org/wiki/Unix_time) format, which is defined as the number
 of seconds elapsed since 00:00:00 January 1st 1970.
@@ -570,13 +576,15 @@ The discount objects in the response will include the URL for the thumbnail of t
             "count": 6,
             "discounts": [
                 {
-                    "discountId": 1,
-                    "quantity": 3,
-                    "originalPrice": 16,
-                    "discountedPrice": 7.5,
-                    "priceUnit": "lb",
-                    "posted": 1456932600,
-                    "expirationDate": 1457191800,
+                    "discount": {
+                        "discountId": 1,
+                        "quantity": 3,
+                        "originalPrice": 16,
+                        "discountedPrice": 7.5,
+                        "priceUnit": "lb",
+                        "posted": 1456932600,
+                        "expirationDate": 1457191800
+                    },
                     "product": {
                         "productId": 1,
                         "displayName": "Pork tenderloin",
@@ -600,13 +608,15 @@ The discount objects in the response will include the URL for the thumbnail of t
                     }
                 },
                 {
-                    "discountId": 2,
-                    "quantity": 11,
-                    "originalPrice": 1,
-                    "discountedPrice": 0.9,
-                    "priceUnit": "lb",
-                    "posted": 1456954200,
-                    "expirationDate": 1457191800,
+                    "discount": {
+                        "discountId": 2,
+                        "quantity": 11,
+                        "originalPrice": 1,
+                        "discountedPrice": 0.9,
+                        "priceUnit": "lb",
+                        "posted": 1456954200,
+                        "expirationDate": 1457191800
+                    },
                     "product": {
                         "productId": 2,
                         "displayName": "Lemons",
@@ -630,13 +640,15 @@ The discount objects in the response will include the URL for the thumbnail of t
                     }
                 },
                 {
-                    "discountId": 3,
-                    "quantity": 4,
-                    "originalPrice": 5.5,
-                    "discountedPrice": 3.5,
-                    "priceUnit": "box",
-                    "posted": 1457028000,
-                    "expirationDate": 1457352000,
+                    "discount": {
+                        "discountId": 3,
+                        "quantity": 4,
+                        "originalPrice": 5.5,
+                        "discountedPrice": 3.5,
+                        "priceUnit": "box",
+                        "posted": 1457028000,
+                        "expirationDate": 1457352000
+                    },
                     "product": {
                         "productId": 3,
                         "displayName": "1doz Chocolate Doughnuts",
@@ -660,13 +672,15 @@ The discount objects in the response will include the URL for the thumbnail of t
                     }
                 },
                 {
-                    "discountId": 4,
-                    "quantity": 1,
-                    "originalPrice": 5.25,
-                    "discountedPrice": 3.14,
-                    "priceUnit": "pkg",
-                    "posted": 1457100000,
-                    "expirationDate": 1457193600,
+                    "discount": {
+                        "discountId": 4,
+                        "quantity": 1,
+                        "originalPrice": 5.25,
+                        "discountedPrice": 3.14,
+                        "priceUnit": "pkg",
+                        "posted": 1457100000,
+                        "expirationDate": 1457193600
+                    },
                     "product": {
                         "productId": 4,
                         "displayName": "Organic pork sausages",
@@ -690,12 +704,14 @@ The discount objects in the response will include the URL for the thumbnail of t
                     }
                 },
                 {
-                    "discountId": 5,
-                    "quantity": 5,
-                    "originalPrice": 6,
-                    "discountedPrice": 4,
-                    "priceUnit": "bag",
-                    "posted": 1457193600,
+                    "discount": {
+                        "discountId": 5,
+                        "quantity": 5,
+                        "originalPrice": 6,
+                        "discountedPrice": 4,
+                        "priceUnit": "bag",
+                        "posted": 1457193600
+                    },
                     "expirationDate": 1457355600,
                     "product": {
                         "productId": 5,
@@ -720,13 +736,15 @@ The discount objects in the response will include the URL for the thumbnail of t
                     }
                 },
                 {
-                    "discountId": 6,
-                    "quantity": 8,
-                    "originalPrice": 3,
-                    "discountedPrice": 1.9,
-                    "priceUnit": "box",
-                    "posted": 1457355600,
-                    "expirationDate": 1457528400,
+                    "discount": {
+                        "discountId": 6,
+                        "quantity": 8,
+                        "originalPrice": 3,
+                        "discountedPrice": 1.9,
+                        "priceUnit": "box",
+                        "posted": 1457355600,
+                        "expirationDate": 1457528400
+                    },
                     "product": {
                         "productId": 6,
                         "displayName": "Grape tomatoes (8ox box)",
@@ -755,14 +773,14 @@ The discount objects in the response will include the URL for the thumbnail of t
 + Response 400
 
         {
-            "status": "error",
+            "status": "400",
             "message": "Bad request - are the parameters formatted correctly?"
         }
 
 + Response 401
 
         {
-            "status": "error",
+            "status": "401",
             "message": "Unauthenticated"
         }
 
@@ -808,13 +826,15 @@ parameter.
             "count": 6,
             "discounts": [
                 {
-                    "discountId": 1,
-                    "quantity": 3,
-                    "originalPrice": 15,
-                    "discountedPrice": 7.5,
-                    "priceUnit": "lb",
-                    "posted": 1456932600,
-                    "expirationDate": 1457191800,
+                    "discount": {
+                        "discountId": 1,
+                        "quantity": 3,
+                        "originalPrice": 15,
+                        "discountedPrice": 7.5,
+                        "priceUnit": "lb",
+                        "posted": 1456932600,
+                        "expirationDate": 1457191800
+                    },
                     "product": {
                         "productId": 1,
                         "displayName": "Pork tenderloin",
@@ -838,13 +858,15 @@ parameter.
                     }
                 },
                 {
-                    "discountId": 2,
-                    "quantity": 11,
-                    "originalPrice": 1,
-                    "discountedPrice": 0.6,
-                    "priceUnit": "lb",
-                    "posted": 1456954200,
-                    "expirationDate": 1457191800,
+                    "discount": {
+                        "discountId": 2,
+                        "quantity": 11,
+                        "originalPrice": 1,
+                        "discountedPrice": 0.6,
+                        "priceUnit": "lb",
+                        "posted": 1456954200,
+                        "expirationDate": 1457191800
+                    },
                     "product": {
                         "productId": 2,
                         "displayName": "Lemons",
@@ -868,13 +890,15 @@ parameter.
                     }
                 },
                 {
-                    "discountId": 3,
-                    "quantity": 4,
-                    "originalPrice": 5.5,
-                    "discountedPrice": 3.5,
-                    "priceUnit": "box",
-                    "posted": 1457028000,
-                    "expirationDate": 1457352000,
+                    "discount": {
+                        "discountId": 3,
+                        "quantity": 4,
+                        "originalPrice": 5.5,
+                        "discountedPrice": 3.5,
+                        "priceUnit": "box",
+                        "posted": 1457028000,
+                        "expirationDate": 1457352000
+                    },
                     "product": {
                         "productId": 3,
                         "displayName": "1doz Chocolate Doughnuts",
@@ -898,13 +922,15 @@ parameter.
                     }
                 },
                 {
-                    "discountId": 4,
-                    "quantity": 1,
-                    "originalPrice": 5.25,
-                    "discountedPrice": 3.14,
-                    "priceUnit": "pkg",
-                    "posted": 1457100000,
-                    "expirationDate": 1457193600,
+                    "discount": {
+                        "discountId": 4,
+                        "quantity": 1,
+                        "originalPrice": 5.25,
+                        "discountedPrice": 3.14,
+                        "priceUnit": "pkg",
+                        "posted": 1457100000,
+                        "expirationDate": 1457193600
+                    },
                     "product": {
                         "productId": 4,
                         "displayName": "Organic pork sausages",
@@ -928,13 +954,15 @@ parameter.
                     }
                 },
                 {
-                    "discountId": 5,
-                    "quantity": 5,
-                    "originalPrice": 6,
-                    "discountedPrice": 4,
-                    "priceUnit": "bag",
-                    "posted": 1457193600,
-                    "expirationDate": 1457355600,
+                    "discount": {
+                        "discountId": 5,
+                        "quantity": 5,
+                        "originalPrice": 6,
+                        "discountedPrice": 4,
+                        "priceUnit": "bag",
+                        "posted": 1457193600,
+                        "expirationDate": 1457355600
+                    },
                     "product": {
                         "productId": 5,
                         "displayName": "Dinner rolls (6ct)",
@@ -958,13 +986,15 @@ parameter.
                     }
                 },
                 {
-                    "discountId": 6,
-                    "quantity": 8,
-                    "originalPrice": 3,
-                    "discountedPrice": 1.9,
-                    "priceUnit": "box",
-                    "posted": 1457355600,
-                    "expirationDate": 1457528400,
+                    "discount": {
+                        "discountId": 6,
+                        "quantity": 8,
+                        "originalPrice": 3,
+                        "discountedPrice": 1.9,
+                        "priceUnit": "box",
+                        "posted": 1457355600,
+                        "expirationDate": 1457528400
+                    },
                     "product": {
                         "productId": 6,
                         "displayName": "Grape tomatoes (8ox box)",
@@ -993,21 +1023,21 @@ parameter.
 + Response 400
 
         {
-            "status": "error",
+            "status": "400",
             "message": "Bad request - are the parameters formatted correctly?"
         }
 
 + Response 401
 
         {
-            "status": "error",
+            "status": "401",
             "message": "Unauthenticated"
         }
 
 + Response 404
 
         {
-            "status": "error",
+            "status": "404",
             "message": "Zip code not found or incorrectly formatted."
         }
 
@@ -1109,15 +1139,70 @@ TODO filter and search functionality?
 + Response 400
 
         {
-            "status": "error",
+            "status": "400",
             "message": "Bad request - are the parameters formatted correctly?"
         }
 
 + Response 401
 
         {
-            "status": "error",
+            "status": "401",
             "message": "Unauthenticated"
+        }
+
+## Create Store [/stores/create]
+Contains all discount objects posted in the store with ID ```storeId```. Get and search for discounts, filter the
+results, post new discounts to, and delete existing discounts from the store.
+
+### POST Create a new store [POST]
+Creates a new store. Include ```chainId```, ```displayName```, ```street```, ```city```,
+```state```, ```zipCode```, ```latitude```, and ```longitude``` as JSON parameters in
+the request body.
+
++ Request (application/json)
+    + Attributes
+        + chainId: 33               (number, required) - The ID of the chain this store belongs to
+        + displayName: Abc Street   (string, required) - The display name of the store
+        + street: 123 Main street   (string, required) - The street name the store is on
+        + city: Raleigh             (string, required) - The city the store is in
+        + state: NC                 (string, required) - The state the store is in
+        + zipCode: 12345            (string, required) - The zip code the store is in
+        + latitude: 35.7889461      (number, required) - The latitude of the store's geographical location
+        + longitude: ```-78.6623``` (number, required) - The longitude of the store's geographical location
+
++ Response 201 (application/json)
+
+        {
+            "storeId": 1,
+            "chainId": 1,
+            "displayName": "Cameron Village Harris Teeter",
+            "street": "500 Oberlin Road",
+            "city": "Raleigh",
+            "state": "NC",
+            "zipCode": "27605",
+            "latitude": 35.7889461,
+            "longitude": -78.6623816
+        }
+
++ Response 400 (application/json)
+
+        {
+            "status": "400",
+            "message": "Bad request - are the parameters formatted correctly?"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "status": "401",
+            "message": "Unauthenticated"
+        }
+
++ Response 500 (application/json)
+
+        {
+            "status": "500",
+            "message": "Internal server error"
         }
 
 ## Specific Store [/stores/{storeId}]
@@ -1150,21 +1235,21 @@ Returns the store object associated with given store ID.
 + Response 400 (application/json)
 
         {
-            "status": "error",
+            "status": "400",
             "message": "Bad request - are the parameters formatted correctly?"
         }
 
 + Response 401 (application/json)
 
         {
-            "status": "error",
+            "status": "401",
             "message": "Unauthenticated"
         }
 
 + Response 404 (application/json)
 
         {
-            "status": "error",
+            "status": "404",
             "message": "Store with ID <storeId> not found"
         }
 
@@ -1201,13 +1286,15 @@ parameter ```q```. Paginate with the ```page``` parameter.
             "count": 4,
             "discounts": [
                 {
-                    "discountId": 1,
-                    "quantity": 3,
-                    "originalPrice": 15,
-                    "discountedPrice": 7.5,
-                    "priceUnit": "lb",
-                    "posted": 1456932600,
-                    "expirationDate": 1457191800,
+                    "discount": {
+                        "discountId": 1,
+                        "quantity": 3,
+                        "originalPrice": 15,
+                        "discountedPrice": 7.5,
+                        "priceUnit": "lb",
+                        "posted": 1456932600,
+                        "expirationDate": 1457191800
+                    },
                     "product": {
                         "productId": 1,
                         "displayName": "Pork tenderloin",
@@ -1231,13 +1318,15 @@ parameter ```q```. Paginate with the ```page``` parameter.
                     }
                 },
                 {
-                    "discountId": 2,
-                    "quantity": 11,
-                    "originalPrice": 1,
-                    "discountedPrice": 0.6,
-                    "priceUnit": "lb",
-                    "posted": 1456954200,
-                    "expirationDate": 1457191800,
+                    "discount": {
+                        "discountId": 2,
+                        "quantity": 11,
+                        "originalPrice": 1,
+                        "discountedPrice": 0.6,
+                        "priceUnit": "lb",
+                        "posted": 1456954200,
+                        "expirationDate": 1457191800
+                    },
                     "product": {
                         "productId": 2,
                         "displayName": "Lemons",
@@ -1262,13 +1351,15 @@ parameter ```q```. Paginate with the ```page``` parameter.
                     }
                 },
                 {
-                    "discountId": 3,
-                    "quantity": 4,
-                    "originalPrice": 5.5,
-                    "discountedPrice": 3.5,
-                    "priceUnit": "box",
-                    "posted": 1457028000,
-                    "expirationDate": 1457352000,
+                    "discount": {
+                        "discountId": 3,
+                        "quantity": 4,
+                        "originalPrice": 5.5,
+                        "discountedPrice": 3.5,
+                        "priceUnit": "box",
+                        "posted": 1457028000,
+                        "expirationDate": 1457352000
+                    },
                     "product": {
                         "productId": 3,
                         "displayName": "1doz Chocolate Doughnuts",
@@ -1292,13 +1383,15 @@ parameter ```q```. Paginate with the ```page``` parameter.
                     }
                 },
                 {
-                    "discountId": 4,
-                    "quantity": 1,
-                    "originalPrice": 5.25,
-                    "discountedPrice": 3.14,
-                    "priceUnit": "pkg",
-                    "posted": 1457100000,
-                    "expirationDate": 1457193600,
+                    "discount": {
+                        "discountId": 4,
+                        "quantity": 1,
+                        "originalPrice": 5.25,
+                        "discountedPrice": 3.14,
+                        "priceUnit": "pkg",
+                        "posted": 1457100000,
+                        "expirationDate": 1457193600
+                    },
                     "product": {
                         "productId": 4,
                         "displayName": "Organic pork sausages",
@@ -1327,21 +1420,21 @@ parameter ```q```. Paginate with the ```page``` parameter.
 + Response 400 (application/json)
 
         {
-            "status": "error",
+            "status": "400",
             "message": "Bad request - are the parameters formatted correctly?"
         }
 
 + Response 401 (application/json)
 
         {
-            "status": "error",
+            "status": "401",
             "message": "Unauthenticated"
         }
 
 + Response 404 (application/json)
 
         {
-            "status": "error",
+            "status": "404",
             "message": "Store with ID <storeId> not found"
         }
 
@@ -1362,29 +1455,122 @@ Posts a new discount to the store with ID ```storeId```. ```productId```, ```ori
 + Response 200 (application/json)
 
         {
-            "status": "ok",
+            "status": "200",
             "message": "New discount posted"
         }
 
 + Response 400 (application/json)
 
         {
-            "status": "error",
+            "status": "400",
             "message": "Bad request - are the parameters formatted correctly?"
         }
 
 + Response 401 (application/json)
 
         {
-            "status": "error",
+            "status": "401",
             "message": "Unauthenticated"
         }
 
 + Response 404 (application/json)
 
         {
-            "status": "error",
+            "status": "404",
             "message": "Store with ID <storeId> not found"
+        }
+
+# Group Product Data Resources
+
+A product object has the following structure:
+
+ * **productId** (int): ID of the product. **Example:** *11*
+ * **chainId** (int): ID of the chain this product belongs to. **Example:** *4*
+ * **displayName** (string): String display name. **Example:** *"Lemons"*
+ * **foodType** (string): Food type the product classifies as. **Example:** *"meat"*
+ * **thumbnail** (string): URL of the thumbnail for the product. **Example:** *"/static/images/products/11.jpg"*
+
+## Create a product [/products/create]
+
+Creates a new product from the request parameters and returns the created product object.
+
+Include ```displayName```, ```foodType```, and ```chainId``` in the request body.
+
+**TODO:** Figure out how to upload product thumbnail
+
+### POST Create a new product [POST]
+
++ Request (application/json)
+    + Attributes
+        + displayName: ```Lemons``` (string, required) - The string display name of the product
+        + foodType: 1234567890      (string, required) - The food type the product is classified as
+        + chainId: 2                (number, required) - The ID of the chain the product is associated with
+
++ Response 201 (application/json)
+
+        {
+            "productId": 2,
+            "displayName": "Lemons",
+            "foodType": "produce",
+            "thumbnail": "/static/images/products/2.jpg"
+        }
+
++ Response 400 (application/json)
+
+        {
+            "status": "400",
+            "message": "Bad request - are the parameters formatted correctly?"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "status": "404",
+            "message": "Store with ID <storeId> doesn't exist"
+        }
+
+## Specific Product [/products/{productId}]
+
+### GET Specific product information [GET]
+
+Returns the product object associated with given product ID.
+
++ Parameters
+    + productId: 1 (number, required) - The unique ID of the product
+
++ Request
+    + Headers
+
+            Authorization: YOUR_API_KEY
+
++ Response 200 (application/json)
+
+        {
+            "productId": 2,
+            "displayName": "Lemons",
+            "foodType": "produce",
+            "thumbnail": "/static/images/products/2.jpg"
+        }
+
++ Response 400 (application/json)
+
+        {
+            "status": "400",
+            "message": "Bad request - are the parameters formatted correctly?"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "status": "401",
+            "message": "Unauthenticated"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "status": "404",
+            "message": "Product with ID <productId> not found"
         }
 
 # Group Static Content
@@ -1407,29 +1593,40 @@ Returns the JPG thumbnail for a particular product, specified in the URL by the 
 + Response 400 (application/json)
 
         {
-            "status": "error",
+            "status": "400",
             "message": "Bad request - are the parameters formatted correctly?"
         }
 
 + Response 401 (application/json)
 
         {
-            "status": "error",
+            "status": "401",
             "message": "Unauthenticated"
         }
 
 + Response 404 (application/json)
 
         {
-            "status": "error",
+            "status": "404",
             "message": "Product with ID <productId> not found"
         }
 
-## Chain thumbnails [/static/images/chains/{chainId}{?apiKey}]
+### POST Create thumbnail for particular product [POST]
+TODO figure out how this call would work.
+
++ Request (image/jpg)
+
++ Response 200 (application/json)
+
+        {
+            "status": "400",
+            "message": "Image uploaded"
+        }
+
+## Chain thumbnails [/static/images/chains/{chainId}]
 
 + Parameters
     + chainId:      45              (number, required) - The unique ID of the product
-    + apiKey:       YOUR\_API\_KEY  (string, required) - The user's API key.
 
 ### GET Thumbnail for a particular chain [GET]
 Returns the JPG thumbnail for a particular chain, specified in the URL by the chain ID.
@@ -1444,22 +1641,37 @@ Returns the JPG thumbnail for a particular chain, specified in the URL by the ch
 + Response 400 (application/json)
 
         {
-            "status": "error",
+            "status": "400",
             "message": "Bad request - are the parameters formatted correctly?"
         }
 
 + Response 401 (application/json)
 
         {
-            "status": "error",
+            "status": "401",
             "message": "Unauthenticated"
         }
 
 + Response 404 (application/json)
 
         {
-            "status": "error",
+            "status": "404",
             "message": "Chain with ID <chainId> not found"
+        }
+
+### POST Create thumbnail for particular product [POST]
+TODO figure out how this call would work.
+
++ Request (image/jpg)
+    + Headers
+
+            Authorization: YOUR_API_KEY
+
++ Response 200 (application/json)
+
+        {
+            "status": "200",
+            "message": "Image uploaded"
         }
 
 # Group System Status
@@ -1481,13 +1693,13 @@ Returns ```503 Service Unavailable``` with status ```unavailable``` if it's *not
 + Response 200 (application/json)
 
         {
-            "status": "ok"
+            "status": "200"
         }
 
 + Response 503 (application/json)
 
         {
-            "status": "unavailable"
+            "status": "503"
         }
 
 ## Database status [/status/database]
@@ -1505,13 +1717,13 @@ Returns ```503 Service Unavailable``` with status ```unavailable``` if it's *not
 + Response 200 (application/json)
 
         {
-            "status": "ok"
+            "status": "200"
         }
 
 + Response 503 (application/json)
 
         {
-            "status": "unavailable"
+            "status": "503"
         }
 
 
