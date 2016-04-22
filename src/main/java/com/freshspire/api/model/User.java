@@ -1,10 +1,9 @@
 package com.freshspire.api.model;
 
-import org.hibernate.annotations.*;
+import com.google.gson.annotations.Expose;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 import java.util.Date;
 
 @Entity
@@ -14,15 +13,19 @@ public class User {
     @Id
     @Column(name="userId")
     @GeneratedValue
+    @Expose
     private int userId;
 
     @Column(name="firstName")
+    @Expose
     private String firstName;
 
     @Column(name="phoneNumber")
+    @Expose
     private String phoneNumber;
 
     @Column(name="apiKey")
+    @Expose
     private String apiKey;
 
     @Column(name="password")
@@ -33,6 +36,7 @@ public class User {
 
     @Column(name="created", columnDefinition="DATETIME")
     @Temporal(TemporalType.TIMESTAMP)
+    @Expose
     private Date created;
 
     @Column(name="admin", columnDefinition = "TINYINT")
@@ -45,6 +49,7 @@ public class User {
 
     @Column(name="enabledLocation", columnDefinition = "TINYINT")
     @Type(type = "org.hibernate.type.NumericBooleanType")
+    @Expose
     private boolean enabledLocation;
 
     public User() {}

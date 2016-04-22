@@ -9,6 +9,7 @@ import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.PasswordUtil;
 import com.freshspire.api.utils.ResponseUtil;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ public class UserController {
     /** Client instance for sending & authenticating text messages with Authy */
     private AuthyClient authyClient;
 
-    private static Gson gson = new Gson();
+    private static Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
