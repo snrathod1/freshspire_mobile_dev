@@ -15,12 +15,23 @@ public class NewDiscountParams {
 
     private long expirationDate;
 
-    public NewDiscountParams(int storeId, int productId, float originalPrice, float discountedPrice, long expirationDate) {
+    private int chainId;
+
+    public NewDiscountParams(int storeId, int productId, float originalPrice, float discountedPrice, long expirationDate, int chainId) {
         this.storeId = storeId;
         this.productId = productId;
         this.originalPrice = originalPrice;
         this.discountedPrice = discountedPrice;
         this.expirationDate = expirationDate;
+        this.chainId = chainId;
+    }
+
+    public int getChainId() {
+        return chainId;
+    }
+
+    public void setChainId(int chainId) {
+        this.chainId = chainId;
     }
 
     public int getStoreId() {

@@ -29,15 +29,20 @@ public class Discount {
     @Column(name = "discountedPrice")
     private float discountedPrice;
 
-    public Discount() {}
+    @Column(name = "chainId")
+    private int chainId;
 
-    public Discount(int storeId, int productId, long posted, long expirationDate, float originalPrice, float discountedPrice) {
+    public Discount() {
+    }
+
+    public Discount(int storeId, int productId, long posted, long expirationDate, float originalPrice, float discountedPrice, int chainId) {
         this.storeId = storeId;
         this.productId = productId;
         this.posted = posted;
         this.expirationDate = expirationDate;
         this.originalPrice = originalPrice;
         this.discountedPrice = discountedPrice;
+        this.chainId = chainId;
     }
 
     public int getDiscountId() {
@@ -95,4 +100,13 @@ public class Discount {
     public void setDiscountedPrice(float discountedPrice) {
         this.discountedPrice = discountedPrice;
     }
+
+    public int getChainId() {
+        return chainId;
+    }
+
+    public void setChainId(int chainId) {
+        this.chainId = chainId;
+    }
 }
+
