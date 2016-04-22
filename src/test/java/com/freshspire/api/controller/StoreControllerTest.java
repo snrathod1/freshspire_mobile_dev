@@ -314,7 +314,7 @@ public class StoreControllerTest {
         // Set up
         User mockUser = mock(User.class);
         List<Discount> discounts = new ArrayList<>();
-        discounts.add(new Discount(1, 1, 1456932600, 1457191800, TestConstants.VALID_ORIGINAL_PRICE, TestConstants.VALID_DISCOUNTED_PRICE));
+        discounts.add(new Discount(1, 1, 1456932600, 1457191800, TestConstants.VALID_ORIGINAL_PRICE, TestConstants.VALID_DISCOUNTED_PRICE, TestConstants.VALID_CHAIN_ID));
         when(mockUserService.getUserByApiKey(TestConstants.VALID_API_KEY)).thenReturn(mockUser);
         when(mockStoreService.getDiscounts(1)).thenReturn(discounts);
 

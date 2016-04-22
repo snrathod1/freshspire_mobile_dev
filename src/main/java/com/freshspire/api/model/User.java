@@ -36,7 +36,6 @@ public class User {
 
     @Column(name="created", columnDefinition="DATETIME")
     @Temporal(TemporalType.TIMESTAMP)
-    @Expose
     private Date created;
 
     @Column(name="admin", columnDefinition = "TINYINT")
