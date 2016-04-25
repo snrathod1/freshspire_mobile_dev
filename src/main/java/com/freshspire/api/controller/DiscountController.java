@@ -1,7 +1,9 @@
 package com.freshspire.api.controller;
 
+import com.freshspire.api.model.CoordinatePair;
 import com.freshspire.api.model.Discount;
 import com.freshspire.api.service.DiscountService;
+import com.freshspire.api.utils.AddressConverter;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;
@@ -51,7 +53,7 @@ public class DiscountController {
      * @return list of discounts
      */
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity<String> getDiscountByLatLong(
+    public ResponseEntity<String> getDiscountsByLatLong(
             @RequestParam float latitude,
             @RequestParam float longitude,
             @RequestParam String apiKey,
@@ -67,5 +69,21 @@ public class DiscountController {
         body.add("discounts", gson.toJsonTree(discountList));
 
         return ResponseEntity.ok(gson.toJson(body));
+    }
+
+    @RequestMapping(value = "/place/{address}", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<String> getDiscountsByAddress(
+            @PathVariable String address,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) Float within,
+            @RequestParam(required = false) String foodType,
+            @RequestParam(required = false) String chain,
+            @RequestHeader("Authorization") String apiKey) {
+
+        if(within == null) within = DEFAULT_WITHIN;
+        CoordinatePair coordinates = AddressConverter.getLatLongFromAddress(address);
+
+        return getDiscountsByLatLong(coordinates.getLatitude(), coordinates.getLongitude(), apiKey, q, within,
+                foodType, chain);
     }
 }

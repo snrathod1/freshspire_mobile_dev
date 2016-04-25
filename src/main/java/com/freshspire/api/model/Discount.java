@@ -32,8 +32,7 @@ public class Discount {
     @Column(name = "chainId")
     private int chainId;
 
-    public Discount() {
-    }
+    public Discount() {}
 
     public Discount(int storeId, int productId, long posted, long expirationDate, float originalPrice, float discountedPrice, int chainId) {
         this.storeId = storeId;
