@@ -118,9 +118,11 @@ public class StoreController {
         }
 
         List<Discount> discounts = storeService.getDiscounts(storeId, query, foodType);
-        System.out.println("discounts.size()=" + discounts.size());
-        //for(Discount d : discounts) System.out.println(d);
-        return ResponseUtil.ok(gson.toJson(discounts));
+
+        JsonObject body = new JsonObject();
+        body.addProperty("count", discounts.size());
+        body.add("discounts", gson.toJsonTree(discounts));
+        return ResponseEntity.ok(body.toString());
     }
 
     /**
