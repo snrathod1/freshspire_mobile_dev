@@ -42,4 +42,10 @@ public class DiscountServiceImpl implements DiscountService {
     public void addDiscount(Discount discount) {
         discountDAO.addDiscount(discount);
     }
+
+    @Transactional
+    @Override
+    public boolean isUp() {
+        return discountDAO.connectionIsEstablished();
+    }
 }

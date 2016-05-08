@@ -10,7 +10,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.TransactionSystemException;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class DiscountDAOImpl implements DiscountDAO {
@@ -96,6 +98,11 @@ public class DiscountDAOImpl implements DiscountDAO {
         session.persist(discount);
 
         logger.info("Added discount: " + discount);
+    }
+
+    @Override
+    public boolean connectionIsEstablished() {
+        return getCurrentSession().isConnected();
     }
 
     private Session getCurrentSession() {

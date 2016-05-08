@@ -10,4 +10,6 @@ public interface DiscountService {
     List getDiscountsByLatLong(float latitude, float longitude, String queryParam, float within, String foodType, String chain);
 
     void addDiscount(Discount discount);
+
+    boolean isUp();
 }
