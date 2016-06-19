@@ -7,6 +7,7 @@ import com.freshspire.api.utils.ResponseUtil;
 import com.google.gson.Gson;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
@@ -57,6 +58,7 @@ public class KeyLoginControllerTest {
      * with valid API key parameter
      */
     @Test
+    @Ignore
     public void validApiKeyShouldLoginUser() {
         // Setup
         User user = new User(VALID_FIRST_NAME, VALID_PHONE_NUMBER, VALID_API_KEY,
