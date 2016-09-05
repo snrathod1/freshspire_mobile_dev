@@ -2,6 +2,7 @@ package com.freshspire.api.controller;
 
 import com.freshspire.api.model.CoordinatePair;
 import com.freshspire.api.model.Discount;
+import com.freshspire.api.model.response.DiscountData;
 import com.freshspire.api.service.DiscountService;
 import com.freshspire.api.utils.AddressConverter;
 import com.google.gson.Gson;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -48,7 +50,7 @@ public class DiscountController {
      * @param apiKey
      * @param q
      * @param within
-     * @param foodType
+     * @param foodTypes
      * @param chain
      * @return list of discounts
      */
@@ -59,11 +61,12 @@ public class DiscountController {
             @RequestParam String apiKey,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) Float within,
-            @RequestParam(required = false) String foodType,
+            @RequestParam(required = false) List<String> foodTypes,
             @RequestParam(required = false) String chain) {
 
         if(within == null) within = DEFAULT_WITHIN;
-        List<Discount> discountList = discountService.getDiscountsByLatLong(latitude, longitude, q, within, foodType, chain);
+        List<DiscountData> discountList = discountService.getDiscountsByLatLong(
+                latitude, longitude, q, within, foodTypes, chain);
         JsonObject body = new JsonObject();
         body.addProperty("count", discountList.size());
         body.add("discounts", gson.toJsonTree(discountList));
@@ -76,14 +79,13 @@ public class DiscountController {
             @PathVariable String address,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) Float within,
-            @RequestParam(required = false) String foodType,
+            @RequestParam(required = false) List<String> foodTypes,
             @RequestParam(required = false) String chain,
             @RequestHeader("Authorization") String apiKey) {
-
         if(within == null) within = DEFAULT_WITHIN;
         CoordinatePair coordinates = AddressConverter.getLatLongFromAddress(address);
 
         return getDiscountsByLatLong(coordinates.getLatitude(), coordinates.getLongitude(), apiKey, q, within,
-                foodType, chain);
+                foodTypes, chain);
     }
 }

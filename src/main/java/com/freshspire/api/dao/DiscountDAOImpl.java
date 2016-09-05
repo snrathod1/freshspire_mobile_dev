@@ -39,21 +39,25 @@ public class DiscountDAOImpl implements DiscountDAO {
             float longitude,
             String queryParam,
             float within,
-            String foodType,
+            List<String> foodTypes,
             String chain) {
         Session session = getCurrentSession();
         StringBuilder queryString = new StringBuilder();
-        queryString.append("SELECT *, ( 3959 * acos( cos( radians( " + latitude + ") ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(" + longitude + ") ) + sin( radians( " + latitude + ") ) * sin( radians( latitude ) ) ) ) AS distance FROM");
+        queryString.append("SELECT *, ( 3959 * acos( cos( radians( "
+                + latitude
+                + ") ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians("
+                + longitude + ") ) + sin( radians( "
+                + latitude + ") ) * sin( radians( latitude ) ) ) ) AS distance FROM");
         queryString.append(" discount");
         queryString.append(" INNER JOIN stores ON stores.storeId = discount.storeId");
         queryString.append(" INNER JOIN product on product.productId = discount.productId");
         queryString.append(" INNER JOIN chains on chains.chainId = discount.chainId");
 
         boolean isEmptyParam = Strings.isNullOrEmpty(queryParam);
-        boolean isEmptyFoodType = Strings.isNullOrEmpty(foodType);
+        boolean isEmptyFoodTypes = foodTypes == null || foodTypes.size() == 0;
         boolean isEmptyChain = Strings.isNullOrEmpty(chain);
 
-        if (!isEmptyParam || !isEmptyFoodType || !isEmptyChain) {
+        if (!isEmptyParam || !isEmptyFoodTypes || !isEmptyChain) {
             queryString.append(" WHERE");
 
             // flag to check if 'and' has to be prefixed before clause
@@ -64,11 +68,18 @@ public class DiscountDAOImpl implements DiscountDAO {
                 andFlag = true;
             }
 
-            if (!isEmptyFoodType) {
+            if (!isEmptyFoodTypes) {
                 if (andFlag) {
                     queryString.append(" and");
                 }
-                queryString.append(" product.foodType like '%" + foodType + "%'");
+                for(int i = 0; i < foodTypes.size(); i++) {
+                    // don't append the OR to the last foodType
+                    if(i == foodTypes.size() - 1) {
+                        queryString.append(" product.foodType like '%" + foodTypes.get(i) + "%'");
+                    } else {
+                        queryString.append(" product.foodType like '%" + foodTypes.get(i) + "%' or");
+                    }
+                }
                 andFlag = true;
             }
 
