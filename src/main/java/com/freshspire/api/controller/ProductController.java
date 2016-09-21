@@ -1,8 +1,10 @@
 package com.freshspire.api.controller;
 
 import com.freshspire.api.model.Product;
+import com.freshspire.api.model.User;
 import com.freshspire.api.model.param.NewProductParams;
 import com.freshspire.api.service.ProductService;
+import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,11 +16,15 @@ import org.springframework.web.bind.annotation.*;
 public class ProductController {
 
     private ProductService productService;
+    private UserService userService;
 
     @Autowired
     public void setProductService(ProductService productService) {
         this.productService = productService;
     }
+
+    @Autowired
+    public void setUserService(UserService userService) { this.userService = userService; }
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<String> debug() {
@@ -26,7 +32,10 @@ public class ProductController {
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity<String> createProduct(@RequestBody NewProductParams params) {
+    public ResponseEntity<String> createProduct(@RequestBody NewProductParams params, @RequestHeader("Authorization") String apiKey) {
+        if(userService.getUserByApiKey(apiKey) == null) {
+            return ResponseUtil.unauthorized("Unauthenticated");
+        }
         Product newProduct = new Product(params.getDisplayName(), params.getChainId(), params.getFoodType());
 
         if(!productService.isValidFoodType(params.getFoodType())) {
@@ -39,7 +48,10 @@ public class ProductController {
     }
 
     @RequestMapping(value = "/{productId}", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity<String> getProductById(@PathVariable int productId) {
+    public ResponseEntity<String> getProductById(@PathVariable int productId, @RequestHeader("Authorization") String apiKey) {
+        if(userService.getUserByApiKey(apiKey) == null) {
+            return ResponseUtil.unauthorized("Unauthenticated");
+        }
         Product product = productService.getProductById(productId);
 
         if(product == null) {

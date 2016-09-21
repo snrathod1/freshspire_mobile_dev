@@ -30,18 +30,14 @@ public class ChainController {
 
     @RequestMapping(value = "/{chainId}", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<String> getChainById(@PathVariable int chainId, @RequestHeader("Authorization") String apiKey) {
-
-        // Authenticate user first
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
         }
-
         Chain chain = chainService.getChainById(chainId);
 
         if(chain == null) {
             return ResponseUtil.notFound("Chain with ID " + chain + " not found");
         }
-
         return ResponseEntity.ok(gson.toJson(chain));
     }
 }

@@ -82,7 +82,6 @@ public class StoreController {
      */
     @RequestMapping(value = "/{storeId}", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<String> getStoreById(@PathVariable int storeId, @RequestHeader("Authorization") String apiKey) {
-        // Authenticate user first
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
         }
@@ -108,7 +107,6 @@ public class StoreController {
             @RequestHeader("Authorization") String apiKey,
             @RequestParam(required = false) String query,
             @RequestParam(required = false) String foodType) {
-        // Authenticate first
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
         }
@@ -134,7 +132,9 @@ public class StoreController {
      * @return store data
      */
     @RequestMapping(value = "/{storeId}/discounts", method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity<String> addNewDiscountToStore(@PathVariable int storeId, @RequestBody NewDiscountParams params, @RequestHeader("Authorization") String apiKey) {
+    public ResponseEntity<String> addNewDiscountToStore(@PathVariable int storeId,
+                                                        @RequestBody NewDiscountParams params,
+                                                        @RequestHeader("Authorization") String apiKey) {
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
         }

@@ -2,9 +2,12 @@ package com.freshspire.api.controller;
 
 import com.freshspire.api.model.CoordinatePair;
 import com.freshspire.api.model.Discount;
+import com.freshspire.api.model.User;
 import com.freshspire.api.model.response.DiscountData;
 import com.freshspire.api.service.DiscountService;
+import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.AddressConverter;
+import com.freshspire.api.utils.ResponseUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;
@@ -24,6 +27,7 @@ public class DiscountController {
     private static final Float DEFAULT_WITHIN = 10f;
 
     private DiscountService discountService;
+    private UserService userService;
 
     private static Gson gson = new Gson();
 
@@ -34,12 +38,19 @@ public class DiscountController {
         this.discountService = discountService;
     }
 
+    @Autowired
+    public void setUserService(UserService userService) { this.userService = userService; }
+
     /**
      * @param discountId unique id of discount to fetch
      * @return unique discount data
      */
     @RequestMapping(value = "/{discountId}", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity<String> getDiscountById(@PathVariable int discountId) {
+    public ResponseEntity<String> getDiscountById(@PathVariable int discountId,
+                                                  @RequestHeader("Authorization") String apiKey) {
+        if(userService.getUserByApiKey(apiKey) == null) {
+            return ResponseUtil.unauthorized("Unauthenticated");
+        }
         return ResponseEntity.ok(gson.toJson(discountService.getDiscountById(discountId)));
     }
 
@@ -58,12 +69,14 @@ public class DiscountController {
     public ResponseEntity<String> getDiscountsByLatLong(
             @RequestParam float latitude,
             @RequestParam float longitude,
-            @RequestParam String apiKey,
+            @RequestHeader("Authorization") String apiKey,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) Float within,
             @RequestParam(required = false) List<String> foodTypes,
             @RequestParam(required = false) String chain) {
-
+        if(userService.getUserByApiKey(apiKey) == null) {
+            return ResponseUtil.unauthorized("Unauthenticated");
+        }
         if(within == null) within = DEFAULT_WITHIN;
         List<DiscountData> discountList = discountService.getDiscountsByLatLong(
                 latitude, longitude, q, within, foodTypes, chain);
@@ -82,6 +95,9 @@ public class DiscountController {
             @RequestParam(required = false) List<String> foodTypes,
             @RequestParam(required = false) String chain,
             @RequestHeader("Authorization") String apiKey) {
+        if(userService.getUserByApiKey(apiKey) == null) {
+            return ResponseUtil.unauthorized("Unauthenticated");
+        }
         if(within == null) within = DEFAULT_WITHIN;
         CoordinatePair coordinates = AddressConverter.getLatLongFromAddress(address);
 

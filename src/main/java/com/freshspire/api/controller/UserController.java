@@ -51,7 +51,10 @@ public class UserController {
      * GET /users/debug
      */
     @RequestMapping(value = "/debug", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity<String> getUsers() {
+    public ResponseEntity<String> getUsers(@RequestHeader("Authorization") String apiKey) {
+        if(userService.getUserByApiKey(apiKey) == null) {
+            return ResponseUtil.unauthorized("Unauthenticated");
+        }
         JsonObject obj = new JsonObject();
         obj.addProperty("status", "ok");
         obj.addProperty("message", "debug message");
