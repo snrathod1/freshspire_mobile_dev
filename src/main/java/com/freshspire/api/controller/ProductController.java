@@ -50,6 +50,7 @@ public class ProductController {
             return ResponseUtil.unauthorized("Unauthenticated");
         }
 
+        // Convert RequestParam "product" containing JSON String to NewProductParams Java Object
         NewProductParams params = null;
         try {
             params = new ObjectMapper().readValue(productJson, NewProductParams.class);
@@ -57,6 +58,15 @@ public class ProductController {
             ResponseUtil.badRequest("Invalid product json");
         }
 
+        // Validate whether the food type is correct
+        // TODO: It is best to store food types in the database and retrieve them with a enum.
+        if(!productService.isValidFoodType(params.getFoodType())) {
+            return ResponseUtil.badRequest("Invalid food type: " + params.getFoodType());
+        }
+
+        // Save the uploaded thumbnail on the server.
+        // This should be the last step in the validations to prevent the creation of orphan files
+        // when the product was not successfully created.
         String thumbnailUrl = null;
         try {
             thumbnailUrl = productService.saveThumbnail(thumbnailData);
@@ -65,10 +75,6 @@ public class ProductController {
         }
 
         Product newProduct = new Product(params.getDisplayName(), params.getChainId(), params.getFoodType(), thumbnailUrl);
-
-        if(!productService.isValidFoodType(params.getFoodType())) {
-            return ResponseUtil.badRequest("Invalid food type: " + params.getFoodType());
-        }
 
         productService.addProduct(newProduct);
 
@@ -94,18 +100,22 @@ public class ProductController {
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
         }
-        Product product = productService.getProductById(productId);
 
+        // In order to get the thumbnail, we first need to get the product via productId
+        Product product = productService.getProductById(productId);
         if(product == null) {
             return ResponseUtil.notFound(String.format(PRODUCT_NOT_FOUND_TEMPLATE, productId));
         }
 
+        // Get the resource file
         Resource resource = new FileSystemResourceLoader().getResource(product.getThumbnail());
 
+        // Add a existance check in case file was illegally moved or renamed on server-side
         if(!resource.exists()) {
             return ResponseUtil.notFound(String.format(PRODUCT_THUMBNAIL_NOT_FOUND_TEMPLATE, productId));
         }
 
+        // Return a image/jpeg HTTP response containing the thumbnail
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE).body(resource);
     }
 }
