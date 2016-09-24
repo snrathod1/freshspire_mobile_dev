@@ -1,15 +1,18 @@
 package com.freshspire.api.controller;
 
 import com.freshspire.api.model.Product;
-import com.freshspire.api.model.User;
 import com.freshspire.api.model.param.NewProductParams;
 import com.freshspire.api.service.ProductService;
 import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.ResponseUtil;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/products")
@@ -32,11 +35,28 @@ public class ProductController {
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity<String> createProduct(@RequestBody NewProductParams params, @RequestHeader("Authorization") String apiKey) {
+    public ResponseEntity<String> createProduct(@RequestParam("product") String productJson, 
+                                                @RequestParam("thumbnail") MultipartFile thumbnailData,
+                                                @RequestHeader("Authorization") String apiKey) {
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
         }
-        Product newProduct = new Product(params.getDisplayName(), params.getChainId(), params.getFoodType());
+
+        NewProductParams params = null;
+        try {
+            params = new ObjectMapper().readValue(productJson, NewProductParams.class);
+        } catch (IOException e) {
+            ResponseUtil.badRequest("Invalid product json");
+        }
+
+        String thumbnailUrl = null;
+        try {
+            thumbnailUrl = productService.saveThumbnail(thumbnailData);
+        } catch (IOException e) {
+            ResponseUtil.serverError("Unable to store thumbnail on the server");
+        }
+
+        Product newProduct = new Product(params.getDisplayName(), params.getChainId(), params.getFoodType(), thumbnailUrl);
 
         if(!productService.isValidFoodType(params.getFoodType())) {
             return ResponseUtil.badRequest("Invalid food type: " + params.getFoodType());

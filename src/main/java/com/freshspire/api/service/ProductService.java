@@ -1,7 +1,9 @@
 package com.freshspire.api.service;
 
 import com.freshspire.api.model.Product;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface ProductService {
@@ -11,4 +13,5 @@ public interface ProductService {
     void deleteProduct(Product product);
     void updateProduct(Product product);
     boolean isValidFoodType(String foodType);
+    String saveThumbnail(MultipartFile thumbnailData) throws IOException;
 }
