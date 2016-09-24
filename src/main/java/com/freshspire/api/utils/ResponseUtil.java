@@ -153,7 +153,7 @@ public class ResponseUtil {
         json.addProperty("chainId", product.getChainId());
         json.addProperty("displayName", product.getDisplayName());
         json.addProperty("foodType", product.getFoodType());
-        json.addProperty("thumbnail", "/static/images/products/" + product.getProductId() + ".jpg");
+        json.addProperty("thumbnail", product.getThumbnail());
 
         return ResponseEntity.status(status).body(json.toString());
     }

@@ -27,7 +27,9 @@ public class ProductController {
     }
 
     @Autowired
-    public void setUserService(UserService userService) { this.userService = userService; }
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<String> debug() {
