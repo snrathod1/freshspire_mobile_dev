@@ -20,12 +20,19 @@ public class Product {
     @Column(name = "foodType")
     private String foodType;
 
+    /**
+     * Stores Product thumbnail URL.
+     */
+    @Column(name = "thumbnail")
+    private String thumbnail;
+
     public Product() {}
 
-    public Product(String displayName, int chainId, String foodType) {
+    public Product(String displayName, int chainId, String foodType, String thumbnail) {
         this.displayName = displayName;
         this.chainId = chainId;
         this.foodType = foodType;
+        this.thumbnail = thumbnail;
     }
 
     public int getProductId() {
@@ -58,5 +65,13 @@ public class Product {
 
     public void setFoodType(String foodType) {
         this.foodType = foodType;
+    }
+
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
     }
 }
