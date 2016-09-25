@@ -50,12 +50,12 @@ public class ProductController {
             return ResponseUtil.unauthorized("Unauthenticated");
         }
 
-        // Convert RequestParam "product" containing JSON String to NewProductParams Java Object
+        // Convert RequestParam "product" containing JSON String to NewProductParams object
         NewProductParams params = null;
         try {
             params = new ObjectMapper().readValue(productJson, NewProductParams.class);
         } catch (IOException e) {
-            ResponseUtil.badRequest("Invalid product json");
+            return ResponseUtil.badRequest("Invalid product json");
         }
 
         // Parse request parameters
@@ -76,7 +76,7 @@ public class ProductController {
         try {
             thumbnailUrl = productService.saveThumbnail(chainId, thumbnailData);
         } catch (IOException e) {
-            ResponseUtil.serverError("Unable to store thumbnail on the server");
+            return ResponseUtil.serverError("Unable to store thumbnail on the server");
         }
 
         Product newProduct = new Product(displayName, chainId, foodType, thumbnailUrl);
@@ -100,7 +100,7 @@ public class ProductController {
         }
     }
 
-    @RequestMapping(value = "thumbnails/{productId}", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/thumbnails/{productId}", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity getProductThumbnailById(@PathVariable int productId, @RequestHeader("Authorization") String apiKey) {
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
@@ -115,7 +115,7 @@ public class ProductController {
         // Get the resource file
         Resource resource = new FileSystemResourceLoader().getResource(product.getThumbnail());
 
-        // Add a existance check in case file was illegally moved or renamed on server-side
+        // Check for existence in case file was illegally moved or renamed on server-side
         if(!resource.exists()) {
             return ResponseUtil.notFound(String.format(PRODUCT_THUMBNAIL_NOT_FOUND_TEMPLATE, productId));
         }
