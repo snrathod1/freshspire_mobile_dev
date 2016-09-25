@@ -58,9 +58,14 @@ public class ProductController {
             ResponseUtil.badRequest("Invalid product json");
         }
 
+        // Parse request parameters
+        String displayName = params.getDisplayName();
+        int chainId = params.getChainId();
+        String foodType = params.getFoodType();
+
         // Validate whether the food type is correct
         // TODO: It is best to store food types in the database and retrieve them with a enum.
-        if(!productService.isValidFoodType(params.getFoodType())) {
+        if(!productService.isValidFoodType(foodType)) {
             return ResponseUtil.badRequest("Invalid food type: " + params.getFoodType());
         }
 
@@ -69,12 +74,12 @@ public class ProductController {
         // when the product was not successfully created.
         String thumbnailUrl = null;
         try {
-            thumbnailUrl = productService.saveThumbnail(thumbnailData);
+            thumbnailUrl = productService.saveThumbnail(chainId, thumbnailData);
         } catch (IOException e) {
             ResponseUtil.serverError("Unable to store thumbnail on the server");
         }
 
-        Product newProduct = new Product(params.getDisplayName(), params.getChainId(), params.getFoodType(), thumbnailUrl);
+        Product newProduct = new Product(displayName, chainId, foodType, thumbnailUrl);
 
         productService.addProduct(newProduct);
 

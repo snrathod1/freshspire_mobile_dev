@@ -13,5 +13,5 @@ public interface ProductService {
     void deleteProduct(Product product);
     void updateProduct(Product product);
     boolean isValidFoodType(String foodType);
-    String saveThumbnail(MultipartFile thumbnailData) throws IOException;
+    String saveThumbnail(int chainId, MultipartFile thumbnailData) throws IOException;
 }

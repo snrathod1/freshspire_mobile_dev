@@ -62,9 +62,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public synchronized String saveThumbnail(MultipartFile thumbnailData) throws IOException {
+    public synchronized String saveThumbnail(int chainId, MultipartFile thumbnailData) throws IOException {
         // Generate thumbnail file path
-        String thumbnailFilePath = String.format("%s/%d.%s", THUMBNAIL_BASE_URI,
+        String thumbnailFilePath = String.format("%s/%d/%d.%s", THUMBNAIL_BASE_URI, chainId,
                 System.currentTimeMillis(), THUMBNAIL_EXTENSION);
 
         // Create stub thumbnail file on the server
