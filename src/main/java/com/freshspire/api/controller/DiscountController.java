@@ -1,8 +1,6 @@
 package com.freshspire.api.controller;
 
 import com.freshspire.api.model.CoordinatePair;
-import com.freshspire.api.model.Discount;
-import com.freshspire.api.model.User;
 import com.freshspire.api.model.response.DiscountData;
 import com.freshspire.api.service.DiscountService;
 import com.freshspire.api.service.UserService;
@@ -16,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -62,7 +59,7 @@ public class DiscountController {
      * @param q
      * @param within
      * @param foodTypes
-     * @param chain
+     * @param chains
      * @return list of discounts
      */
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
@@ -73,13 +70,13 @@ public class DiscountController {
             @RequestParam(required = false) String q,
             @RequestParam(required = false) Float within,
             @RequestParam(required = false) List<String> foodTypes,
-            @RequestParam(required = false) String chain) {
+            @RequestParam(required = false) List<String> chains) {
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
         }
         if(within == null) within = DEFAULT_WITHIN;
         List<DiscountData> discountList = discountService.getDiscountsByLatLong(
-                latitude, longitude, q, within, foodTypes, chain);
+                latitude, longitude, q, within, foodTypes, chains);
         JsonObject body = new JsonObject();
         body.addProperty("count", discountList.size());
         body.add("discounts", gson.toJsonTree(discountList));
@@ -93,7 +90,7 @@ public class DiscountController {
             @RequestParam(required = false) String q,
             @RequestParam(required = false) Float within,
             @RequestParam(required = false) List<String> foodTypes,
-            @RequestParam(required = false) String chain,
+            @RequestParam(required = false) List<String> chain,
             @RequestHeader("Authorization") String apiKey) {
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");

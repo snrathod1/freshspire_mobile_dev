@@ -9,7 +9,7 @@ public interface DiscountService {
 
     Discount getDiscountById(int discountId);
     List<DiscountData> getDiscountsByLatLong(float latitude, float longitude, String queryParam, float within,
-                                             List<String> foodTypes, String chain);
+                                             List<String> foodTypes, List<String> chains);
 
     void addDiscount(Discount discount);
 

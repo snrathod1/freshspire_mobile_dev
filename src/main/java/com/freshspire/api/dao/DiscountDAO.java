@@ -8,7 +8,7 @@ public interface DiscountDAO {
 
     Discount getDiscountById(int discountId);
     List<Object> getDiscountByLatLong(float latitude, float longitude, String queryParam, float within,
-                                      List<String> foodTypes, String chain);
+                                      List<String> foodTypes, List<String> chains);
 
     void addDiscount(Discount discount);
 

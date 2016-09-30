@@ -40,7 +40,7 @@ public class DiscountDAOImpl implements DiscountDAO {
             String queryParam,
             float within,
             List<String> foodTypes,
-            String chain) {
+            List<String> chains) {
         Session session = getCurrentSession();
         StringBuilder queryString = new StringBuilder();
         queryString.append("SELECT *, ( 3959 * acos( cos( radians( "
@@ -55,29 +55,29 @@ public class DiscountDAOImpl implements DiscountDAO {
 
         boolean isEmptyParam = Strings.isNullOrEmpty(queryParam);
         boolean isEmptyFoodTypes = foodTypes == null || foodTypes.size() == 0;
-        boolean isEmptyChain = Strings.isNullOrEmpty(chain);
+        boolean isEmptyChain = chains == null || chains.size() == 0;
 
         if (!isEmptyParam || !isEmptyFoodTypes || !isEmptyChain) {
-            queryString.append(" WHERE");
+            StringBuilder whereClause = new StringBuilder(" WHERE");
 
             // flag to check if 'and' has to be prefixed before clause
             boolean andFlag = false;
 
             if (!isEmptyParam) {
-                queryString.append(" product.displayName like '%" + queryParam + "%'");
+                whereClause.append(" product.displayName like '%" + queryParam + "%'");
                 andFlag = true;
             }
 
             if (!isEmptyFoodTypes) {
                 if (andFlag) {
-                    queryString.append(" and");
+                    whereClause.append(" and");
                 }
                 for(int i = 0; i < foodTypes.size(); i++) {
                     // don't append the OR to the last foodType
                     if(i == foodTypes.size() - 1) {
-                        queryString.append(" product.foodType like '%" + foodTypes.get(i) + "%'");
+                        whereClause.append(" product.foodType like '%" + foodTypes.get(i) + "%'");
                     } else {
-                        queryString.append(" product.foodType like '%" + foodTypes.get(i) + "%' or");
+                        whereClause.append(" product.foodType like '%" + foodTypes.get(i) + "%' or");
                     }
                 }
                 andFlag = true;
@@ -85,14 +85,21 @@ public class DiscountDAOImpl implements DiscountDAO {
 
             if (!isEmptyChain) {
                 if (andFlag) {
-                    queryString.append(" and");
+                    whereClause.append(" and");
                 }
-                queryString.append(" chains.displayName like '%" + chain + "%'");
+                for(int i = 0; i < chains.size(); i++) {
+                    // don't append OR to the last chain
+                    if(i == chains.size() - 1) {
+                        whereClause.append(" chains.chainId = " + chains.get(i));
+                    } else {
+                        whereClause.append(" chains.chainId = " + chains.get(i) + " or");
+                    }
+                }
             }
+            queryString.append(whereClause.toString());
         }
 
         queryString.append(" HAVING distance < " + within  + " ORDER BY distance;");
-
         Query query = session.createSQLQuery(queryString.toString())
                 .addEntity(Discount.class)
                 .addEntity(Store.class)

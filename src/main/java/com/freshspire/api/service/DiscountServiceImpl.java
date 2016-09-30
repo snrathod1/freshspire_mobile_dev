@@ -26,10 +26,10 @@ public class DiscountServiceImpl implements DiscountService {
 
     @Transactional
     @Override
-    public List<DiscountData> getDiscountsByLatLong(float latitude, float longitude, String queryParam, float within, List<String> foodTypes, String chain) {
+    public List<DiscountData> getDiscountsByLatLong(float latitude, float longitude, String queryParam, float within, List<String> foodTypes, List<String> chains) {
 
         List<DiscountData> discountData = new ArrayList<>();
-        for (Object discount : discountDAO.getDiscountByLatLong(latitude, longitude, queryParam, within, foodTypes, chain)) {
+        for (Object discount : discountDAO.getDiscountByLatLong(latitude, longitude, queryParam, within, foodTypes, chains)) {
             Object[] discountArray = (Object []) discount;
             discountData.add(new DiscountData(discountArray));
         }
