@@ -43,7 +43,7 @@ public class ProductController {
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity<String> createProduct(@RequestParam("product") String productJson, 
+    public ResponseEntity<String> createProduct(@RequestParam("product") String productJson,
                                                 @RequestParam("thumbnail") MultipartFile thumbnailData,
                                                 @RequestHeader("Authorization") String apiKey) {
         if(userService.getUserByApiKey(apiKey) == null) {
@@ -113,7 +113,9 @@ public class ProductController {
         }
 
         // Get the resource file
-        Resource resource = new FileSystemResourceLoader().getResource(product.getThumbnail());
+        String thumb = product.getThumbnail();
+        FileSystemResourceLoader loader = new FileSystemResourceLoader();
+        Resource resource = loader.getResource(thumb);
 
         // Check for existence in case file was illegally moved or renamed on server-side
         if(!resource.exists()) {
