@@ -74,6 +74,18 @@ public class ResponseUtil {
     }
 
     /**
+     * Returns a 500 Internal Server Error with status: error and message: (message) properties in JSON in the body
+     * @param message Message to include
+     * @return A 500 Internal Server Error response with the JSON information included in the body
+     */
+    public static ResponseEntity<String> serverError(String message) {
+        JsonObject json = new JsonObject();
+        json.addProperty(STATUS, ERROR);
+        json.addProperty(MESSAGE, message);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(gson.toJson(json));
+    }
+
+    /**
      * Returns HTTP response with a user object in the response body as JSON, but the user object
      * only includes attributes of the user that need to be included in the response.
      * For example, "firstName" is included but "salt" isn't (and shouldn't be).
@@ -141,7 +153,6 @@ public class ResponseUtil {
         json.addProperty("chainId", product.getChainId());
         json.addProperty("displayName", product.getDisplayName());
         json.addProperty("foodType", product.getFoodType());
-        json.addProperty("thumbnail", "/static/images/products/" + product.getProductId() + ".jpg");
 
         return ResponseEntity.status(status).body(json.toString());
     }
