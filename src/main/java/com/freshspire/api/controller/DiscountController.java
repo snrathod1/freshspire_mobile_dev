@@ -58,8 +58,8 @@ public class DiscountController {
      * @param apiKey
      * @param q
      * @param within
-     * @param foodTypes
-     * @param chains
+     * @param foodType
+     * @param chain
      * @return list of discounts
      */
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
@@ -69,14 +69,14 @@ public class DiscountController {
             @RequestHeader("Authorization") String apiKey,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) Float within,
-            @RequestParam(required = false) List<String> foodTypes,
-            @RequestParam(required = false) List<String> chains) {
+            @RequestParam(required = false) List<String> foodType,
+            @RequestParam(required = false) List<String> chain) {
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
         }
         if(within == null) within = DEFAULT_WITHIN;
         List<DiscountData> discountList = discountService.getDiscountsByLatLong(
-                latitude, longitude, q, within, foodTypes, chains);
+                latitude, longitude, q, within, foodType, chain);
         JsonObject body = new JsonObject();
         body.addProperty("count", discountList.size());
         body.add("discounts", gson.toJsonTree(discountList));
@@ -89,7 +89,7 @@ public class DiscountController {
             @PathVariable String address,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) Float within,
-            @RequestParam(required = false) List<String> foodTypes,
+            @RequestParam(required = false) List<String> foodType,
             @RequestParam(required = false) List<String> chain,
             @RequestHeader("Authorization") String apiKey) {
         if(userService.getUserByApiKey(apiKey) == null) {
@@ -99,6 +99,6 @@ public class DiscountController {
         CoordinatePair coordinates = AddressConverter.getLatLongFromAddress(address);
 
         return getDiscountsByLatLong(coordinates.getLatitude(), coordinates.getLongitude(), apiKey, q, within,
-                foodTypes, chain);
+                foodType, chain);
     }
 }

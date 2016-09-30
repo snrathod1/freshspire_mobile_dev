@@ -100,6 +100,8 @@ public class DiscountDAOImpl implements DiscountDAO {
         }
 
         queryString.append(" HAVING distance < " + within  + " ORDER BY distance;");
+        System.out.println("query: ");
+        System.out.println(queryString.toString());
         Query query = session.createSQLQuery(queryString.toString())
                 .addEntity(Discount.class)
                 .addEntity(Store.class)
