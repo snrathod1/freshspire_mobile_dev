@@ -17,13 +17,20 @@ public class NewDiscountParams {
 
     private int chainId;
 
-    public NewDiscountParams(int storeId, int productId, float originalPrice, float discountedPrice, long expirationDate, int chainId) {
+    private String unit;
+
+    private int quantity;
+
+    public NewDiscountParams(int storeId, int productId, float originalPrice, float discountedPrice,
+                             long expirationDate, int chainId, String unit, int quantity) {
         this.storeId = storeId;
         this.productId = productId;
         this.originalPrice = originalPrice;
         this.discountedPrice = discountedPrice;
         this.expirationDate = expirationDate;
         this.chainId = chainId;
+        this.unit = unit;
+        this.quantity = quantity;
     }
 
     public int getChainId() {
@@ -72,5 +79,21 @@ public class NewDiscountParams {
 
     public void setExpirationDate(long expirationDate) {
         this.expirationDate = expirationDate;
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
+
+    public int getQuantity() {
+        return this.quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 }

@@ -73,7 +73,7 @@ public class ProductController {
 
         productService.addProduct(newProduct);
 
-        return ResponseUtil.ok("Created product " + params.getDisplayName());
+        return ResponseUtil.makeProductObjectResponse(newProduct, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{productId}", method = RequestMethod.GET, produces = "application/json")

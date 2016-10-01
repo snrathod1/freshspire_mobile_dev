@@ -141,11 +141,12 @@ public class StoreController {
 
         long currentTime = System.currentTimeMillis()/1000;
         Discount newDiscount = new Discount(params.getStoreId(), params.getProductId(), currentTime,
-                params.getExpirationDate(), params.getOriginalPrice(), params.getDiscountedPrice(), params.getChainId());
+                params.getExpirationDate(), params.getOriginalPrice(), params.getDiscountedPrice(), params.getChainId(),
+                params.getQuantity(), params.getUnit());
 
         discountService.addDiscount(newDiscount);
 
-        return ResponseUtil.ok("Discount has been added to the store");
+        return ResponseUtil.makeDiscountObjectResponse(newDiscount, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/location", method = RequestMethod.GET, produces = "application/json")

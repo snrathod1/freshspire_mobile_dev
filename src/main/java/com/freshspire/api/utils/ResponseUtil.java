@@ -1,5 +1,6 @@
 package com.freshspire.api.utils;
 
+import com.freshspire.api.model.Discount;
 import com.freshspire.api.model.Product;
 import com.freshspire.api.model.Store;
 import com.freshspire.api.model.User;
@@ -153,6 +154,17 @@ public class ResponseUtil {
         json.addProperty("chainId", product.getChainId());
         json.addProperty("displayName", product.getDisplayName());
         json.addProperty("foodType", product.getFoodType());
+
+        return ResponseEntity.status(status).body(json.toString());
+    }
+
+    public static ResponseEntity<String> makeDiscountObjectResponse(Discount discount, HttpStatus status) {
+        JsonObject json = new JsonObject();
+        json.addProperty("discountId", discount.getDiscountId());
+        json.addProperty("originalPrice", discount.getOriginalPrice());
+        json.addProperty("discountedPrice", discount.getDiscountedPrice());
+        json.addProperty("quantity", discount.getQuantity());
+        json.addProperty("unit", discount.getUnit());
 
         return ResponseEntity.status(status).body(json.toString());
     }

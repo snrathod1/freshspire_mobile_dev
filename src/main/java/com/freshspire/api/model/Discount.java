@@ -32,9 +32,16 @@ public class Discount {
     @Column(name = "chainId")
     private int chainId;
 
+    @Column(name = "quantity")
+    private int quantity;
+
+    @Column(name = "unit")
+    private String unit;
+
     public Discount() {}
 
-    public Discount(int storeId, int productId, long posted, long expirationDate, float originalPrice, float discountedPrice, int chainId) {
+    public Discount(int storeId, int productId, long posted, long expirationDate, float originalPrice,
+                    float discountedPrice, int chainId, int quantity, String unit) {
         this.storeId = storeId;
         this.productId = productId;
         this.posted = posted;
@@ -42,6 +49,8 @@ public class Discount {
         this.originalPrice = originalPrice;
         this.discountedPrice = discountedPrice;
         this.chainId = chainId;
+        this.quantity = quantity;
+        this.unit = unit;
     }
 
     public int getDiscountId() {
@@ -106,6 +115,22 @@ public class Discount {
 
     public void setChainId(int chainId) {
         this.chainId = chainId;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public String getUnit() {
+        return this.unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
     }
 }
 
