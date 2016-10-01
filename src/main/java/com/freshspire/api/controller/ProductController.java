@@ -5,7 +5,6 @@ import com.freshspire.api.model.param.NewProductParams;
 import com.freshspire.api.service.ProductService;
 import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.ResponseUtil;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
@@ -43,30 +42,21 @@ public class ProductController {
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity<String> createProduct(@RequestParam("product") String productJson,
-                                                @RequestParam("thumbnail") MultipartFile thumbnailData,
-                                                @RequestHeader("Authorization") String apiKey) {
+    public ResponseEntity<String> createProduct(NewProductParams params, @RequestHeader("Authorization") String apiKey) {
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
-        }
-
-        // Convert RequestParam "product" containing JSON String to NewProductParams object
-        NewProductParams params = null;
-        try {
-            params = new ObjectMapper().readValue(productJson, NewProductParams.class);
-        } catch (IOException e) {
-            return ResponseUtil.badRequest("Invalid product json");
         }
 
         // Parse request parameters
         String displayName = params.getDisplayName();
         int chainId = params.getChainId();
         String foodType = params.getFoodType();
+        MultipartFile thumbnailData = params.getThumbnail();
 
         // Validate whether the food type is correct
         // TODO: It is best to store food types in the database and retrieve them with a enum.
         if(!productService.isValidFoodType(foodType)) {
-            return ResponseUtil.badRequest("Invalid food type: " + params.getFoodType());
+            return ResponseUtil.badRequest("Invalid food type: " + foodType);
         }
 
         // Save the uploaded thumbnail on the server.
