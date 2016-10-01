@@ -1,5 +1,7 @@
 package com.freshspire.api.model.param;
 
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
+
 public class NewProductParams {
 
     private String displayName;
@@ -8,12 +10,15 @@ public class NewProductParams {
 
     private int chainId;
 
+    private CommonsMultipartFile thumbnail;
+
     public NewProductParams() {}
 
-    public NewProductParams(String displayName, String foodType, int chainId) {
+    public NewProductParams(String displayName, String foodType, int chainId, CommonsMultipartFile thumbnail) {
         this.displayName = displayName;
         this.foodType = foodType;
         this.chainId = chainId;
+        this.thumbnail = thumbnail;
     }
 
     public String getDisplayName() {
@@ -38,5 +43,13 @@ public class NewProductParams {
 
     public void setChainId(int chainId) {
         this.chainId = chainId;
+    }
+
+    public CommonsMultipartFile getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(CommonsMultipartFile thumbnail) {
+        this.thumbnail = thumbnail;
     }
 }

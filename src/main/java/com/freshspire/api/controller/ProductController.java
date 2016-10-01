@@ -42,9 +42,7 @@ public class ProductController {
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity<String> createProduct(@RequestParam("product") String productJson,
-                                                @RequestParam("thumbnail") MultipartFile thumbnailData,
-                                                @RequestHeader("Authorization") String apiKey) {
+    public ResponseEntity<String> createProduct(NewProductParams params, @RequestHeader("Authorization") String apiKey) {
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
         }
@@ -53,11 +51,12 @@ public class ProductController {
         String displayName = params.getDisplayName();
         int chainId = params.getChainId();
         String foodType = params.getFoodType();
+        MultipartFile thumbnailData = params.getThumbnail();
 
         // Validate whether the food type is correct
         // TODO: It is best to store food types in the database and retrieve them with a enum.
         if(!productService.isValidFoodType(foodType)) {
-            return ResponseUtil.badRequest("Invalid food type: " + params.getFoodType());
+            return ResponseUtil.badRequest("Invalid food type: " + foodType);
         }
 
         // Save the uploaded thumbnail on the server.
