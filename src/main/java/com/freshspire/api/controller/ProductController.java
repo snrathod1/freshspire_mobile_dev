@@ -5,7 +5,6 @@ import com.freshspire.api.model.param.NewProductParams;
 import com.freshspire.api.service.ProductService;
 import com.freshspire.api.service.UserService;
 import com.freshspire.api.utils.ResponseUtil;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
@@ -48,14 +47,6 @@ public class ProductController {
                                                 @RequestHeader("Authorization") String apiKey) {
         if(userService.getUserByApiKey(apiKey) == null) {
             return ResponseUtil.unauthorized("Unauthenticated");
-        }
-
-        // Convert RequestParam "product" containing JSON String to NewProductParams object
-        NewProductParams params = null;
-        try {
-            params = new ObjectMapper().readValue(productJson, NewProductParams.class);
-        } catch (IOException e) {
-            return ResponseUtil.badRequest("Invalid product json");
         }
 
         // Parse request parameters
