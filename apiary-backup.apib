@@ -3,8 +3,6 @@ HOST: api.getfreshspired.com
 
 # Freshspire API
 
-**TODO: add /chains?**
-
 The Freshspire API exposes real-time discount information in grocery stores. More
 specifically, it exposes discount information on expiring food categories such as
 fresh produce, meats, and dairy products.
@@ -92,8 +90,8 @@ If the phone number and code are correct, the user is created and the user objec
     + Attributes
         + firstName: test         (string, required) - The user's first name
         + phoneNumber: 1234567890 (string, required) - The user's phone number
-        + verificationCode: 12345 (string, required) - The verification code sent to the user's phone number (from the POST request)
-        + newPassword: newPass123 (string, required) - The new password of the user
+        + validationCode: 12345 (string, required) - The verification code sent to the user's phone number (from the POST request)
+        + password: newPass123 (string, required) - The new password of the user
 
 
 + Response 201 (application/json)
@@ -265,13 +263,13 @@ Returns ```404 Not Found``` if the ```userId``` is not valid.
             "messsage": "User not found"
         }
 
-## Forgot Password [/users/forgot-password{?phoneNumber}]
+## Forgot Password [/users/forgot-password/{phoneNumber}]
 
 This endpoint allows a client to both login and update their password if they've forgotten it. This is done in two requests:
 
  1. The client sends a ```GET``` request to ```/users/forgot-password``` with ```phoneNumber``` as a URL parameter. This
  will send a confirmation code to the phone number provided.
- 2. Once the client has gotten their code, they ```POST``` to the same URL with ```phoneNumber```, ```verificationCode```,
+ 2. Once the client has gotten their code, they ```PUT``` to the same URL with ```phoneNumber```, ```verificationCode```,
  and ```newPassword``` as JSON parameters in the body. If the phone number and code are correct, the user's password is updated
  in the database and the user object is returned, which includes the API key needed for future API requests.
 
@@ -306,10 +304,10 @@ sends a verification code to the phone number provided.
             "message": "verification code not sent due to error"
         }
 
-### POST Login and set new password [POST]
+### PUT Login and set new password [PUT]
 **Unit tested**
 
-Once the client has received a verification code, they ```POST``` to this endpoint with their phone
+Once the client has received a verification code, they ```PUT``` to this endpoint with their phone
 number, code, and new password. If the phone number and code are correct, the user's password is updated in
 the database and the user object is returned, which includes the API key needed for future API requests.
 
@@ -494,7 +492,7 @@ A discount object has the following structure:
    * **quantity** (int): How many there are of the discount. **Example:** *3*
    * **originalPrice** (decimal): The original price. **Example:** *15*
    * **discountedPrice** (decimal): The discounted price. **Example:** *7.5*
-   * **priceUnit** (string): The unit of the price. This could be per pound, per package, per unit, etc. **Example:** *"lb"*
+   * **unit** (string): The unit in "price per {unit}". This could be lb, pkg, box, carton, etc. **Example:** *"lb"*
    * **posted** (string): Timestamp (format described below) when the discount was posted. **Example:** *1456932600*
    * **expirationDate** (integer): Expiration date (format described below) of the discount. **Example:** *1457191800*
  * **product**: Product object associated with the discount
@@ -502,7 +500,6 @@ A discount object has the following structure:
    * **displayName** (string): String display name of the product. **Example:** *"Pork chops"*
    * **foodType** (string): the food category the discounted product is classified as. The list of acceptable values
    for this is below. **Example:** *"meat"*
-   * **thumbnail** (string): URL of the thumbnail image for the product. **Example:** *"api.getfreshspired.com/static/images/products/34.jpg"*
  * **store**: Store object this discount belongs to
    * **storeId** (int): ID of the store the discount is associated with. **Example:** *11*
    * **displayName** (string): String display name. **Example:** *"Cameron Village"*
@@ -516,7 +513,6 @@ A discount object has the following structure:
  * **chain**: Chain object of the store this discount belongs to
    * **chainId** (int): ID of the chain. **Example:** *8*
    * **displayName** (string): String display name of the chain. **Example:** *"Harris Teeter"*
-   * **thumbnail** (string): URL of the thumbnail image of the chain logo. **Example:** *"api.getfreshspired.com/static/images/chains/8.jpg"*
 
 Acceptable values for ```foodType```:
 
@@ -581,15 +577,14 @@ The discount objects in the response will include the URL for the thumbnail of t
                         "quantity": 3,
                         "originalPrice": 16,
                         "discountedPrice": 7.5,
-                        "priceUnit": "lb",
+                        "unit": "lb",
                         "posted": 1456932600,
                         "expirationDate": 1457191800
                     },
                     "product": {
                         "productId": 1,
                         "displayName": "Pork tenderloin",
-                        "foodType": "meat",
-                        "thumbnail": "/static/images/products/p01.jpg"
+                        "foodType": "meat"
                     },
                     "store": {
                         "storeId": 1,
@@ -603,8 +598,7 @@ The discount objects in the response will include the URL for the thumbnail of t
                     },
                     "chain": {
                         "chainId": 1,
-                        "displayName": "Harris Teeter",
-                        "thumbnail": "/static/images/chains/1.jpg"
+                        "displayName": "Harris Teeter"
                     }
                 },
                 {
@@ -613,15 +607,14 @@ The discount objects in the response will include the URL for the thumbnail of t
                         "quantity": 11,
                         "originalPrice": 1,
                         "discountedPrice": 0.9,
-                        "priceUnit": "lb",
+                        "unit": "lb",
                         "posted": 1456954200,
                         "expirationDate": 1457191800
                     },
                     "product": {
                         "productId": 2,
                         "displayName": "Lemons",
-                        "foodType": "produce",
-                        "thumbnail": "/static/images/products/2.jpg"
+                        "foodType": "produce"
                     },
                     "store": {
                         "storeId": 1,
@@ -635,8 +628,7 @@ The discount objects in the response will include the URL for the thumbnail of t
                     },
                     "chain": {
                         "chainId": 1,
-                        "displayName": "Harris Teeter",
-                        "thumbnail": "/static/images/chains/1.jpg"
+                        "displayName": "Harris Teeter"
                     }
                 },
                 {
@@ -645,15 +637,14 @@ The discount objects in the response will include the URL for the thumbnail of t
                         "quantity": 4,
                         "originalPrice": 5.5,
                         "discountedPrice": 3.5,
-                        "priceUnit": "box",
+                        "unit": "box",
                         "posted": 1457028000,
                         "expirationDate": 1457352000
                     },
                     "product": {
                         "productId": 3,
                         "displayName": "1doz Chocolate Doughnuts",
-                        "foodType": "bakery",
-                        "thumbnail": "/static/images/products/3.jpg"
+                        "foodType": "bakery"
                     },
                     "store": {
                         "storeId": 1,
@@ -667,8 +658,7 @@ The discount objects in the response will include the URL for the thumbnail of t
                     },
                     "chain": {
                         "chainId": 1,
-                        "displayName": "Harris Teeter",
-                        "thumbnail": "/static/images/chains/1.jpg"
+                        "displayName": "Harris Teeter"
                     }
                 },
                 {
@@ -677,15 +667,14 @@ The discount objects in the response will include the URL for the thumbnail of t
                         "quantity": 1,
                         "originalPrice": 5.25,
                         "discountedPrice": 3.14,
-                        "priceUnit": "pkg",
+                        "unit": "pkg",
                         "posted": 1457100000,
                         "expirationDate": 1457193600
                     },
                     "product": {
                         "productId": 4,
                         "displayName": "Organic pork sausages",
-                        "foodType": "meat",
-                        "thumbnail": "/static/images/products/4.jpg"
+                        "foodType": "meat"
                     },
                     "store": {
                         "storeId": 1,
@@ -699,8 +688,7 @@ The discount objects in the response will include the URL for the thumbnail of t
                     },
                     "chain": {
                         "chainId": 1,
-                        "displayName": "Harris Teeter",
-                        "thumbnail": "/static/images/chains/1.jpg"
+                        "displayName": "Harris Teeter"
                     }
                 },
                 {
@@ -709,15 +697,14 @@ The discount objects in the response will include the URL for the thumbnail of t
                         "quantity": 5,
                         "originalPrice": 6,
                         "discountedPrice": 4,
-                        "priceUnit": "bag",
+                        "unit": "bag",
                         "posted": 1457193600
                     },
                     "expirationDate": 1457355600,
                     "product": {
                         "productId": 5,
                         "displayName": "Dinner rolls (6ct)",
-                        "foodType": "bakery",
-                        "thumbnail": "/static/images/products/5.jpg"
+                        "foodType": "bakery"
                     },
                     "store": {
                         "storeId": 2,
@@ -731,8 +718,7 @@ The discount objects in the response will include the URL for the thumbnail of t
                     },
                     "chain": {
                         "chainId": 1,
-                        "displayName": "Harris Teeter",
-                        "thumbnail": "/static/images/chains/1.jpg"
+                        "displayName": "Harris Teeter"
                     }
                 },
                 {
@@ -741,15 +727,14 @@ The discount objects in the response will include the URL for the thumbnail of t
                         "quantity": 8,
                         "originalPrice": 3,
                         "discountedPrice": 1.9,
-                        "priceUnit": "box",
+                        "unit": "box",
                         "posted": 1457355600,
                         "expirationDate": 1457528400
                     },
                     "product": {
                         "productId": 6,
                         "displayName": "Grape tomatoes (8ox box)",
-                        "foodType": "produce",
-                        "thumbnail": "/static/images/products/6.jpg"
+                        "foodType": "produce"
                     },
                     "store": {
                         "storeId": 2,
@@ -763,8 +748,7 @@ The discount objects in the response will include the URL for the thumbnail of t
                     },
                     "chain": {
                         "chainId": 1,
-                        "displayName": "Harris Teeter",
-                        "thumbnail": "/static/images/chains/1.jpg"
+                        "displayName": "Harris Teeter"
                     }
                 }
             ]
@@ -784,17 +768,17 @@ The discount objects in the response will include the URL for the thumbnail of t
             "message": "Unauthenticated"
         }
 
-## Discounts by street address/zip code [/discounts/place/{zipCode}{?q,within,foodType,chain,page}]
-This endpoint represents the discounts geographically close to the *zip code* specified.
+## Discounts by street address [/discounts/place/{address}{?q,within,foodType,chain,page}]
+This endpoint represents the discounts geographically close to the *address* specified.
 Use the query parameters to filter the results or search by product name.
 
 + Parameters
-    + zipCode: 27607 (required, string) - The zip code of the location to search from
+    + address: `123 Main Street, Raleigh NC` (required, string) - The address to search from
     + page: 1 (number, optional) - the page of discounts to return, starting at page 1
         + Default: `1`
 
 ### GET Discounts [GET]
-Get discounts geographically close to the zip code specified. Filter with parameters ```within```,
+Get discounts geographically close to the address specified. Filter with parameters ```within```,
 ```foodType```, and ```chain```. Search by product name with the ```q``` parameter. Paginate with the ```page```
 parameter.
 
@@ -831,15 +815,14 @@ parameter.
                         "quantity": 3,
                         "originalPrice": 15,
                         "discountedPrice": 7.5,
-                        "priceUnit": "lb",
+                        "unit": "lb",
                         "posted": 1456932600,
                         "expirationDate": 1457191800
                     },
                     "product": {
                         "productId": 1,
                         "displayName": "Pork tenderloin",
-                        "foodType": "meat",
-                        "thumbnail": "/static/images/products/p01.jpg"
+                        "foodType": "meat"
                     },
                     "store": {
                         "storeId": 1,
@@ -853,8 +836,7 @@ parameter.
                     },
                     "chain": {
                         "chainId": 1,
-                        "displayName": "Harris Teeter",
-                        "thumbnail": "/static/images/chains/1.jpg"
+                        "displayName": "Harris Teeter"
                     }
                 },
                 {
@@ -863,15 +845,14 @@ parameter.
                         "quantity": 11,
                         "originalPrice": 1,
                         "discountedPrice": 0.6,
-                        "priceUnit": "lb",
+                        "unit": "lb",
                         "posted": 1456954200,
                         "expirationDate": 1457191800
                     },
                     "product": {
                         "productId": 2,
                         "displayName": "Lemons",
-                        "foodType": "produce",
-                        "thumbnail": "/static/images/products/2.jpg"
+                        "foodType": "produce"
                     },
                     "store": {
                         "storeId": 1,
@@ -885,8 +866,7 @@ parameter.
                     },
                     "chain": {
                         "chainId": 1,
-                        "displayName": "Harris Teeter",
-                        "thumbnail": "/static/images/chains/1.jpg"
+                        "displayName": "Harris Teeter"
                     }
                 },
                 {
@@ -895,15 +875,14 @@ parameter.
                         "quantity": 4,
                         "originalPrice": 5.5,
                         "discountedPrice": 3.5,
-                        "priceUnit": "box",
+                        "unit": "box",
                         "posted": 1457028000,
                         "expirationDate": 1457352000
                     },
                     "product": {
                         "productId": 3,
                         "displayName": "1doz Chocolate Doughnuts",
-                        "foodType": "bakery",
-                        "thumbnail": "/static/images/products/3.jpg"
+                        "foodType": "bakery"
                     },
                     "store": {
                         "storeId": 1,
@@ -917,8 +896,7 @@ parameter.
                     },
                     "chain": {
                         "chainId": 1,
-                        "displayName": "Harris Teeter",
-                        "thumbnail": "/static/images/chains/1.jpg"
+                        "displayName": "Harris Teeter"
                     }
                 },
                 {
@@ -927,15 +905,14 @@ parameter.
                         "quantity": 1,
                         "originalPrice": 5.25,
                         "discountedPrice": 3.14,
-                        "priceUnit": "pkg",
+                        "unit": "pkg",
                         "posted": 1457100000,
                         "expirationDate": 1457193600
                     },
                     "product": {
                         "productId": 4,
                         "displayName": "Organic pork sausages",
-                        "foodType": "meat",
-                        "thumbnail": "/static/images/products/4.jpg"
+                        "foodType": "meat"
                     },
                     "store": {
                         "storeId": 1,
@@ -949,8 +926,7 @@ parameter.
                     },
                     "chain": {
                         "chainId": 1,
-                        "displayName": "Harris Teeter",
-                        "thumbnail": "/static/images/chains/1.jpg"
+                        "displayName": "Harris Teeter"
                     }
                 },
                 {
@@ -959,15 +935,14 @@ parameter.
                         "quantity": 5,
                         "originalPrice": 6,
                         "discountedPrice": 4,
-                        "priceUnit": "bag",
+                        "unit": "bag",
                         "posted": 1457193600,
                         "expirationDate": 1457355600
                     },
                     "product": {
                         "productId": 5,
                         "displayName": "Dinner rolls (6ct)",
-                        "foodType": "bakery",
-                        "thumbnail": "/static/images/products/5.jpg"
+                        "foodType": "bakery"
                     },
                     "store": {
                         "storeId": 2,
@@ -981,8 +956,7 @@ parameter.
                     },
                     "chain": {
                         "chainId": 1,
-                        "displayName": "Harris Teeter",
-                        "thumbnail": "/static/images/chains/1.jpg"
+                        "displayName": "Harris Teeter"
                     }
                 },
                 {
@@ -991,15 +965,14 @@ parameter.
                         "quantity": 8,
                         "originalPrice": 3,
                         "discountedPrice": 1.9,
-                        "priceUnit": "box",
+                        "unit": "box",
                         "posted": 1457355600,
                         "expirationDate": 1457528400
                     },
                     "product": {
                         "productId": 6,
                         "displayName": "Grape tomatoes (8ox box)",
-                        "foodType": "produce",
-                        "thumbnail": "/static/images/products/6.jpg"
+                        "foodType": "produce"
                     },
                     "store": {
                         "storeId": 2,
@@ -1013,8 +986,7 @@ parameter.
                     },
                     "chain": {
                         "chainId": 1,
-                        "displayName": "Harris Teeter",
-                        "thumbnail": "/static/images/chains/1.jpg"
+                        "displayName": "Harris Teeter"
                     }
                 }
             ]
@@ -1291,15 +1263,14 @@ parameter ```q```. Paginate with the ```page``` parameter.
                         "quantity": 3,
                         "originalPrice": 15,
                         "discountedPrice": 7.5,
-                        "priceUnit": "lb",
+                        "unit": "lb",
                         "posted": 1456932600,
                         "expirationDate": 1457191800
                     },
                     "product": {
                         "productId": 1,
                         "displayName": "Pork tenderloin",
-                        "foodType": "meat",
-                        "thumbnail": "/static/images/products/p01.jpg"
+                        "foodType": "meat"
                     },
                     "store": {
                         "storeId": 1,
@@ -1313,8 +1284,7 @@ parameter ```q```. Paginate with the ```page``` parameter.
                     },
                     "chain": {
                         "chainId": 1,
-                        "displayName": "Harris Teeter",
-                        "thumbnail": "/static/images/chains/1.jpg"
+                        "displayName": "Harris Teeter"
                     }
                 },
                 {
@@ -1323,15 +1293,14 @@ parameter ```q```. Paginate with the ```page``` parameter.
                         "quantity": 11,
                         "originalPrice": 1,
                         "discountedPrice": 0.6,
-                        "priceUnit": "lb",
+                        "unit": "lb",
                         "posted": 1456954200,
                         "expirationDate": 1457191800
                     },
                     "product": {
                         "productId": 2,
                         "displayName": "Lemons",
-                        "foodType": "produce",
-                        "thumbnail": "/static/images/products/2.jpg"
+                        "foodType": "produce"
                     },
                     "store": {
                         "storeId": 1,
@@ -1341,13 +1310,12 @@ parameter ```q```. Paginate with the ```page``` parameter.
                         "state": "NC",
                         "zipCode": "27605",
                         "latitude": 35.7889461,
-                        "longitude": -78.6623816
+                        "longitude": -78.6623816,
                         "discounts": 24
                     },
                     "chain": {
                         "chainId": 1,
-                        "displayName": "Harris Teeter",
-                        "thumbnail": "/static/images/chains/1.jpg"
+                        "displayName": "Harris Teeter"
                     }
                 },
                 {
@@ -1356,15 +1324,14 @@ parameter ```q```. Paginate with the ```page``` parameter.
                         "quantity": 4,
                         "originalPrice": 5.5,
                         "discountedPrice": 3.5,
-                        "priceUnit": "box",
+                        "unit": "box",
                         "posted": 1457028000,
                         "expirationDate": 1457352000
                     },
                     "product": {
                         "productId": 3,
                         "displayName": "1doz Chocolate Doughnuts",
-                        "foodType": "bakery",
-                        "thumbnail": "/static/images/products/3.jpg"
+                        "foodType": "bakery"
                     },
                     "store": {
                         "storeId": 1,
@@ -1378,8 +1345,7 @@ parameter ```q```. Paginate with the ```page``` parameter.
                     },
                     "chain": {
                         "chainId": 1,
-                        "displayName": "Harris Teeter",
-                        "thumbnail": "/static/images/chains/1.jpg"
+                        "displayName": "Harris Teeter"
                     }
                 },
                 {
@@ -1388,15 +1354,14 @@ parameter ```q```. Paginate with the ```page``` parameter.
                         "quantity": 1,
                         "originalPrice": 5.25,
                         "discountedPrice": 3.14,
-                        "priceUnit": "pkg",
+                        "unit": "pkg",
                         "posted": 1457100000,
                         "expirationDate": 1457193600
                     },
                     "product": {
                         "productId": 4,
                         "displayName": "Organic pork sausages",
-                        "foodType": "meat",
-                        "thumbnail": "/static/images/products/4.jpg"
+                        "foodType": "meat"
                     },
                     "store": {
                         "storeId": 1,
@@ -1410,8 +1375,7 @@ parameter ```q```. Paginate with the ```page``` parameter.
                     },
                     "chain": {
                         "chainId": 1,
-                        "displayName": "Harris Teeter",
-                        "thumbnail": "/static/images/chains/1.jpg"
+                        "displayName": "Harris Teeter"
                     }
                 }
             ]
@@ -1438,15 +1402,17 @@ parameter ```q```. Paginate with the ```page``` parameter.
             "message": "Store with ID <storeId> not found"
         }
 
-### POST Add single discount to specific store [POST]
-Posts a new discount to the store with ID ```storeId```. ```productId```, ```originalPrice```,
-```discountedPrice```, and ```expirationDate``` must be included as JSON parameters in the request body.
+### POST Add discount to specific store [POST]
+Posts a new discount to the store with ID `storeId`. Discount-related data fields must be included
+as JSON parameters in the request body.
 
 + Request
     + Attributes
-        + productId:        1           (number, required)    - The ID of the product being discounted.
+        + productId:        1           (number, required) - The ID of the product being discounted.
         + originalPrice:    15          (number, required) - The original price of the product
         + discountedPrice:  7.5         (number, required) - The discounted price of the product
+        + unit:             lb          (string, required) - The unit in "price per {unit}". lb, box, bag, carton, etc.
+        + quantity:         4           (number, required) - The number of items available on discount
         + expirationDate:   1457191800  (number, required) - The UNIX timestamp of the expiration date.
     + Headers
 
@@ -1456,7 +1422,15 @@ Posts a new discount to the store with ID ```storeId```. ```productId```, ```ori
 
         {
             "status": "200",
-            "message": "New discount posted"
+            "discount": {
+                "discountId": 4,
+                "quantity": 1,
+                "originalPrice": 5.25,
+                "discountedPrice": 3.14,
+                "unit": "pkg",
+                "posted": 1457100000,
+                "expirationDate": 1457193600
+            }
         }
 
 + Response 400 (application/json)
@@ -1488,23 +1462,47 @@ A product object has the following structure:
  * **chainId** (int): ID of the chain this product belongs to. **Example:** *4*
  * **displayName** (string): String display name. **Example:** *"Lemons"*
  * **foodType** (string): Food type the product classifies as. **Example:** *"meat"*
- * **thumbnail** (string): URL of the thumbnail for the product. **Example:** *"/static/images/products/11.jpg"*
+
+The thumbnail can be retrieved from `/products/thumbnails/{productId}`.
 
 ## Create a product [/products/create]
 
 Creates a new product from the request parameters and returns the created product object.
 
-Include ```displayName```, ```foodType```, and ```chainId``` in the request body.
-
-**TODO:** Figure out how to upload product thumbnail
+Include `displayName`, `foodType`, `chainId`, and `thumbnail` as `form-data` fields in the request body.
 
 ### POST Create a new product [POST]
 
-+ Request (application/json)
-    + Attributes
-        + displayName: ```Lemons``` (string, required) - The string display name of the product
-        + foodType: 1234567890      (string, required) - The food type the product is classified as
-        + chainId: 2                (number, required) - The ID of the chain the product is associated with
++ Request (multipart/form-data; boundary=-----BOUNDARY)
+    + Headers
+
+            Authorization: YOUR_API_KEY
+
+    + Body
+
+            -------BOUNDARY
+            Content-Disposition: form-data; name="image[file]"; filename="image.jpg"
+            Content-Type: image/jpeg
+            Content-Transfer-Encoding: base64
+
+            (base64 encoded image data)
+            -------BOUNDARY
+            Content-Disposition: form-data; name="displayName"
+            Content-Type: text/plain
+
+            Lemons
+            -------BOUNDARY
+            Content-Disposition: form-data; name="foodType"
+            Content-Type: text/plain
+
+            produce
+            -------BOUNDARY
+            Content-Disposition: form-data; name="chainId"
+            Content-Type: text/plain
+
+            3
+            -------BOUNDARY--
+
 
 + Response 201 (application/json)
 
@@ -1512,7 +1510,6 @@ Include ```displayName```, ```foodType```, and ```chainId``` in the request body
             "productId": 2,
             "displayName": "Lemons",
             "foodType": "produce",
-            "thumbnail": "/static/images/products/2.jpg"
         }
 
 + Response 400 (application/json)
@@ -1539,6 +1536,7 @@ Returns the product object associated with given product ID.
     + productId: 1 (number, required) - The unique ID of the product
 
 + Request
+
     + Headers
 
             Authorization: YOUR_API_KEY
@@ -1548,8 +1546,7 @@ Returns the product object associated with given product ID.
         {
             "productId": 2,
             "displayName": "Lemons",
-            "foodType": "produce",
-            "thumbnail": "/static/images/products/2.jpg"
+            "foodType": "produce"
         }
 
 + Response 400 (application/json)
@@ -1573,15 +1570,14 @@ Returns the product object associated with given product ID.
             "message": "Product with ID <productId> not found"
         }
 
-# Group Static Content
-
-## Product thumbnails [/static/images/products/{productId}]
+## Product thumbnails [/products/thumbnails/{productId}]
 
 + Parameters
     + productId: 1 (number, required) - The unique ID of the product
 
 ### GET Thumbnail for a particular product [GET]
-Returns the JPG thumbnail for a particular product, specified in the URL by the product ID.
+Returns the thumbnail for a particular product, specified in the URL by the product ID. Image is
+returned as `image/jpg` in the response body.
 
 + Request
     + Headers
@@ -1609,69 +1605,6 @@ Returns the JPG thumbnail for a particular product, specified in the URL by the 
         {
             "status": "404",
             "message": "Product with ID <productId> not found"
-        }
-
-### POST Create thumbnail for particular product [POST]
-TODO figure out how this call would work.
-
-+ Request (image/jpg)
-
-+ Response 200 (application/json)
-
-        {
-            "status": "400",
-            "message": "Image uploaded"
-        }
-
-## Chain thumbnails [/static/images/chains/{chainId}]
-
-+ Parameters
-    + chainId:      45              (number, required) - The unique ID of the product
-
-### GET Thumbnail for a particular chain [GET]
-Returns the JPG thumbnail for a particular chain, specified in the URL by the chain ID.
-
-+ Request
-    + Headers
-
-            Authorization: YOUR_API_KEY
-
-+ Response 200 (image/jpg)
-
-+ Response 400 (application/json)
-
-        {
-            "status": "400",
-            "message": "Bad request - are the parameters formatted correctly?"
-        }
-
-+ Response 401 (application/json)
-
-        {
-            "status": "401",
-            "message": "Unauthenticated"
-        }
-
-+ Response 404 (application/json)
-
-        {
-            "status": "404",
-            "message": "Chain with ID <chainId> not found"
-        }
-
-### POST Create thumbnail for particular product [POST]
-TODO figure out how this call would work.
-
-+ Request (image/jpg)
-    + Headers
-
-            Authorization: YOUR_API_KEY
-
-+ Response 200 (application/json)
-
-        {
-            "status": "200",
-            "message": "Image uploaded"
         }
 
 # Group System Status
