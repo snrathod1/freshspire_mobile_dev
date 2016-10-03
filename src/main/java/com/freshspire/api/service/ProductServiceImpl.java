@@ -14,7 +14,8 @@ import java.util.List;
 @Service
 public class ProductServiceImpl implements ProductService {
 
-    private static final String THUMBNAIL_BASE_URI = "src/main/webapp/WEB-INF/static/images/products";
+    private static final String STATIC_CONTENT_BASE_URI = "src/main/webapp/WEB-INF/static";
+    private static final String PRODUCTS_URI = "/images/products";
     private static final String THUMBNAIL_EXTENSION = "jpg";
 
     private ProductDAO productDAO;
@@ -61,11 +62,19 @@ public class ProductServiceImpl implements ProductService {
                 || foodType.equals("bakery");
     }
 
+    /**
+     * Saves thumbnail in static content directory. Returns relative path of static image resource.
+     * @param chainId The ID of the chain the thumbnail belongs to
+     * @param thumbnailData Multipart image data
+     * @return The relative URI of the static image resource, relative to /static
+     * @throws IOException
+     */
     @Override
     public synchronized String saveThumbnail(int chainId, MultipartFile thumbnailData) throws IOException {
-        // Generate thumbnail file path
-        String thumbnailFilePath = String.format("%s/%d/%d.%s", THUMBNAIL_BASE_URI, chainId,
+        String relativePath = String.format("%s/%d/%d.%s", PRODUCTS_URI, chainId,
                 System.currentTimeMillis(), THUMBNAIL_EXTENSION);
+        // Generate thumbnail file path
+        String thumbnailFilePath = String.format("%s%s", STATIC_CONTENT_BASE_URI, relativePath);
 
         // Create stub thumbnail file on the server
         File thumbnailFile = new File(thumbnailFilePath);
@@ -76,7 +85,7 @@ public class ProductServiceImpl implements ProductService {
         // Write thumbnail data to the stub file
         thumbnailData.transferTo(thumbnailFile);
 
-        // Return the absolute location of the thumbnail image file
-        return thumbnailFilePath;
+        // Return the location of the thumbnail image file relative
+        return relativePath;
     }
 }
