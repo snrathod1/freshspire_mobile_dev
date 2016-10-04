@@ -5,14 +5,16 @@ import com.freshspire.api.model.Discount;
 import com.freshspire.api.model.Product;
 import com.freshspire.api.model.Store;
 import com.google.common.base.Strings;
+import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.type.DoubleType;
+import org.hibernate.type.IntegerType;
+import org.hibernate.type.LongType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.TransactionSystemException;
 
-import java.sql.SQLException;
 import java.util.List;
 
 public class DiscountDAOImpl implements DiscountDAO {
@@ -43,7 +45,28 @@ public class DiscountDAOImpl implements DiscountDAO {
             List<String> chains) {
         Session session = getCurrentSession();
         StringBuilder queryString = new StringBuilder();
-        queryString.append("SELECT *, ( 3959 * acos( cos( radians( "
+        queryString.append("SELECT discount.discountId,"
+                + "discount.storeId,"
+                + "discount.productId,"
+                + "discount.posted,"
+                + "discount.expirationDate,"
+                + "discount.originalPrice,"
+                + "discount.discountedPrice,"
+                + "discount.quantity,"
+                + "discount.unit,"
+                + "stores.displayName AS storeName,"
+                + "stores.street,"
+                + "stores.city,"
+                + "stores.state,"
+                + "stores.zipCode,"
+                + "stores.latitude,"
+                + "stores.longitude,"
+                + "product.displayName AS productName,"
+                + "product.foodType,"
+                + "product.thumbnail AS productThumb,"
+                + "chains.displayName AS chainName,"
+                + "chains.chainId,"
+                + "( 3959 * acos( cos( radians( "
                 + latitude
                 + ") ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians("
                 + longitude + ") ) + sin( radians( "
@@ -100,14 +123,33 @@ public class DiscountDAOImpl implements DiscountDAO {
         }
 
         queryString.append(" HAVING distance < " + within  + " ORDER BY distance;");
-        System.out.println("query: ");
-        System.out.println(queryString.toString());
+        // This is a hacky way of doing things. Rewrite the queryString, maybe as a HQL string, in a way that's alias-
+        // friendly. The reason for all these addScalar()s is because multiple tables have a displayName column, so we
+        // must manually map the result set to the desired objects.
         Query query = session.createSQLQuery(queryString.toString())
-                .addEntity(Discount.class)
-                .addEntity(Store.class)
-                .addEntity(Product.class)
-                .addEntity(Chain.class)
+                .addScalar("discountId")
+                .addScalar("storeId")
+                .addScalar("productId")
+                .addScalar("posted")
+                .addScalar("expirationDate")
+                .addScalar("originalPrice")
+                .addScalar("discountedPrice")
+                .addScalar("quantity")
+                .addScalar("unit")
+                .addScalar("storeName")
+                .addScalar("street")
+                .addScalar("city")
+                .addScalar("state")
+                .addScalar("zipCode")
+                .addScalar("latitude", new DoubleType())
+                .addScalar("longitude", new DoubleType())
+                .addScalar("productName")
+                .addScalar("foodType")
+                .addScalar("productThumb")
+                .addScalar("chainName")
+                .addScalar("chainId")
                 .addScalar("distance");
+        query.setResultTransformer(new DiscountSearchResultTransformer());
         return query.list();
     }
 
