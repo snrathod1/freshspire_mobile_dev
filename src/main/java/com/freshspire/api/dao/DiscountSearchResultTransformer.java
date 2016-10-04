@@ -4,7 +4,6 @@ import com.freshspire.api.model.Chain;
 import com.freshspire.api.model.Discount;
 import com.freshspire.api.model.Product;
 import com.freshspire.api.model.Store;
-import com.freshspire.api.model.response.DiscountData;
 import org.hibernate.transform.ResultTransformer;
 
 import java.math.BigDecimal;

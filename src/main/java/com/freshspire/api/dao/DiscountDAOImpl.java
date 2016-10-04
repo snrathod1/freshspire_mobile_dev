@@ -87,18 +87,18 @@ public class DiscountDAOImpl implements DiscountDAO {
             boolean andFlag = false;
 
             if (!isEmptyParam) {
-                whereClause.append(" product.displayName like '%" + queryParam + "%'");
+                whereClause.append(" (product.displayName like '%" + queryParam + "%')");
                 andFlag = true;
             }
 
             if (!isEmptyFoodTypes) {
                 if (andFlag) {
-                    whereClause.append(" and");
+                    whereClause.append(" and (");
                 }
                 for(int i = 0; i < foodTypes.size(); i++) {
                     // don't append the OR to the last foodType
                     if(i == foodTypes.size() - 1) {
-                        whereClause.append(" product.foodType like '%" + foodTypes.get(i) + "%'");
+                        whereClause.append(" product.foodType like '%" + foodTypes.get(i) + "%')");
                     } else {
                         whereClause.append(" product.foodType like '%" + foodTypes.get(i) + "%' or");
                     }
@@ -108,12 +108,12 @@ public class DiscountDAOImpl implements DiscountDAO {
 
             if (!isEmptyChain) {
                 if (andFlag) {
-                    whereClause.append(" and");
+                    whereClause.append(" and (");
                 }
                 for(int i = 0; i < chains.size(); i++) {
                     // don't append OR to the last chain
                     if(i == chains.size() - 1) {
-                        whereClause.append(" chains.chainId = " + chains.get(i));
+                        whereClause.append(" chains.chainId = " + chains.get(i) + ")");
                     } else {
                         whereClause.append(" chains.chainId = " + chains.get(i) + " or");
                     }
@@ -123,6 +123,7 @@ public class DiscountDAOImpl implements DiscountDAO {
         }
 
         queryString.append(" HAVING distance < " + within  + " ORDER BY distance;");
+        System.out.println("query: " + queryString.toString());
         // This is a hacky way of doing things. Rewrite the queryString, maybe as a HQL string, in a way that's alias-
         // friendly. The reason for all these addScalar()s is because multiple tables have a displayName column, so we
         // must manually map the result set to the desired objects.
