@@ -94,6 +94,8 @@ public class DiscountDAOImpl implements DiscountDAO {
             if (!isEmptyFoodTypes) {
                 if (andFlag) {
                     whereClause.append(" and (");
+                } else {
+                    whereClause.append(" (");
                 }
                 for(int i = 0; i < foodTypes.size(); i++) {
                     // don't append the OR to the last foodType
@@ -109,6 +111,8 @@ public class DiscountDAOImpl implements DiscountDAO {
             if (!isEmptyChain) {
                 if (andFlag) {
                     whereClause.append(" and (");
+                } else {
+                    whereClause.append(" (");
                 }
                 for(int i = 0; i < chains.size(); i++) {
                     // don't append OR to the last chain
